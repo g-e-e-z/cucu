@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"math"
 
 	"github.com/jroimartin/gocui"
 )
@@ -30,19 +29,19 @@ func layout(g *gocui.Gui) error {
 	maxX, maxY := g.Size()
 	maxX -= 1
 	maxY -= 1
-	if v, err := g.SetView("sidebar", 0, 0, int(math.Floor(.2 * float64(maxX))), maxY); err != nil {
+	if v, err := g.SetView("sidebar", 0, 0, maxX/5, maxY); err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
 		fmt.Fprintln(v, "Requests")
 	}
-	if v, err := g.SetView("request", 1+int(math.Floor(.2 * float64(maxX))), 0, int(math.Floor(.6 * float64(maxX))), maxY); err != nil {
+	if v, err := g.SetView("request", 1+maxX/5, 0, 2*maxX/3, maxY); err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
 		fmt.Fprintln(v, "Request")
 	}
-	if v, err := g.SetView("response", 1+int(math.Floor(.6 * float64(maxX))), 0, maxX, maxY); err != nil {
+	if v, err := g.SetView("response", 1+2*maxX/3, 0, maxX, maxY); err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
