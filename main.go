@@ -10,10 +10,10 @@ import (
 
 func main() {
     app, err := app.NewApp()
-    if err != nil {
-		log.Panicln(err)
+	if err == nil {
+		err = app.Run()
 	}
-	defer app.Gui.Close()
+	app.Close()
 
 	app.Gui.SetManagerFunc(layout)
 
