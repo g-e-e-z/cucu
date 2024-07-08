@@ -1,10 +1,13 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
+	"github.com/g-e-e-z/cucu/config"
 	"github.com/jroimartin/gocui"
 )
 
@@ -13,6 +16,7 @@ const VERSION = "0.0.1"
 type App struct {
 	viewIndex    int
 	currentPopup string
+	config       *config.Config
 }
 
 func (a *App) setView(g *gocui.Gui) error {
@@ -56,7 +60,6 @@ var VIEWS = []string{
 	REQUESTS_VIEW,
 	PARAMS_VIEW,
 	RESPONSE_VIEW,
-	ERROR_VIEW,
 }
 
 type position struct {
@@ -95,35 +98,39 @@ var VIEW_POSITIONS = map[string]viewPosition{
 }
 
 type viewProperties struct {
-	title    string
-	frame    bool
-	editable bool
-	wrap     bool
-	editor   gocui.Editor
-	text     string
+	title     string
+	frame     bool
+	editable  bool
+	wrap      bool
+	highlight bool
+	editor    gocui.Editor
+	text      string
 }
 
 var VIEW_PROPERTIES = map[string]viewProperties{
 	REQUESTS_VIEW: {
-		title:    "Requests",
-		frame:    true,
-		editable: true,
-		wrap:     false,
-		editor:   defaultEditor.origEditor,
+		title:     "Requests",
+		frame:     true,
+		editable:  true,
+		wrap:      false,
+		highlight: true,
+		editor:    defaultEditor.origEditor,
 	},
 	PARAMS_VIEW: {
-		title:    "Request Params",
-		frame:    true,
-		editable: true,
-		wrap:     false,
-		editor:   nil,
+		title:     "Params", // When title is Requeset Params, the space is an m
+		frame:     true,
+		editable:  true,
+		wrap:      false,
+		highlight: true,
+		editor:    nil,
 	},
 	RESPONSE_VIEW: {
-		title:    "Response",
-		frame:    true,
-		editable: true,
-		wrap:     false,
-		editor:   nil,
+		title:     "Response",
+		frame:     true,
+		editable:  true,
+		wrap:      false,
+		highlight: true,
+		editor:    nil,
 	},
 }
 
@@ -132,6 +139,7 @@ func initApp(a *App, g *gocui.Gui) {
 	g.InputEsc = false
 	g.BgColor = gocui.ColorDefault
 	g.FgColor = gocui.ColorDefault
+	g.SelFgColor = gocui.ColorGreen
 	g.SetManagerFunc(a.Layout)
 }
 
@@ -170,26 +178,27 @@ func setViewDefaults(v *gocui.View) {
 }
 
 func (a *App) LoadConfig(configPath string) error {
-	// if configPath == "" {
-	// 	// Load config from default path
-	// 	configPath = config.GetDefaultConfigLocation()
-	// }
-	//
-	// // If the config file doesn't exist, load the default config
-	// if _, err := os.Stat(configPath); os.IsNotExist(err) {
-	// 	a.config = &config.DefaultConfig
-	// 	a.config.Keys = config.DefaultKeys
-	// 	a.statusLine, _ = NewStatusLine(a.config.General.StatusLine)
-	// 	return nil
-	// }
-	//
-	// conf, err := config.LoadConfig(configPath)
-	// if err != nil {
-	// 	a.config = &config.DefaultConfig
-	// 	a.config.Keys = config.DefaultKeys
-	// 	return err
-	// }
-	//
+	if configPath == "" {
+		// Load config from default path
+		configPath = config.GetDefaultConfigLocation()
+	}
+
+	// If the config file doesn't exist, load the default config
+	if _, err := os.Stat(configPath); os.IsNotExist(err) {
+		a.config = &config.DefaultConfig
+		a.config.Keys = config.DefaultKeys
+		// a.statusLine, _ = NewStatusLine(a.config.General.StatusLine)
+		return nil
+	}
+
+	// XXX: Add conf back when creating non default config
+	_, err := config.LoadConfig(configPath)
+	if err != nil {
+		a.config = &config.DefaultConfig
+		a.config.Keys = config.DefaultKeys
+		return err
+	}
+
 	// a.config = conf
 	// sl, err := NewStatusLine(conf.General.StatusLine)
 	// if err != nil {
@@ -201,9 +210,82 @@ func (a *App) LoadConfig(configPath string) error {
 	return nil
 }
 
+func (a *App) SetKeys(g *gocui.Gui) error {
+	// load config keybindings
+	for viewName, keys := range a.config.Keys {
+		if viewName == "global" {
+			viewName = ALL_VIEWS
+		}
+		for keyStr, commandStr := range keys {
+			if err := a.setKey(g, keyStr, commandStr, viewName); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (a *App) NextView(g *gocui.Gui, v *gocui.View) error {
+	a.viewIndex = (a.viewIndex + 1) % len(VIEWS)
+	return a.setView(g)
+}
+
+func (a *App) PrevView(g *gocui.Gui, v *gocui.View) error {
+	a.viewIndex = (a.viewIndex - 1 + len(VIEWS)) % len(VIEWS)
+	return a.setView(g)
+}
+
+func parseKey(k string) (interface{}, gocui.Modifier, error) {
+	mod := gocui.ModNone
+	if strings.Index(k, "Alt") == 0 {
+		mod = gocui.ModAlt
+		k = k[3:]
+	}
+	switch len(k) {
+	case 0:
+		return 0, 0, errors.New("Empty key string")
+	case 1:
+		if mod != gocui.ModNone {
+			k = strings.ToLower(k)
+		}
+		return rune(k[0]), mod, nil
+	}
+
+	key, found := KEYS[k]
+	if !found {
+		return 0, 0, fmt.Errorf("Unknown key: %v", k)
+	}
+	return key, mod, nil
+}
+
+func (a *App) setKey(g *gocui.Gui, keyStr, commandStr, viewName string) error {
+	if commandStr == "" {
+		return nil
+	}
+	key, mod, err := parseKey(keyStr)
+	if err != nil {
+		return err
+	}
+	commandParts := strings.SplitN(commandStr, " ", 2)
+	command := commandParts[0]
+	var commandArgs string
+	if len(commandParts) == 2 {
+		commandArgs = commandParts[1]
+	}
+	keyFnGen, found := COMMANDS[command]
+	if !found {
+		return fmt.Errorf("Unknown command: %v", command)
+	}
+	keyFn := keyFnGen(commandArgs, a)
+	if err := g.SetKeybinding(viewName, key, mod, keyFn); err != nil {
+		return fmt.Errorf("Failed to set key '%v': %v", keyStr, err)
+	}
+	return nil
+}
 
 func (a *App) Layout(g *gocui.Gui) error {
 	maxX, maxY := g.Size()
+	g.Highlight = true
 
 	if maxX < MIN_WIDTH || maxY < MIN_HEIGHT {
 		if v, err := setView(g, ERROR_VIEW); err != nil {
@@ -247,6 +329,7 @@ func (a *App) Layout(g *gocui.Gui) error {
 			setViewProperties(v, name)
 		}
 	}
+	g.SetCurrentView(VIEWS[a.viewIndex])
 	// refreshStatusLine(a, g)
 
 	return nil
@@ -264,7 +347,6 @@ Key bindings:
   I'm working on it! :(`,
 	)
 }
-
 
 func main() {
 	configPath := ""
@@ -297,7 +379,9 @@ func main() {
 	if err != nil {
 		log.Panicln(err)
 	}
-	app := &App{}
+	app := &App{
+		viewIndex: 0,
+	}
 
 	// overwrite default editor
 	defaultEditor = ViewEditor{app, g, false, gocui.DefaultEditor}
@@ -315,22 +399,20 @@ func main() {
 		log.Fatalf("Error loading config file: %v", err)
 	}
 
-    fmt.Println(args)
+	fmt.Println(args)
 	// err = app.ParseArgs(g, args)
 
 	// Some of the values in the config need to have some startup
 	// behavior associated with them. This is run after ParseArgs so
 	// that command-line arguments can override configuration values.
 	// app.InitConfig()
+	// if err != nil {
+	// 	g.Close()
+	// 	fmt.Println("Error!", err)
+	// 	os.Exit(1)
+	// }
 
-	if err != nil {
-		g.Close()
-		fmt.Println("Error!", err)
-		os.Exit(1)
-	}
-
-	// err = app.SetKeys(g)
-
+	err = app.SetKeys(g)
 	if err != nil {
 		g.Close()
 		fmt.Println("Error!", err)
@@ -339,15 +421,7 @@ func main() {
 
 	defer g.Close()
 
-	// Temporary Keybinding to exit
-	if err := g.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, quit); err != nil {
-		log.Panicln(err)
-	}
-
 	if err := g.MainLoop(); err != nil && err != gocui.ErrQuit {
 		log.Panicln(err)
 	}
-}
-func quit(g *gocui.Gui, v *gocui.View) error {
-	return gocui.ErrQuit
 }
