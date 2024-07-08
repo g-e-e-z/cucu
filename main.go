@@ -8,6 +8,8 @@ import (
 	"github.com/jroimartin/gocui"
 )
 
+const VERSION = "0.0.1"
+
 type App struct {
 	viewIndex    int
 	currentPopup string
@@ -167,6 +169,39 @@ func setViewDefaults(v *gocui.View) {
 	v.Wrap = false
 }
 
+func (a *App) LoadConfig(configPath string) error {
+	// if configPath == "" {
+	// 	// Load config from default path
+	// 	configPath = config.GetDefaultConfigLocation()
+	// }
+	//
+	// // If the config file doesn't exist, load the default config
+	// if _, err := os.Stat(configPath); os.IsNotExist(err) {
+	// 	a.config = &config.DefaultConfig
+	// 	a.config.Keys = config.DefaultKeys
+	// 	a.statusLine, _ = NewStatusLine(a.config.General.StatusLine)
+	// 	return nil
+	// }
+	//
+	// conf, err := config.LoadConfig(configPath)
+	// if err != nil {
+	// 	a.config = &config.DefaultConfig
+	// 	a.config.Keys = config.DefaultKeys
+	// 	return err
+	// }
+	//
+	// a.config = conf
+	// sl, err := NewStatusLine(conf.General.StatusLine)
+	// if err != nil {
+	// 	a.config = &config.DefaultConfig
+	// 	a.config.Keys = config.DefaultKeys
+	// 	return err
+	// }
+	// a.statusLine = sl
+	return nil
+}
+
+
 func (a *App) Layout(g *gocui.Gui) error {
 	maxX, maxY := g.Size()
 
@@ -217,7 +252,40 @@ func (a *App) Layout(g *gocui.Gui) error {
 	return nil
 }
 
+func help() {
+	fmt.Println(`cucu - Interactive cli tool for http requests
+
+Usage: cucu
+
+Other command line options:
+  -c, --config PATH        Specify custom configuration file
+
+Key bindings:
+  I'm working on it! :(`,
+	)
+}
+
+
 func main() {
+	configPath := ""
+	args := os.Args
+	for i, arg := range os.Args {
+		switch arg {
+		case "-h", "--help":
+			help()
+			return
+		case "-v", "--version":
+			fmt.Printf("cucu %v\n", VERSION)
+			return
+		case "-c", "--config":
+			configPath = os.Args[i+1]
+			args = append(os.Args[:i], os.Args[i+2:]...)
+			if _, err := os.Stat(configPath); os.IsNotExist(err) {
+				log.Fatal("Config file specified but does not exist: \"" + configPath + "\"")
+			}
+		}
+	}
+
 	var g *gocui.Gui
 	var err error
 	for _, outputMode := range []gocui.OutputMode{gocui.Output256, gocui.OutputNormal} {
@@ -241,12 +309,13 @@ func main() {
 	// to LoadConfig results in LoadConfig loading the default config
 	// location. If there is no config, the values in
 	// config.DefaultConfig will be used.
-	// err = app.LoadConfig(configPath)
-	// if err != nil {
-	// 	g.Close()
-	// 	log.Fatalf("Error loading config file: %v", err)
-	// }
-	//
+	err = app.LoadConfig(configPath)
+	if err != nil {
+		g.Close()
+		log.Fatalf("Error loading config file: %v", err)
+	}
+
+    fmt.Println(args)
 	// err = app.ParseArgs(g, args)
 
 	// Some of the values in the config need to have some startup
@@ -270,8 +339,8 @@ func main() {
 
 	defer g.Close()
 
-    // Temporary Keybinding to exit
-    if err := g.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, quit); err != nil {
+	// Temporary Keybinding to exit
+	if err := g.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, quit); err != nil {
 		log.Panicln(err)
 	}
 
