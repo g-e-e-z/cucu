@@ -43,19 +43,12 @@ const (
 	ALL_VIEWS = ""
 
 	REQUESTS_VIEW = "requests"
-	PARAMS_VIEW   = "params"
+	PARAMS_VIEW   = "request_params"
 	RESPONSE_VIEW = "response"
 
 	ERROR_VIEW = "error_view"
 )
 
-var VIEW_TITLES = map[string]string{
-	REQUESTS_VIEW: "Requests",
-	PARAMS_VIEW:   "Request Params",
-	RESPONSE_VIEW: "Response",
-
-	ERROR_VIEW: "Error",
-}
 var VIEWS = []string{
 	REQUESTS_VIEW,
 	PARAMS_VIEW,
@@ -117,7 +110,7 @@ var VIEW_PROPERTIES = map[string]viewProperties{
 		editor:    defaultEditor.origEditor,
 	},
 	PARAMS_VIEW: {
-		title:     "Params", // When title is Requeset Params, the space is an m
+		title:     "Params", // When title is Request Params, the space is an m???
 		frame:     true,
 		editable:  true,
 		wrap:      false,
@@ -142,6 +135,15 @@ func initApp(a *App, g *gocui.Gui) {
 	g.SelFgColor = gocui.ColorGreen
 	g.SetManagerFunc(a.Layout)
 }
+
+func getViewValue(g *gocui.Gui, name string) string {
+	v, err := g.View(name)
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(v.Buffer())
+}
+
 
 func (p position) getCoordinate(max int) int {
 	return int(p.pct*float32(max)) + p.abs
@@ -293,7 +295,7 @@ func (a *App) Layout(g *gocui.Gui) error {
 				return err
 			}
 			setViewDefaults(v)
-			v.Title = VIEW_TITLES[ERROR_VIEW]
+			v.Title = "Error"
 			g.Cursor = false
 			fmt.Fprintln(v, "Terminal is too small")
 		}

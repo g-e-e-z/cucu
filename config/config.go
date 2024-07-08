@@ -8,6 +8,7 @@ import (
 	"github.com/BurntSushi/toml"
 	// "runtime"
 )
+
 type Config struct {
 	General GeneralOptions
 	Keys    map[string]map[string]string
@@ -26,6 +27,7 @@ type GeneralOptions struct {
 	// TLSVersionMin          uint16
 	// Timeout                Duration
 }
+
 var DefaultConfig = Config{
 	General: GeneralOptions{
 		DefaultURLScheme:       "https",
@@ -49,12 +51,16 @@ var DefaultKeys = map[string]map[string]string{
 		// "CtrlE": "saveRequest",
 		// "CtrlD": "deleteLine",
 		// "CtrlW": "deleteWord",
-		// "CtrlO": "openEditor",
+		"CtrlO": "openEditor",
 		// "CtrlT": "toggleContextSpecificSearch",
 		// "CtrlX": "clearHistory",
-		"Tab":   "nextView",
+		// "Tab":   "nextView",
 		"l": "nextView",
 		"h": "prevView",
+		"k": "scrollUp",
+		"j": "scrollDown",
+		// "k": "pageUp",
+		// "j": "pageDown",
 		// "AltH":  "history",
 		// "F2":    "focus url",
 		// "F3":    "focus get",
@@ -101,7 +107,6 @@ func LoadConfig(configFile string) (*Config, error) {
 	return &conf, nil
 }
 
-
 func GetDefaultConfigLocation() string {
 	var configFolderLocation string
 	// switch runtime.GOOS {
@@ -119,13 +124,12 @@ func GetDefaultConfigLocation() string {
 	// 	// On other platforms we just use $HOME/.wuzz
 	// 	configFolderLocation, _ = homedir.Expand("~/.wuzz/")
 	// }
-    xdgConfigHome := os.Getenv("XDG_CONFIG_HOME")
-    if xdgConfigHome != "" {
-        configFolderLocation = xdgConfigHome
-    } else {
-        configFolderLocation, _ = os.UserHomeDir()
-    }
+	xdgConfigHome := os.Getenv("XDG_CONFIG_HOME")
+	if xdgConfigHome != "" {
+		configFolderLocation = xdgConfigHome
+	} else {
+		configFolderLocation, _ = os.UserHomeDir()
+	}
 
 	return filepath.Join(configFolderLocation, "config.toml")
 }
-
