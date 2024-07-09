@@ -15,8 +15,24 @@ const VERSION = "0.0.1"
 
 type App struct {
 	viewIndex    int
+	reqIndex     int
 	currentPopup string
 	config       *config.Config
+	requests     []*Request
+}
+
+type Request struct {
+	Name   string
+	Url    string
+	Method string
+	// GetParams       string
+	// Data            string
+	// Headers         string
+	// ResponseHeaders string
+	// RawResponseBody []byte
+	// ContentType     string
+	// Duration        time.Duration
+	// Formatter       formatter.ResponseFormatter
 }
 
 func (a *App) setView(g *gocui.Gui) error {
@@ -144,7 +160,6 @@ func getViewValue(g *gocui.Gui, name string) string {
 	return strings.TrimSpace(v.Buffer())
 }
 
-
 func (p position) getCoordinate(max int) int {
 	return int(p.pct*float32(max)) + p.abs
 }
@@ -209,6 +224,38 @@ func (a *App) LoadConfig(configPath string) error {
 	// 	return err
 	// }
 	// a.statusLine = sl
+	return nil
+}
+
+func (a *App) LoadRequests(g *gocui.Gui) error {
+    v, err := g.View(REQUESTS_VIEW)
+    // Handle Error Better
+	if err != nil {
+		rv, _ := g.View(ERROR_VIEW)
+		rv.Clear()
+		fmt.Fprintf(rv, "Editor open error: %v", err)
+		return nil
+	}
+	a.requests = []*Request{
+		{
+			Name: "Vinyasa",
+            Url:  "localhost:3000/health",
+			Method: "GET",
+		},
+		{
+			Name: "Kanye",
+			Url:  "https://api.kanye.rest/",
+			Method: "GET",
+		},
+		{
+            Name: "Post Echo",
+			Url:  "https://httpbin.org/post",
+			Method: "POST",
+		},
+	}
+    v.Clear()
+    for _, rq := range a.requests {
+        fmt.Fprintln(v, rq.Name)}
 	return nil
 }
 
@@ -334,6 +381,8 @@ func (a *App) Layout(g *gocui.Gui) error {
 	g.SetCurrentView(VIEWS[a.viewIndex])
 	// refreshStatusLine(a, g)
 
+	a.LoadRequests(g) // Working on populating the requests
+
 	return nil
 }
 
@@ -352,7 +401,6 @@ Key bindings:
 
 func main() {
 	configPath := ""
-	args := os.Args
 	for i, arg := range os.Args {
 		switch arg {
 		case "-h", "--help":
@@ -363,7 +411,7 @@ func main() {
 			return
 		case "-c", "--config":
 			configPath = os.Args[i+1]
-			args = append(os.Args[:i], os.Args[i+2:]...)
+			// args := append(os.Args[:i], os.Args[i+2:]...)
 			if _, err := os.Stat(configPath); os.IsNotExist(err) {
 				log.Fatal("Config file specified but does not exist: \"" + configPath + "\"")
 			}
@@ -383,6 +431,8 @@ func main() {
 	}
 	app := &App{
 		viewIndex: 0,
+		reqIndex:  0,
+		requests:  make([]*Request, 0, 31),
 	}
 
 	// overwrite default editor
@@ -400,19 +450,6 @@ func main() {
 		g.Close()
 		log.Fatalf("Error loading config file: %v", err)
 	}
-
-	fmt.Println(args)
-	// err = app.ParseArgs(g, args)
-
-	// Some of the values in the config need to have some startup
-	// behavior associated with them. This is run after ParseArgs so
-	// that command-line arguments can override configuration values.
-	// app.InitConfig()
-	// if err != nil {
-	// 	g.Close()
-	// 	fmt.Println("Error!", err)
-	// 	os.Exit(1)
-	// }
 
 	err = app.SetKeys(g)
 	if err != nil {

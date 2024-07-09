@@ -31,7 +31,7 @@ type GeneralOptions struct {
 var DefaultConfig = Config{
 	General: GeneralOptions{
 		DefaultURLScheme:       "https",
-		Editor:                 "vim",
+		Editor:                 "nvim",
 		FollowRedirects:        true,
 		FormatJSON:             true,
 		Insecure:               false,
