@@ -10,19 +10,38 @@ const (
 	RESPONSE_VIEW = "response"
 )
 
+type position struct {
+	pct float32
+    abs int
+}
+
+func (p position) GetCoordinate(max int) int {
+	return int(p.pct*float32(max)) + p.abs
+}
+
+
 type viewPosition struct {
-	X0, Y0, X1, Y1 int
+	X0, Y0, X1, Y1 position
 }
 
 var VIEW_POSITIONS = map[string]viewPosition{
 	REQUESTS_VIEW: {
-		1, 1, 10, 10,
+        position{0.0, 0},
+        position{0.0, 0},
+        position{0.2, -1},
+        position{1.0, -1},
 	},
 	PARAMS_VIEW: {
-		10, 1, 20, 10,
+        position{0.2, 0},
+        position{0.0, 0},
+        position{0.6, -1},
+        position{1.0, -1},
 	},
 	RESPONSE_VIEW: {
-		20, 1, 30, 10,
+        position{0.6, 0},
+        position{0.0, 0},
+        position{1.0, -1},
+        position{1.0, -1},
 	},
 }
 

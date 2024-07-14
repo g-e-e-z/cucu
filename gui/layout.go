@@ -79,16 +79,16 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 			return view, err
 		}
 
-		// frameOffset := 1
-		// if view.Frame {
-		// 	frameOffset = 0
-		// }
+		frameOffset := 1
+		if view.Frame {
+			frameOffset = 0
+		}
 		_, err = g.SetView(
 			viewName,
-			viewPositionObj.X0, //-frameOffset,
-			viewPositionObj.Y0, //-frameOffset,
-			viewPositionObj.X1, //+frameOffset,
-			viewPositionObj.Y1, //+frameOffset,
+			viewPositionObj.X0.GetCoordinate(width)-frameOffset,
+			viewPositionObj.Y0.GetCoordinate(height)-frameOffset,
+			viewPositionObj.X1.GetCoordinate(width)+frameOffset,
+			viewPositionObj.Y1.GetCoordinate(height)+frameOffset,
 		)
 
 		return view, err
