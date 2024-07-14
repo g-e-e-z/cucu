@@ -107,7 +107,7 @@ func LoadConfig(configFile string) (*Config, error) {
 	return &conf, nil
 }
 
-func GetDefaultConfigLocation() string {
+func getDefaultConfigLocation() string {
 	var configFolderLocation string
 	// switch runtime.GOOS {
 	// case "linux":
@@ -133,3 +133,25 @@ func GetDefaultConfigLocation() string {
 
 	return filepath.Join(configFolderLocation, "config.toml")
 }
+//
+// AppConfig contains the base configuration fields required for lazydocker.
+type AppConfig struct {
+	Name        string `long:"name" env:"NAME" default:"lazydocker"`
+	ConfigPath   string
+	ProjectDir  string
+}
+
+func NewAppConfig(configPath string, projectDir string) (*AppConfig, error) {
+	if configPath == "" {
+		// Load config from default path
+		configPath = getDefaultConfigLocation()
+	}
+
+    appConfig := &AppConfig{
+    	Name:        "cucu",
+    	ConfigPath:  configPath,
+    	ProjectDir:  projectDir,
+    }
+	return appConfig, nil
+}
+
