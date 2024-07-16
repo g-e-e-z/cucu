@@ -1,7 +1,9 @@
 package gui
 
 import (
+	"github.com/g-e-e-z/cucu/commands"
 	"github.com/g-e-e-z/cucu/config"
+	"github.com/g-e-e-z/cucu/gui/panels"
 	"github.com/jroimartin/gocui"
 	// "github.com/g-e-e-z/cucu/commands"
 )
@@ -11,13 +13,24 @@ type Gui struct {
 	g      *gocui.Gui
 	Config *config.AppConfig
 	// Log      *logrus.Entry
-	// Commands *commands.Command
-	Views Views
+	OSCommands *commands.OSCommand
+	HttpCommands *commands.HttpCommand
+	Views    Views
+
+	Panels Panels
 }
 
-func NewGuiWrapper(config *config.AppConfig) *Gui {
+type Panels struct {
+	Requests *panels.ListPanel[*commands.Request]
+	Params   *panels.ListPanel[*commands.Params]
+	// Response *panels.ListPanel[*commands.Response]
+}
+
+func NewGuiWrapper(config *config.AppConfig, osCommands *commands.OSCommand, httpCommands *commands.HttpCommand) *Gui {
 	return &Gui{
-		Config: config,
+		Config:       config,
+		OSCommands:   osCommands,
+		HttpCommands: httpCommands,
 	}
 }
 
@@ -56,7 +69,7 @@ func (gui *Gui) Run() error {
 		}
 	}
 
-    // TODO: This
+	// TODO: This
 	// ctx, finish := context.WithCancel(context.Background())
 	// defer finish()
 
@@ -95,4 +108,3 @@ func (gui *Gui) scrollViewDown(_ *gocui.Gui, v *gocui.View) error {
 func (gui *Gui) initiallyFocusedViewName() string {
 	return "requests"
 }
-

@@ -26,23 +26,25 @@ Key bindings:
 }
 
 func main() {
-	configPath := ""
-	for i, arg := range os.Args {
-		switch arg {
-		case "-h", "--help":
-			help()
-			return
-		case "-v", "--version":
-			fmt.Printf("cucu %v\n", VERSION)
-			return
-		case "-c", "--config":
-			configPath = os.Args[i+1]
-			// args := append(os.Args[:i], os.Args[i+2:]...)
-			if _, err := os.Stat(configPath); os.IsNotExist(err) {
-				log.Fatal("Config file specified but does not exist: \"" + configPath + "\"")
-			}
-		}
-	}
+	// configDir := ""
+	// for i, arg := range os.Args {
+	// 	switch arg {
+	// 	case "-h", "--help":
+	// 		help()
+	// 		return
+	// 	case "-v", "--version":
+	// 		fmt.Printf("cucu %v\n", VERSION)
+	// 		return
+	// 	case "-c", "--config":
+	// 		configDir = os.Args[i+1]
+	// 		// args := append(os.Args[:i], os.Args[i+2:]...)
+	// 		if _, err := os.Stat(configDir); os.IsNotExist(err) {
+	// 			log.Fatal("Config file specified but does not exist: \"" + configDir + "\"")
+	// 		}
+	// 	}
+	// }
+    // Come back to this later and handle properly, NewAppConfig operates on configDir not Path
+    configDir := ""
 
     projectDir, err := os.Getwd()
 	if err != nil {
@@ -50,7 +52,7 @@ func main() {
 	}
 
 
-	appConfig, err := config.NewAppConfig(configPath, projectDir)
+	appConfig, err := config.NewAppConfig(configDir, projectDir)
 	if err != nil {
 		log.Fatal(err.Error())
 	}

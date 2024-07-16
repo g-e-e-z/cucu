@@ -7,20 +7,27 @@ import (
 )
 
 type App struct {
-	Config   *config.AppConfig
-	Commands *commands.Command
-	Gui      *gui.Gui
+	Config    *config.AppConfig
+	OSCommand *commands.OSCommand
+	HttpCommands *commands.HttpCommand
+	Gui          *gui.Gui
 }
 
 func NewApp(config *config.AppConfig) (*App, error) {
 	app := &App{
-		Config:   config,
-		Commands: &commands.Command{},
+		Config:       config,
+		HttpCommands: &commands.HttpCommand{},
 	}
-	// Curl/OS Commands?
+	var err error
+
+	app.OSCommand = commands.NewOSCommand(config)
+	app.HttpCommands, err = commands.NewHttpCommands(app.OSCommand, app.Config)
+	if err != nil {
+		return app, err
+	}
 
 	// Gui
-	app.Gui = gui.NewGuiWrapper(config)
+	app.Gui = gui.NewGuiWrapper(config, app.OSCommand, app.HttpCommands)
 
 	return app, nil
 }
