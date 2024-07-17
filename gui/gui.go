@@ -1,9 +1,10 @@
 package gui
 
 import (
+	"fmt"
+
 	"github.com/g-e-e-z/cucu/commands"
 	"github.com/g-e-e-z/cucu/config"
-	"github.com/g-e-e-z/cucu/gui/panels"
 	"github.com/jroimartin/gocui"
 	// "github.com/g-e-e-z/cucu/commands"
 )
@@ -13,17 +14,14 @@ type Gui struct {
 	g      *gocui.Gui
 	Config *config.AppConfig
 	// Log      *logrus.Entry
-	OSCommands *commands.OSCommand
+	OSCommands   *commands.OSCommand
 	HttpCommands *commands.HttpCommand
-	Views    Views
+	Views        Views
 
-	Panels Panels
+	//Panels  Panels
 }
 
 type Panels struct {
-	Requests *panels.ListPanel[*commands.Request]
-	Params   *panels.ListPanel[*commands.Params]
-	// Response *panels.ListPanel[*commands.Response]
 }
 
 func NewGuiWrapper(config *config.AppConfig, osCommands *commands.OSCommand, httpCommands *commands.HttpCommand) *Gui {
@@ -52,6 +50,18 @@ func (gui *Gui) Run() error {
 	if err := gui.createAllViews(); err != nil {
 		return err
 	}
+
+    requests, err := gui.OSCommands.GetRequests()
+    if err != nil {
+        return err
+    }
+
+	for _, req := range requests {
+        fmt.Fprintf(gui.Views.Requests, req.Name)
+        fmt.Fprintf(gui.Views.Requests, "\n")
+	}
+    fmt.Fprintf(gui.Views.Requests, fmt.Sprint(len(requests)))
+	// gui.setRequestsPanel()
 
 	if err = gui.keybindings(g); err != nil {
 		return err

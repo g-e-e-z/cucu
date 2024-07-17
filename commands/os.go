@@ -35,6 +35,18 @@ func NewOSCommand(config *config.AppConfig) *OSCommand {
 	}
 }
 
+// FileExists checks whether a file exists at the specified path
+func (c *OSCommand) FileExists(path string) (bool, error) {
+	if _, err := os.Stat(path); err != nil {
+		if os.IsNotExist(err) {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
+}
+
+
 func (c *OSCommand) RefreshRequests() ([]*Request, error) {
     requests, err := c.GetRequests()
     if err != nil {

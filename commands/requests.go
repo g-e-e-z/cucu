@@ -1,19 +1,20 @@
 package commands
 
-import "time"
+// import "time"
 
 // Request: A request object
 type Request struct {
-	Name            string
-	Url             string
-	Method          string
-	GetParams       string
-	Data            string
-	Headers         string
-	ResponseHeaders string
-	RawResponseBody []byte
-	ContentType     string
-	Duration        time.Duration
+	Name      string `json:"name"`
+	URL       string `json:"url"`
+	Method    string `json:"method"`
+	// GetParams struct  `json:"getParams"`
+	// Data            string `json:"data"`
+	// Headers         string `json:"headers"`
+	// ResponseHeaders string `json:"responseHeaders"`
+	// RawResponseBody byte `json:"rawResponseBody"`
+	// ContentType     string `json:"contentType"`
+	// Duration        string `json:"duration"`
+	// Duration        time.Duration
 	// Formatter       formatter.ResponseFormatter
 }
 

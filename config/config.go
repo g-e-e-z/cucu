@@ -36,7 +36,7 @@ func getDefaultConfigDir() string {
 		configFolderLocation, _ = os.UserHomeDir()
 	}
 
-	return configFolderLocation
+	return filepath.Join(configFolderLocation, "cucu")
 }
 
 func NewAppConfig(configDir string, projectDir string) (*AppConfig, error) {

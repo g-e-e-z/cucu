@@ -16,17 +16,15 @@ type App struct {
 func NewApp(config *config.AppConfig) (*App, error) {
 	app := &App{
 		Config:       config,
-		HttpCommands: &commands.HttpCommand{},
 	}
 	var err error
 
 	app.OSCommand = commands.NewOSCommand(config)
-	app.HttpCommands, err = commands.NewHttpCommands(app.OSCommand, app.Config)
+	app.HttpCommands, err = commands.NewHttpCommands(app.Config, app.OSCommand)
 	if err != nil {
 		return app, err
 	}
 
-	// Gui
 	app.Gui = gui.NewGuiWrapper(config, app.OSCommand, app.HttpCommands)
 
 	return app, nil
