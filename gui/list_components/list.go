@@ -41,6 +41,10 @@ func NewList[T comparable]() *ListComponent[T] {
 	return &ListComponent[T]{}
 }
 
+func (self *ListComponent[T]) GetView() *gocui.View {
+    return self.View
+}
+
 func (self *ListComponent[T]) SetItems(items []T) {
 	self.items = items
 	self.indices = make([]int, len(items))
