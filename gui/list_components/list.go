@@ -6,6 +6,7 @@ import (
 
 	"github.com/g-e-e-z/cucu/utils"
 	"github.com/jroimartin/gocui"
+	"github.com/samber/lo"
 )
 
 type IGui interface {
@@ -61,22 +62,11 @@ func (self *ListComponent[T]) GetItems() []T {
 	return result
 }
 
-// go get lo
-func Map[T any, R any](collection []T, iteratee func(T, int) R) []R {
-	result := make([]R, len(collection))
-
-	for i, item := range collection {
-		result[i] = iteratee(item, i)
-	}
-
-	return result
-}
 
 func (self *ListComponent[T]) RerenderList() error {
 	self.Gui.Update(func() error {
 		self.View.Clear()
-		// move to lo.Map after internet
-		table := Map(self.GetItems(), func(item T, index int) []string {
+		table := lo.Map(self.GetItems(), func(item T, index int) []string {
 			return self.GetRenderList(item)
 		})
 		renderedTable, err := utils.RenderComponent(table)
