@@ -8,6 +8,7 @@ import (
 // AppConfig contains the base configuration fields required for cucu.
 type AppConfig struct {
 	Name       string `long:"name" env:"NAME" default:"cucu"`
+	Debug      bool   `long:"debug" env:"DEBUG" default:"false"`
 	ConfigDir  string
 	ProjectDir string
 }
@@ -47,6 +48,7 @@ func NewAppConfig(configDir string, projectDir string) (*AppConfig, error) {
 
 	appConfig := &AppConfig{
 		Name:       "cucu",
+		Debug:      true,
 		ConfigDir:  configDir,
 		ProjectDir: projectDir,
 	}

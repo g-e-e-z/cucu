@@ -5,28 +5,29 @@ import (
 	"github.com/g-e-e-z/cucu/config"
 	lc "github.com/g-e-e-z/cucu/gui/list_components"
 	"github.com/jroimartin/gocui"
-	// "github.com/g-e-e-z/cucu/commands"
+	"github.com/sirupsen/logrus"
 )
 
 // Gui wraps the gocui Gui object which handles rendering and events
 type Gui struct {
-	g      *gocui.Gui
-	Config *config.AppConfig
-	// Log      *logrus.Entry
+	g            *gocui.Gui
+	Config       *config.AppConfig
+	Log          *logrus.Entry
 	OSCommands   *commands.OSCommand
 	HttpCommands *commands.HttpCommand
 	Views        Views
 
-    Components  Components
+	Components Components
 }
 
 type Components struct {
-    Requests *lc.ListComponent[*commands.Request]
+	Requests *lc.ListComponent[*commands.Request]
 }
 
-func NewGuiWrapper(config *config.AppConfig, osCommands *commands.OSCommand, httpCommands *commands.HttpCommand) *Gui {
+func NewGuiWrapper(log *logrus.Entry, config *config.AppConfig, osCommands *commands.OSCommand, httpCommands *commands.HttpCommand) *Gui {
 	return &Gui{
 		Config:       config,
+		Log:          log,
 		OSCommands:   osCommands,
 		HttpCommands: httpCommands,
 	}
@@ -51,7 +52,7 @@ func (gui *Gui) Run() error {
 		return err
 	}
 
-    gui.setInitialState()
+	gui.setInitialState()
 
 	if err = gui.keybindings(g); err != nil {
 		return err
@@ -81,9 +82,9 @@ func (gui *Gui) Run() error {
 }
 
 func (gui *Gui) setInitialState() {
-    gui.Components = Components{
-        Requests: gui.getRequestsComponent(),
-    }
+	gui.Components = Components{
+		Requests: gui.getRequestsComponent(),
+	}
 
 }
 
@@ -119,4 +120,3 @@ func (gui *Gui) initiallyFocusedViewName() string {
 func (gui *Gui) Update(f func() error) {
 	gui.g.Update(func(*gocui.Gui) error { return f() })
 }
-
