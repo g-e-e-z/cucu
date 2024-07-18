@@ -17,10 +17,7 @@ func RenderComponent(rows [][]string) (string, error) {
 	// paddedDisplayRows := getPaddedDisplayStrings(rows, columnPadWidths)
 	//
 	// return strings.Join(paddedDisplayRows, "\n"), nil
-    // [
-    //  [GET, RequestName1],
-    //  [GET, RequestName2]
-    // ]
+
     displayRows := make([]string, len(rows))
     for i := range rows {
         displayRows = append(displayRows, strings.Join(rows[i], " | "))

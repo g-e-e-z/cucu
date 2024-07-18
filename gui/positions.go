@@ -6,6 +6,7 @@ import (
 
 const (
 	REQUESTS_VIEW = "requests"
+	URL_VIEW = "url"
 	PARAMS_VIEW   = "params"
 	RESPONSE_VIEW = "response"
 )
@@ -26,22 +27,28 @@ type viewPosition struct {
 
 var VIEW_POSITIONS = map[string]viewPosition{
 	REQUESTS_VIEW: {
-        position{0.0, 0},
-        position{0.0, 0},
-        position{0.2, -1},
-        position{1.0, -1},
+        position{0.0, 0},   // X0
+        position{0.0, 0},   // Y0
+        position{0.2, -1},  // X1
+        position{1.0, -1},  // Y1
+	},
+	URL_VIEW: {
+        position{0.2, 0},   // X0
+        position{0.0, 0},   // Y0
+        position{1.0, -1},  // X1
+        position{0.1, -1},  // Y1
 	},
 	PARAMS_VIEW: {
-        position{0.2, 0},
-        position{0.0, 0},
-        position{0.6, -1},
-        position{1.0, -1},
+        position{0.2, 0},   // X0
+        position{0.1, 0},   // Y0
+        position{0.6, -1},  // X1
+        position{1.0, -1},  // Y1
 	},
 	RESPONSE_VIEW: {
-        position{0.6, 0},
-        position{0.0, 0},
-        position{1.0, -1},
-        position{1.0, -1},
+        position{0.6, 0},   // X0
+        position{0.1, 0},   // Y0
+        position{1.0, -1},  // X1
+        position{1.0, -1},  // Y1
 	},
 }
 

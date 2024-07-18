@@ -8,6 +8,7 @@ const UNKNOWN_VIEW_ERROR_MSG = "unknown view"
 
 type Views struct {
 	Requests *gocui.View
+	Url      *gocui.View
 	Params   *gocui.View
 	Response *gocui.View
 }
@@ -20,6 +21,7 @@ type viewNameMapping struct {
 func (gui *Gui) orderedViewNameMappings() []viewNameMapping {
 	return []viewNameMapping{
 		{viewPtr: &gui.Views.Requests, name: "requests"},
+		{viewPtr: &gui.Views.Url, name: "url"},
 		{viewPtr: &gui.Views.Params, name: "params"},
 		{viewPtr: &gui.Views.Response, name: "response"},
 	}
@@ -36,6 +38,9 @@ func (gui *Gui) createAllViews() error {
 	}
 	gui.Views.Requests.Highlight = true
 	gui.Views.Requests.Title = "Requests"
+
+	gui.Views.Url.Highlight = true
+	gui.Views.Url.Title = "Request Url"
 
 	gui.Views.Params.Highlight = true
 	gui.Views.Params.Title = "Params"
