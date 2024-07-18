@@ -1,42 +1,44 @@
 package gui
 
+import (
+	"github.com/g-e-e-z/cucu/commands"
+	lc "github.com/g-e-e-z/cucu/gui/list_components"
+)
 
-type RequestPanel struct {
-
+func GetRequestString(request *commands.Request) []string {
+    return []string{
+        request.Method,
+		request.Name,
+	}
 }
 
-func (rp *RequestPanel) SetItems() {
-
+func (gui *Gui) getRequestsComponent() *lc.ListComponent[*commands.Request]{
+    return &lc.ListComponent[*commands.Request]{
+    	SelectedIdx:    0,
+    	View:           gui.Views.Requests,
+    	Gui:            gui.intoInterface(),
+    	GetRenderList:  GetRequestString,
+    	NoItemsMessage: "No Requests Configured",
+    }
 }
-func (rp *RequestPanel) RenderList() {
-
-}
-
-func (gui *Gui) setRequestsPanel() {
-}
-
 
 func (gui *Gui) refreshRequests() error {
+    // Skip if Requests hasn't been created
+    if gui.Views.Requests == nil {
+        return nil
+    }
+
+    requests, err := gui.OSCommands.GetRequests()
+    if err != nil {
+        return err
+    }
+
+    gui.Components.Requests.SetItems(requests)
+
+    if err := gui.Components.Requests.RerenderList(); err != nil {
+		return err
+	}
+
     return nil
 }
-// func (gui *Gui) refreshRequests() error {
-// 	if gui.Views.Requests == nil {
-// 		// if the containersView hasn't been instantiated yet we just return
-// 		return nil
-// 	}
-//     requests, err := gui.OSCommands.RefreshRequests()
-//     if err != nil {
-//         return err
-//     }
-//     gui.RequestPanel.SetItems(requests)
-//
-//     return gui.renderRequests()
-// }
-//
-// func (gui *Gui) renderRequests() error {
-// 	if err := gui.RequestPanel.RerenderList(); err != nil {
-// 		return err
-// 	}
-//
-// 	return nil
-// }
+

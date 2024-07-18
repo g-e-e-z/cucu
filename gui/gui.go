@@ -1,10 +1,9 @@
 package gui
 
 import (
-	"fmt"
-
 	"github.com/g-e-e-z/cucu/commands"
 	"github.com/g-e-e-z/cucu/config"
+	lc "github.com/g-e-e-z/cucu/gui/list_components"
 	"github.com/jroimartin/gocui"
 	// "github.com/g-e-e-z/cucu/commands"
 )
@@ -18,10 +17,11 @@ type Gui struct {
 	HttpCommands *commands.HttpCommand
 	Views        Views
 
-	//Panels  Panels
+    Components  Components
 }
 
-type Panels struct {
+type Components struct {
+    Requests *lc.ListComponent[*commands.Request]
 }
 
 func NewGuiWrapper(config *config.AppConfig, osCommands *commands.OSCommand, httpCommands *commands.HttpCommand) *Gui {
@@ -51,17 +51,7 @@ func (gui *Gui) Run() error {
 		return err
 	}
 
-    requests, err := gui.OSCommands.GetRequests()
-    if err != nil {
-        return err
-    }
-
-	for _, req := range requests {
-        fmt.Fprintf(gui.Views.Requests, req.Name)
-        fmt.Fprintf(gui.Views.Requests, "\n")
-	}
-    fmt.Fprintf(gui.Views.Requests, fmt.Sprint(len(requests)))
-	// gui.setRequestsPanel()
+    gui.setInitialState()
 
 	if err = gui.keybindings(g); err != nil {
 		return err
@@ -88,6 +78,13 @@ func (gui *Gui) Run() error {
 	// 	return nil
 	// }
 	return err
+}
+
+func (gui *Gui) setInitialState() {
+    gui.Components = Components{
+        Requests: gui.getRequestsComponent(),
+    }
+
 }
 
 func (gui *Gui) quit(g *gocui.Gui, v *gocui.View) error {
@@ -118,3 +115,8 @@ func (gui *Gui) scrollViewDown(_ *gocui.Gui, v *gocui.View) error {
 func (gui *Gui) initiallyFocusedViewName() string {
 	return "requests"
 }
+
+func (gui *Gui) Update(f func() error) {
+	gui.g.Update(func(*gocui.Gui) error { return f() })
+}
+
