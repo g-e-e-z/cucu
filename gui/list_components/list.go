@@ -83,7 +83,9 @@ func (self *ListComponent[T]) RerenderList() error {
 		if err != nil {
 			return err
 		}
-		fmt.Fprint(self.View, renderedTable)
+        // Idk why a new line is prepended to the render string, slice is a temporary fix
+        fmt.Fprint(self.View, renderedTable[1:])
+		// fmt.Fprint(self.View, "\n")
 
 		// if self.OnRerender != nil {
 		// 	if err := self.OnRerender(); err != nil {

@@ -67,32 +67,22 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			Modifier: gocui.ModNone,
 			Handler:  gui.quit,
 		},
-		{
-			ViewName: "requests",
-			Key:      gocui.KeyPgup,
-			Modifier: gocui.ModNone,
-			Handler:  wrappedHandler(gui.scrollUpRequests),
-		},
-		{
-			ViewName: "requests",
-			Key:      gocui.KeyPgdn,
-			Modifier: gocui.ModNone,
-			Handler:  wrappedHandler(gui.scrollDownRequests),
-		},
 	}
+    // Mouse Haters stand up!
     // setUpDownClickBindings := func(viewName string, onUp func() error, onDown func() error, onClick func() error) {
     setUpDownClickBindings := func(viewName string, onUp func() error, onDown func() error) {
 		bindings = append(bindings, []*Binding{
 			{ViewName: viewName, Key: 'k', Modifier: gocui.ModNone, Handler: wrappedHandler(onUp)},
-			{ViewName: viewName, Key: gocui.KeyArrowUp, Modifier: gocui.ModNone, Handler: wrappedHandler(onUp)},
-			{ViewName: viewName, Key: gocui.MouseWheelUp, Modifier: gocui.ModNone, Handler: wrappedHandler(onUp)},
+			// {ViewName: viewName, Key: gocui.KeyArrowUp, Modifier: gocui.ModNone, Handler: wrappedHandler(onUp)},
+			// {ViewName: viewName, Key: gocui.MouseWheelUp, Modifier: gocui.ModNone, Handler: wrappedHandler(onUp)},
 			{ViewName: viewName, Key: 'j', Modifier: gocui.ModNone, Handler: wrappedHandler(onDown)},
-			{ViewName: viewName, Key: gocui.KeyArrowDown, Modifier: gocui.ModNone, Handler: wrappedHandler(onDown)},
-			{ViewName: viewName, Key: gocui.MouseWheelDown, Modifier: gocui.ModNone, Handler: wrappedHandler(onDown)},
+			// {ViewName: viewName, Key: gocui.KeyArrowDown, Modifier: gocui.ModNone, Handler: wrappedHandler(onDown)},
+			// {ViewName: viewName, Key: gocui.MouseWheelDown, Modifier: gocui.ModNone, Handler: wrappedHandler(onDown)},
 			// {ViewName: viewName, Key: gocui.MouseLeft, Modifier: gocui.ModNone, Handler: wrappedHandler(onClick)},
 		}...)
 	}
 
+    // TODO: Will likely need to make this a loop when other views are further along
     rc := gui.Components.Requests
     setUpDownClickBindings(rc.GetView().Name(), rc.HandlePrevLine, rc.HandleNextLine) //, rc.HandleClick)
 
