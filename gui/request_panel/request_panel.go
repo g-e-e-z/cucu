@@ -1,6 +1,7 @@
 package request_panel
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/g-e-e-z/cucu/commands"
@@ -36,31 +37,157 @@ type IGui interface {
 }
 
 
-func (self *RequestPanel) RerenderList() error {
-	self.Gui.Update(func() error {
-		self.View.Clear()
-		table := lo.Map(self.GetItems(), func(item *commands.Request, index int) []string {
-			return self.GetRenderList(item)
+func (rp *RequestPanel) RerenderList() error {
+	rp.Gui.Update(func() error {
+		rp.View.Clear()
+		table := lo.Map(rp.GetItems(), func(item *commands.Request, index int) []string {
+			return rp.GetRenderList(item)
 		})
 		renderedTable, err := utils.RenderComponent(table)
 		if err != nil {
 			return err
 		}
         // Idk why a new line is prepended to the render string, slice is a temporary fix
-        fmt.Fprint(self.View, renderedTable[1:])
-		// fmt.Fprint(self.View, "\n")
+        fmt.Fprint(rp.View, renderedTable[1:])
+		// fmt.Fprint(rp.View, "\n")
 
-		// if self.OnRerender != nil {
-		// 	if err := self.OnRerender(); err != nil {
+		// if rp.OnRerender != nil {
+		// 	if err := rp.OnRerender(); err != nil {
 		// 		return err
 		// 	}
 		// }
 
-		// if self.Gui.IsCurrentView(self.View) {
-		// 	return self.HandleSelect()
+		// if rp.Gui.IsCurrentView(rp.View) {
+		// 	return rp.HandleSelect()
 		// }
 		return nil
 	})
 
 	return nil
 }
+
+func (rp *RequestPanel) GetView() *gocui.View {
+    return rp.View
+}
+
+func (rp *RequestPanel) SetItems(items []*commands.Request) {
+	rp.allItems= items
+	rp.indices = make([]int, len(items))
+	for i := range rp.indices {
+		rp.indices[i] = i
+	}
+}
+
+func (rp *RequestPanel) GetItems() []*commands.Request {
+	result := make([]*commands.Request, len(rp.indices))
+	for i, index := range rp.indices {
+		result[i] = rp.allItems[index]
+	}
+	return result
+}
+
+func (rp *RequestPanel) Len() int {
+	return len(rp.indices)
+}
+
+func (rp *RequestPanel) SetSelectedLineIdx(value int) {
+	clampedValue := 0
+	if rp.Len() > 0 {
+		clampedValue = Clamp(value, 0, rp.Len()-1)
+	}
+
+	rp.SelectedIdx = clampedValue
+}
+
+func (rp *RequestPanel) clampSelectedLineIdx() {
+	clamped := Clamp(rp.SelectedIdx, 0, rp.Len()-1)
+
+	if clamped != rp.SelectedIdx {
+		rp.SelectedIdx = clamped
+	}
+}
+
+func (rp *RequestPanel) HandleNextLine() error {
+	rp.SelectNextLine()
+
+	return rp.HandleSelect()
+}
+
+func (rp *RequestPanel) HandlePrevLine() error {
+	rp.SelectPrevLine()
+
+	return rp.HandleSelect()
+}
+
+func (rp *RequestPanel) GetSelectedItem() (*commands.Request, error) {
+	var zero *commands.Request
+
+	item, ok := rp.TryGet(rp.SelectedIdx)
+	if !ok {
+		// could probably have a better error here
+		return zero, errors.New(EMPTY_REQUESTS)
+	}
+
+	return item, nil
+}
+
+func (rp *RequestPanel) TryGet(index int) (*commands.Request, bool) {
+    if index < 0 || index >= len(rp.indices) {
+        var zero *commands.Request
+		return zero, false
+	}
+
+	return rp.allItems[rp.indices[index]], true
+}
+
+
+func (rp *RequestPanel) HandleSelect() error {
+    // When we render the params/ body to that view uncomment item and use
+	// item, err := rp.GetSelectedItem()
+	_, err := rp.GetSelectedItem()
+	if err != nil {
+		if err.Error() != EMPTY_REQUESTS {
+			return err
+		}
+
+		// if rp.NoItemsMessage != "" {
+		// 	rp.Gui.NewSimpleRenderStringTask(func() string { return rp.NoItemsMessage })
+		// }
+
+		return nil
+	}
+
+	rp.Refocus()
+
+	return nil //rp.renderContext(item)
+}
+
+func (rp *RequestPanel) Refocus() {
+	rp.Gui.FocusY(rp.SelectedIdx, rp.Len(), rp.View)
+}
+
+
+// moves the cursor up or down by the given amount (up for negative values)
+func (rp *RequestPanel) moveSelectedLine(delta int) {
+	rp.SetSelectedLineIdx(rp.SelectedIdx + delta)
+}
+
+func (rp *RequestPanel) SelectNextLine() {
+	rp.moveSelectedLine(1)
+}
+
+func (rp *RequestPanel) SelectPrevLine() {
+	rp.moveSelectedLine(-1)
+}
+
+// Get this from lazycore
+// Clamp returns a value x restricted between min and max
+func Clamp(x int, min int, max int) int {
+	if x < min {
+		return min
+	} else if x > max {
+		return max
+	}
+	return x
+}
+
