@@ -20,6 +20,8 @@ type RequestPanel struct {
 	Gui         IGui
 
 	GetRenderList func(*commands.Request) []string
+
+    prevIdx     int
 }
 
 type IGui interface {
@@ -159,6 +161,12 @@ func (rp *RequestPanel) HandleSelect() error {
 }
 
 func (rp *RequestPanel) renderContext(request *commands.Request) error {
+	if rp.prevIdx == rp.SelectedIdx {
+		return nil
+	}
+    rp.prevIdx = rp.SelectedIdx
+
+
 	urlView := rp.Gui.GetUrlView()
 	urlView.Clear()
 	fmt.Fprint(urlView, request.Url)
@@ -172,7 +180,7 @@ func (rp *RequestPanel) renderContext(request *commands.Request) error {
     }
     table := utils.MapToSlice(utils.ValuesToMap(params))
     renderedTable, err := utils.RenderComponent(table)
-    fmt.Fprint(paramsView, renderedTable)//[1:])
+    fmt.Fprint(paramsView, renderedTable[1:])
 
 	return nil //ro.Gui.QueueTask(task)
 }
