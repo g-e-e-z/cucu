@@ -161,6 +161,8 @@ func (rp *RequestPanel) HandleSelect() error {
 }
 
 func (rp *RequestPanel) renderContext(request *commands.Request) error {
+    // TODO: This equality check is true on load causing params/url not to load
+    // initially. Find a better way to do this
 	if rp.prevIdx == rp.SelectedIdx {
 		return nil
 	}

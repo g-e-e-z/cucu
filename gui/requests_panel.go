@@ -14,10 +14,10 @@ func GetRequestString(request *commands.Request) []string {
 
 func (gui *Gui) getRequestPanel() *rq.RequestPanel {
     return &rq.RequestPanel{
-    	SelectedIdx:    0,
-    	View:           gui.Views.Requests,
-    	Gui:            gui.intoInterface(),
-    	GetRenderList:  GetRequestString,
+    	SelectedIdx:   0,
+    	View:          gui.Views.Requests,
+    	Gui:           gui.intoInterface(),
+    	GetRenderList: GetRequestString,
     }
 }
 
