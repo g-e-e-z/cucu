@@ -9,6 +9,14 @@ func (gui *Gui) CurrentView() *gocui.View {
 	return gui.g.CurrentView()
 }
 
+func (gui *Gui) GetUrlView() *gocui.View {
+	return gui.Views.Url
+}
+
+func (gui *Gui) GetParamsView() *gocui.View {
+	return gui.Views.Params
+}
+
 func (gui *Gui) IsCurrentView(view *gocui.View) bool {
 	return view == gui.CurrentView()
 }

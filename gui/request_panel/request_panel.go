@@ -27,7 +27,8 @@ type IGui interface {
 	// NewSimpleRenderStringTask(getContent func() string) tasks.TaskFunc
 	FocusY(selectedLine int, itemCount int, view *gocui.View)
 	// ShouldRefresh(contextKey string) bool
-	// GetMainView() *gocui.View
+	GetUrlView() *gocui.View
+	GetParamsView() *gocui.View
 	IsCurrentView(*gocui.View) bool
 	// FilterString(view *gocui.View) string
 	// IgnoreStrings() []string
@@ -35,7 +36,6 @@ type IGui interface {
 
 	// QueueTask(f func(ctx context.Context)) error
 }
-
 
 func (rp *RequestPanel) RerenderList() error {
 	rp.Gui.Update(func() error {
@@ -47,9 +47,8 @@ func (rp *RequestPanel) RerenderList() error {
 		if err != nil {
 			return err
 		}
-        // Idk why a new line is prepended to the render string, slice is a temporary fix
-        fmt.Fprint(rp.View, renderedTable[1:])
-		// fmt.Fprint(rp.View, "\n")
+		// Idk why a new line is prepended to the render string, slice is a temporary fix
+		fmt.Fprint(rp.View, renderedTable[1:])
 
 		// if rp.OnRerender != nil {
 		// 	if err := rp.OnRerender(); err != nil {
@@ -57,9 +56,9 @@ func (rp *RequestPanel) RerenderList() error {
 		// 	}
 		// }
 
-		// if rp.Gui.IsCurrentView(rp.View) {
-		// 	return rp.HandleSelect()
-		// }
+		if rp.Gui.IsCurrentView(rp.View) {
+			return rp.HandleSelect()
+		}
 		return nil
 	})
 
@@ -67,11 +66,11 @@ func (rp *RequestPanel) RerenderList() error {
 }
 
 func (rp *RequestPanel) GetView() *gocui.View {
-    return rp.View
+	return rp.View
 }
 
 func (rp *RequestPanel) SetItems(items []*commands.Request) {
-	rp.allItems= items
+	rp.allItems = items
 	rp.indices = make([]int, len(items))
 	for i := range rp.indices {
 		rp.indices[i] = i
@@ -132,19 +131,16 @@ func (rp *RequestPanel) GetSelectedItem() (*commands.Request, error) {
 }
 
 func (rp *RequestPanel) TryGet(index int) (*commands.Request, bool) {
-    if index < 0 || index >= len(rp.indices) {
-        var zero *commands.Request
+	if index < 0 || index >= len(rp.indices) {
+		var zero *commands.Request
 		return zero, false
 	}
 
 	return rp.allItems[rp.indices[index]], true
 }
 
-
 func (rp *RequestPanel) HandleSelect() error {
-    // When we render the params/ body to that view uncomment item and use
-	// item, err := rp.GetSelectedItem()
-	_, err := rp.GetSelectedItem()
+	item, err := rp.GetSelectedItem()
 	if err != nil {
 		if err.Error() != EMPTY_REQUESTS {
 			return err
@@ -159,13 +155,31 @@ func (rp *RequestPanel) HandleSelect() error {
 
 	rp.Refocus()
 
-	return nil //rp.renderContext(item)
+	return rp.renderContext(item)
+}
+
+func (rp *RequestPanel) renderContext(request *commands.Request) error {
+	urlView := rp.Gui.GetUrlView()
+	urlView.Clear()
+	fmt.Fprint(urlView, request.Url)
+
+	// task := rp.ContextState.GetCurrentMainTab().Render(request)
+	paramsView := rp.Gui.GetParamsView()
+	paramsView.Clear()
+    params, err := request.GetParams()
+    if err != nil {
+        return err
+    }
+    table := utils.MapToSlice(utils.ValuesToMap(params))
+    renderedTable, err := utils.RenderComponent(table)
+    fmt.Fprint(paramsView, renderedTable)//[1:])
+
+	return nil //ro.Gui.QueueTask(task)
 }
 
 func (rp *RequestPanel) Refocus() {
 	rp.Gui.FocusY(rp.SelectedIdx, rp.Len(), rp.View)
 }
-
 
 // moves the cursor up or down by the given amount (up for negative values)
 func (rp *RequestPanel) moveSelectedLine(delta int) {
@@ -190,4 +204,3 @@ func Clamp(x int, min int, max int) int {
 	}
 	return x
 }
-
