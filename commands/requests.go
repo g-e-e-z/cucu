@@ -1,13 +1,14 @@
 package commands
 
-// import "time"
+import (
+	"net/url"
+)
 
 // Request: A request object
 type Request struct {
 	Name      string `json:"name"`
-	URL       string `json:"url"`
+	Url       string `json:"url"`
 	Method    string `json:"method"`
-	// GetParams struct  `json:"getParams"`
 	// Data            string `json:"data"`
 	// Headers         string `json:"headers"`
 	// ResponseHeaders string `json:"responseHeaders"`
@@ -20,4 +21,17 @@ type Request struct {
 
 func (r *Request) Send() {
 
+}
+
+func (r *Request) GetParams() (url.Values, error) {
+    u, err := url.Parse(r.Url)
+    if err != nil {
+        return nil, err
+    }
+    m, err := url.ParseQuery(u.RawQuery)
+    if err != nil {
+        return nil, err
+    }
+
+    return m, nil
 }

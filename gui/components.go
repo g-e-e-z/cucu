@@ -1,8 +1,9 @@
 package gui
 
-import list_component "github.com/g-e-e-z/cucu/gui/list_components"
+import "github.com/g-e-e-z/cucu/gui/request_panel"
 
-func (gui *Gui) intoInterface() list_component.IGui {
+
+func (gui *Gui) intoInterface() request_panel.IGui {
 	return gui
 }
 

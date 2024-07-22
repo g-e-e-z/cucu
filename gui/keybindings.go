@@ -83,7 +83,7 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 	}
 
     // TODO: Will likely need to make this a loop when other views are further along
-    rc := gui.Components.Requests
+    rc := gui.RequestPanel
     setUpDownClickBindings(rc.GetView().Name(), rc.HandlePrevLine, rc.HandleNextLine) //, rc.HandleClick)
 
 	return bindings

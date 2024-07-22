@@ -2,7 +2,7 @@ package gui
 
 import (
 	"github.com/g-e-e-z/cucu/commands"
-	lc "github.com/g-e-e-z/cucu/gui/list_components"
+	rq "github.com/g-e-e-z/cucu/gui/request_panel"
 )
 
 func GetRequestString(request *commands.Request) []string {
@@ -12,13 +12,12 @@ func GetRequestString(request *commands.Request) []string {
 	}
 }
 
-func (gui *Gui) getRequestsComponent() *lc.ListComponent[*commands.Request]{
-    return &lc.ListComponent[*commands.Request]{
-    	SelectedIdx:    0,
-    	View:           gui.Views.Requests,
-    	Gui:            gui.intoInterface(),
-    	GetRenderList:  GetRequestString,
-    	NoItemsMessage: "No Requests Configured",
+func (gui *Gui) getRequestPanel() *rq.RequestPanel {
+    return &rq.RequestPanel{
+    	SelectedIdx:   0,
+    	View:          gui.Views.Requests,
+    	Gui:           gui.intoInterface(),
+    	GetRenderList: GetRequestString,
     }
 }
 
@@ -33,9 +32,9 @@ func (gui *Gui) refreshRequests() error {
         return err
     }
 
-    gui.Components.Requests.SetItems(requests)
+    gui.RequestPanel.SetItems(requests)
 
-    if err := gui.Components.Requests.RerenderList(); err != nil {
+    if err := gui.RequestPanel.RerenderList(); err != nil {
 		return err
 	}
 

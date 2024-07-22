@@ -2,6 +2,7 @@ package utils
 
 import (
 	"errors"
+	"net/url"
 	"strings"
 )
 
@@ -64,3 +65,21 @@ func displayArraysAligned(stringArrays [][]string) bool {
 // 	return paddedDisplayRows
 // }
 //
+
+func ValuesToMap(values url.Values) map[string]string {
+	result := make(map[string]string)
+	for key, valueSlice := range values {
+		if len(valueSlice) == 1 { // only take keys with a single value
+			result[key] = valueSlice[0]
+		}
+	}
+	return result
+}
+
+func MapToSlice(m map[string]string) [][]string {
+	result := [][]string{}
+	for key, value := range m {
+		result = append(result, []string{key, value})
+	}
+	return result
+}
