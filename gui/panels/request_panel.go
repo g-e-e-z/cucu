@@ -14,6 +14,7 @@ import (
 type IGui interface {
 	IsCurrentView(*gocui.View) bool
 	GetUrlView() *gocui.View
+	GetParamsView() *gocui.View
 	Update(func() error)
 }
 
@@ -41,7 +42,7 @@ func (rq *RequestPanel) SetRequests() error {
 			Method: "GET",
 		},
 	}
-    rq.indices = make([]int, len(rq.Requests))
+	rq.indices = make([]int, len(rq.Requests))
 	for i := range rq.indices {
 		rq.indices[i] = i
 	}
@@ -66,10 +67,8 @@ func (rq *RequestPanel) GetSelectedRequest() (*commands.Request, error) {
 	var zero *commands.Request
 
 	item, ok := rq.TryGet(rq.ReqIndex)
-    rq.Log.Info("CHECK", item)
 	if !ok {
 		// could probably have a better error here
-        rq.Log.Error("Request Not Found")
 		return zero, errors.New(rq.NoItemsMessage)
 	}
 
@@ -87,9 +86,9 @@ func (rq *RequestPanel) HandleSelect() error {
 			return err
 		}
 
-		// if rq.NoItemsMessage != "" {
-		// 	rq.Gui.NewSimpleRenderStringTask(func() string { return rq.NoItemsMessage })
-		// }
+		if rq.NoItemsMessage != "" {
+			rq.Log.Warn(rq.NoItemsMessage)
+		}
 
 		return nil
 	}
@@ -135,13 +134,23 @@ func (rq *RequestPanel) renderContext(request *commands.Request) error {
 	// mainView.Tabs = rq.ContextState.GetMainTabTitles()
 	// mainView.TabIndex = rq.ContextState.mainTabIdx
 
+	// task := rq.ContextState.GetCurrentMainTab().Render(item)
+	// return rq.Gui.QueueTask(task)
+
+	// TODO: Don't write directly
 	urlView := rq.Gui.GetUrlView()
 	urlView.Clear()
-	// TODO: Don't write directly
 	fmt.Fprint(urlView, request.Url)
 
-	// task := rq.ContextState.GetCurrentMainTab().Render(item)
+	paramsView := rq.Gui.GetParamsView()
+	paramsView.Clear()
+	params, err := request.GetParams()
+	if err != nil {
+		return err
+	}
+	table := utils.MapToSlice(utils.ValuesToMap(params))
+	renderedTable, err := utils.RenderComponent(table)
+	fmt.Fprint(paramsView, renderedTable)
 
-	// return rq.Gui.QueueTask(task)
 	return nil
 }
