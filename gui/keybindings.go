@@ -68,21 +68,21 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			Handler:  gui.quit,
 		},
 	}
- //    setUpDownClickBindings := func(viewName string, onUp func() error, onDown func() error) {
-	// 	bindings = append(bindings, []*Binding{
-	// 		{ViewName: viewName, Key: 'k', Modifier: gocui.ModNone, Handler: wrappedHandler(onUp)},
-	// 		// {ViewName: viewName, Key: gocui.KeyArrowUp, Modifier: gocui.ModNone, Handler: wrappedHandler(onUp)},
-	// 		// {ViewName: viewName, Key: gocui.MouseWheelUp, Modifier: gocui.ModNone, Handler: wrappedHandler(onUp)},
-	// 		{ViewName: viewName, Key: 'j', Modifier: gocui.ModNone, Handler: wrappedHandler(onDown)},
-	// 		// {ViewName: viewName, Key: gocui.KeyArrowDown, Modifier: gocui.ModNone, Handler: wrappedHandler(onDown)},
-	// 		// {ViewName: viewName, Key: gocui.MouseWheelDown, Modifier: gocui.ModNone, Handler: wrappedHandler(onDown)},
-	// 		// {ViewName: viewName, Key: gocui.MouseLeft, Modifier: gocui.ModNone, Handler: wrappedHandler(onClick)},
-	// 	}...)
-	// }
+    setUpDownClickBindings := func(viewName string, onUp func() error, onDown func() error) {
+		bindings = append(bindings, []*Binding{
+			{ViewName: viewName, Key: 'k', Modifier: gocui.ModNone, Handler: wrappedHandler(onUp)},
+			// {ViewName: viewName, Key: gocui.KeyArrowUp, Modifier: gocui.ModNone, Handler: wrappedHandler(onUp)},
+			// {ViewName: viewName, Key: gocui.MouseWheelUp, Modifier: gocui.ModNone, Handler: wrappedHandler(onUp)},
+			{ViewName: viewName, Key: 'j', Modifier: gocui.ModNone, Handler: wrappedHandler(onDown)},
+			// {ViewName: viewName, Key: gocui.KeyArrowDown, Modifier: gocui.ModNone, Handler: wrappedHandler(onDown)},
+			// {ViewName: viewName, Key: gocui.MouseWheelDown, Modifier: gocui.ModNone, Handler: wrappedHandler(onDown)},
+			// {ViewName: viewName, Key: gocui.MouseLeft, Modifier: gocui.ModNone, Handler: wrappedHandler(onClick)},
+		}...)
+	}
 
     // TODO: Will likely need to make this a loop when other views are further along
-    // rc := gui.RequestPanel
-    // setUpDownClickBindings(rc.GetView().Name(), rc.HandlePrevLine, rc.HandleNextLine) //, rc.HandleClick)
+    rp := gui.RequestPanel
+    setUpDownClickBindings(rp.GetView().Name(), rp.HandlePrevLine, rp.HandleNextLine) //, rc.HandleClick)
 
 	return bindings
 }

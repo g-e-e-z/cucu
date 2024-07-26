@@ -15,6 +15,7 @@ type IGui interface {
 	IsCurrentView(*gocui.View) bool
 	GetUrlView() *gocui.View
 	GetParamsView() *gocui.View
+	FocusY(selectedLine int, itemCount int, view *gocui.View)
 	Update(func() error)
 }
 
@@ -25,12 +26,16 @@ type RequestPanel struct {
 	Gui            IGui
 	NoItemsMessage string
 
-	indices  []int
-	ReqIndex int
+	indices     []int
+	SelectedIdx int
+}
+
+func (rq *RequestPanel) GetView() *gocui.View {
+	return rq.View
 }
 
 func (rq *RequestPanel) SetRequests(requests []*commands.Request) error {
-    rq.Requests = requests
+	rq.Requests = requests
 	rq.indices = make([]int, len(rq.Requests))
 	for i := range rq.indices {
 		rq.indices[i] = i
@@ -55,7 +60,7 @@ func (rq *RequestPanel) TryGet(index int) (*commands.Request, bool) {
 func (rq *RequestPanel) GetSelectedRequest() (*commands.Request, error) {
 	var zero *commands.Request
 
-	item, ok := rq.TryGet(rq.ReqIndex)
+	item, ok := rq.TryGet(rq.SelectedIdx)
 	if !ok {
 		// could probably have a better error here
 		return zero, errors.New(rq.NoItemsMessage)
@@ -82,7 +87,7 @@ func (rq *RequestPanel) HandleSelect() error {
 		return nil
 	}
 
-	// rq.Refocus()
+	rq.Refocus()
 
 	return rq.renderContext(item)
 }
@@ -142,4 +147,55 @@ func (rq *RequestPanel) renderContext(request *commands.Request) error {
 	fmt.Fprint(paramsView, renderedTable)
 
 	return nil
+}
+
+// Keybinding related
+func (rp *RequestPanel) Refocus() {
+	// rp.Gui.FocusY(rp.SelectedIdx, rp.Len(), rp.View)
+	rp.Gui.FocusY(rp.SelectedIdx, len(rp.Requests), rp.View)
+}
+
+func (rp *RequestPanel) HandleNextLine() error {
+	rp.SelectNextLine()
+
+	return rp.HandleSelect()
+}
+
+func (rp *RequestPanel) HandlePrevLine() error {
+	rp.SelectPrevLine()
+
+	return rp.HandleSelect()
+}
+
+func (rp *RequestPanel) SelectNextLine() {
+	rp.moveSelectedLine(1)
+}
+
+func (rp *RequestPanel) SelectPrevLine() {
+	rp.moveSelectedLine(-1)
+}
+
+func (rp *RequestPanel) moveSelectedLine(delta int) {
+	rp.SetSelectedLineIdx(rp.SelectedIdx + delta)
+}
+
+func (rp *RequestPanel) SetSelectedLineIdx(value int) {
+	clampedValue := 0
+	// if rp.Len() > 0 {
+	if len(rp.Requests) > 0 {
+		clampedValue = Clamp(value, 0, len(rp.Requests)-1)
+	}
+
+	rp.SelectedIdx = clampedValue
+}
+
+// Get this from lazycore
+// Clamp returns a value x restricted between min and max
+func Clamp(x int, min int, max int) int {
+	if x < min {
+		return min
+	} else if x > max {
+		return max
+	}
+	return x
 }
