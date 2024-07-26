@@ -23,7 +23,7 @@ func RenderComponent(rows [][]string) (string, error) {
     for i := range rows {
         displayRows = append(displayRows, strings.Join(rows[i], " | "))
     }
-	return strings.Join(displayRows, "\n"), nil
+	return strings.TrimSpace(strings.Join(displayRows, "\n")), nil
 }
 
 // displayArraysAligned returns true if every string array returned from our

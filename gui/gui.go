@@ -48,7 +48,6 @@ func (gui *Gui) Run() error {
 		return err
 	}
 
-	// Create Requests Panel
 	gui.RequestPanel = gui.createRequestsPanel()
 
 	if err = gui.keybindings(g); err != nil {
