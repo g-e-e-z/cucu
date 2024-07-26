@@ -47,6 +47,9 @@ func (gui *Gui) Run() error {
 		return err
 	}
 
+    // Create Requests Panel
+    gui.createRequestsPanel()
+
 
 	if err = gui.keybindings(g); err != nil {
 		return err
@@ -54,10 +57,6 @@ func (gui *Gui) Run() error {
 
 	if gui.g.CurrentView() == nil {
 		viewName := gui.initiallyFocusedViewName()
-		// view, err := gui.g.View(viewName)
-		// if err != nil {
-		// 	return err
-		// }
 
 		if _, err := gui.g.SetCurrentView(viewName); err != nil {
 			return err
@@ -67,6 +66,9 @@ func (gui *Gui) Run() error {
 	// TODO: This
 	// ctx, finish := context.WithCancel(context.Background())
 	// defer finish()
+
+    // Populate Requests Panel
+    gui.renderRequests()
 
 	err = gui.g.MainLoop()
 	// if err == gocui.ErrQuit {
