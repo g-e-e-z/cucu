@@ -3,7 +3,6 @@ package gui
 import (
 	"github.com/g-e-e-z/cucu/commands"
 	"github.com/g-e-e-z/cucu/config"
-	rp "github.com/g-e-e-z/cucu/gui/request_panel"
 	"github.com/jroimartin/gocui"
 	"github.com/sirupsen/logrus"
 )
@@ -17,7 +16,6 @@ type Gui struct {
 	HttpCommands *commands.HttpCommand
 	Views        Views
 
-	RequestPanel *rp.RequestPanel
 }
 
 
@@ -49,7 +47,6 @@ func (gui *Gui) Run() error {
 		return err
 	}
 
-	gui.setInitialState()
 
 	if err = gui.keybindings(g); err != nil {
 		return err
@@ -78,9 +75,6 @@ func (gui *Gui) Run() error {
 	return err
 }
 
-func (gui *Gui) setInitialState() {
-	gui.RequestPanel = gui.getRequestPanel()
-}
 
 func (gui *Gui) quit(g *gocui.Gui, v *gocui.View) error {
 	return gocui.ErrQuit
