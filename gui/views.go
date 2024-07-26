@@ -47,6 +47,7 @@ func (gui *Gui) createAllViews() error {
 
 	gui.Views.Response.Highlight = true
 	gui.Views.Response.Title = "Response"
+    gui.Views.Response.Wrap = true
 
 	return nil
 }
