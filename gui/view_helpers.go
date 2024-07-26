@@ -21,6 +21,10 @@ func (gui *Gui) GetParamsView() *gocui.View {
 	return gui.Views.Params
 }
 
+func (gui *Gui) GetResponseView() *gocui.View {
+	return gui.Views.Response
+}
+
 func (gui *Gui) IsCurrentView(view *gocui.View) bool {
 	return view == gui.CurrentView()
 }
@@ -77,5 +81,3 @@ func (gui *Gui) cleanString(s string) string {
 	output := string(bom.Clean([]byte(s)))
 	return utils.NormalizeLinefeeds(output)
 }
-
-

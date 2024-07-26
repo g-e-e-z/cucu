@@ -38,6 +38,7 @@ func (gui *Gui) SendRequest(request *commands.Request) error {
     if err != nil {
         return err
     }
+    return gui.renderRequests()
 	// return gui.WithWaitingStatus(gui.Tr.PausingStatus, func() (err error) {
 	// 	if container.Details.State.Paused {
 	// 		err = container.Unpause()

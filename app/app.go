@@ -23,7 +23,7 @@ func NewApp(config *config.AppConfig) (*App, error) {
 	var err error
 	app.Log = log.NewLogger(config, "23432119147a4367abf7c0de2aa99a2d")
 	app.OSCommand = commands.NewOSCommand(config)
-	app.HttpCommands, err = commands.NewHttpCommands(app.Config, app.OSCommand)
+	app.HttpCommands, err = commands.NewHttpCommands(app.Log, app.Config, app.OSCommand)
 	if err != nil {
 		return app, err
 	}

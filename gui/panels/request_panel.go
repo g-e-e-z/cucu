@@ -15,6 +15,7 @@ type IGui interface {
 	IsCurrentView(*gocui.View) bool
 	GetUrlView() *gocui.View
 	GetParamsView() *gocui.View
+	GetResponseView() *gocui.View
 	FocusY(selectedLine int, itemCount int, view *gocui.View)
 	Update(func() error)
 }
@@ -145,6 +146,10 @@ func (rq *RequestPanel) renderContext(request *commands.Request) error {
 	table := utils.MapToSlice(utils.ValuesToMap(params))
 	renderedTable, err := utils.RenderComponent(table)
 	fmt.Fprint(paramsView, renderedTable)
+
+	responseView := rq.Gui.GetResponseView()
+	responseView.Clear()
+	fmt.Fprint(responseView, request.ResponseBody)
 
 	return nil
 }
