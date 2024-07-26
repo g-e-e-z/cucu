@@ -3,6 +3,7 @@ package gui
 import (
 	"github.com/g-e-e-z/cucu/commands"
 	"github.com/g-e-e-z/cucu/config"
+	"github.com/g-e-e-z/cucu/gui/panels"
 	"github.com/jroimartin/gocui"
 	"github.com/sirupsen/logrus"
 )
@@ -16,8 +17,8 @@ type Gui struct {
 	HttpCommands *commands.HttpCommand
 	Views        Views
 
+	RequestPanel *panels.RequestPanel
 }
-
 
 func NewGuiWrapper(log *logrus.Entry, config *config.AppConfig, osCommands *commands.OSCommand, httpCommands *commands.HttpCommand) *Gui {
 	return &Gui{
@@ -47,9 +48,8 @@ func (gui *Gui) Run() error {
 		return err
 	}
 
-    // Create Requests Panel
-    gui.createRequestsPanel()
-
+	// Create Requests Panel
+	gui.RequestPanel = gui.createRequestsPanel()
 
 	if err = gui.keybindings(g); err != nil {
 		return err
@@ -67,8 +67,8 @@ func (gui *Gui) Run() error {
 	// ctx, finish := context.WithCancel(context.Background())
 	// defer finish()
 
-    // Populate Requests Panel
-    gui.renderRequests()
+	// Populate Requests Panel
+	gui.renderRequests()
 
 	err = gui.g.MainLoop()
 	// if err == gocui.ErrQuit {
@@ -76,7 +76,6 @@ func (gui *Gui) Run() error {
 	// }
 	return err
 }
-
 
 func (gui *Gui) quit(g *gocui.Gui, v *gocui.View) error {
 	return gocui.ErrQuit
