@@ -4,8 +4,10 @@ import "github.com/g-e-e-z/cucu/gui/panels"
 
 func (gui *Gui) createRequestsPanel() *panels.RequestPanel {
 	return &panels.RequestPanel{
-		View:     gui.Views.Requests,
-		Gui:      gui.toInterface(),
+		Log:            gui.Log,
+		View:           gui.Views.Requests,
+		Gui:            gui.toInterface(),
+		NoItemsMessage: "No Requests",
 	}
 }
 
