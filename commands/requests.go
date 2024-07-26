@@ -13,15 +13,15 @@ import (
 
 // Request: A request object
 type Request struct {
-	Name   string `json:"name"`
-	Url    string `json:"url"`
-	Method string `json:"method"`
-	// Data            string `json:"data"`
-	// Headers         string `json:"headers"`
+	Name         string                 `json:"name"`
+	Url          string                 `json:"url"`
+	Method       string                 `json:"method"`
+	ContentType  string                 `json:"contentType,omitempty"`
+	Data         map[string]interface{} `json:"data,omitempty"`
+	ResponseBody string                 `json:"rawResponseBody,omitempty"`
 	// ResponseHeaders string `json:"responseHeaders"`
+	// Headers         string `json:"headers"`
 	// RawResponseBody byte   `json:"rawResponseBody"`
-	ResponseBody string `json:"rawResponseBody"`
-	// ContentType     string `json:"contentType"`
 	// Duration        string `json:"duration"`
 	// Duration        time.Duration
 	// Formatter       formatter.ResponseFormatter
@@ -31,14 +31,27 @@ type Request struct {
 }
 
 func (r *Request) Send() error {
-	request, err := http.NewRequest(r.Method, r.Url, nil)
+    var request *http.Request
+	var err error
+
+	if r.Data != nil {
+		jsonData, err := json.Marshal(r.Data)
+		if err != nil {
+			r.Log.Error("Error marshaling data: ", err)
+		}
+		request, err = http.NewRequest(r.Method, r.Url, bytes.NewBuffer(jsonData))
+		request.Header.Set("Content-Type", r.ContentType)
+	} else {
+		request, err = http.NewRequest(r.Method, r.Url, nil)
+	}
 	if err != nil {
 		return err
 	}
 	// request.Header.Set("do headers here")
-    r.Log.Info("Sending request to: ", request.URL)
+	r.Log.Info("Sending request to: ", request.URL)
 	response, err := r.HttpCommand.Client.Do(request)
 	if err != nil {
+		r.Log.Error("Request failed: ", request.URL, err)
 		return err
 	}
 	responseBody, error := io.ReadAll(response.Body)
@@ -49,7 +62,7 @@ func (r *Request) Send() error {
 
 	formattedData := formatJSON(responseBody)
 	r.ResponseBody = formattedData
-    r.Log.Info("Response received: ", response.Status)
+	r.Log.Info("Response received: ", response.Status, r.ResponseBody)
 
 	return nil
 }

@@ -56,7 +56,10 @@ func (c *OSCommand) GetRequests() ([]*Request, error) {
 	byteValue, _ := io.ReadAll(file)
 
 	var requests []*Request
-	json.Unmarshal(byteValue, &requests)
+    err = json.Unmarshal(byteValue, &requests)
+    if err != nil {
+        return nil, err
+    }
 
 	return requests, nil
 }

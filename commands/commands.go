@@ -29,6 +29,7 @@ func NewHttpCommands(log *logrus.Entry, config *config.AppConfig, osCommand *OSC
 func (hc *HttpCommand) GetRequests() ([]*Request, error) {
 	requests, err := hc.OSCommand.GetRequests()
 	if err != nil {
+        hc.Log.Error("Error reading requests:", err)
 		return nil, err
 	}
 	for _, request := range requests {
