@@ -67,6 +67,12 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			Modifier: gocui.ModNone,
 			Handler:  gui.quit,
 		},
+		{
+			ViewName: "requests",
+			Key:      gocui.KeyCtrlR,
+			Modifier: gocui.ModNone,
+			Handler:  gui.handleRequestSend,
+		},
 	}
     setUpDownClickBindings := func(viewName string, onUp func() error, onDown func() error) {
 		bindings = append(bindings, []*Binding{
