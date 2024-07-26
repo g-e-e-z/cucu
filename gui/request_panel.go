@@ -1,6 +1,8 @@
 package gui
 
-import "github.com/g-e-e-z/cucu/gui/panels"
+import (
+	"github.com/g-e-e-z/cucu/gui/panels"
+)
 
 func (gui *Gui) createRequestsPanel() *panels.RequestPanel {
 	return &panels.RequestPanel{
@@ -12,6 +14,10 @@ func (gui *Gui) createRequestsPanel() *panels.RequestPanel {
 }
 
 func (gui *Gui) renderRequests() error {
-	gui.RequestPanel.SetRequests()
+    requests, err := gui.OSCommands.RefreshRequests()
+    if err != nil {
+        return err
+    }
+	gui.RequestPanel.SetRequests(requests)
 	return gui.RequestPanel.Rerender()
 }

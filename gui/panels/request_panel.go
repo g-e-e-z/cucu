@@ -29,19 +29,8 @@ type RequestPanel struct {
 	ReqIndex int
 }
 
-func (rq *RequestPanel) SetRequests() error {
-	rq.Requests = []*commands.Request{
-		{
-			Name:   "Req1",
-			Url:    "localhost:6969/api/v1?param1=value1",
-			Method: "GET",
-		},
-		{
-			Name:   "Link1",
-			Url:    "myspace.com?username=flavio&password=secret",
-			Method: "GET",
-		},
-	}
+func (rq *RequestPanel) SetRequests(requests []*commands.Request) error {
+    rq.Requests = requests
 	rq.indices = make([]int, len(rq.Requests))
 	for i := range rq.indices {
 		rq.indices[i] = i
