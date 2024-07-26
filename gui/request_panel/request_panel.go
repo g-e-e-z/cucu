@@ -182,7 +182,7 @@ func (rp *RequestPanel) renderContext(request *commands.Request) error {
     }
     table := utils.MapToSlice(utils.ValuesToMap(params))
     renderedTable, err := utils.RenderComponent(table)
-    fmt.Fprint(paramsView, renderedTable[1:])
+    fmt.Fprint(paramsView, renderedTable)
 
 	return nil //ro.Gui.QueueTask(task)
 }
