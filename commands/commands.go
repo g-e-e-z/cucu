@@ -22,3 +22,14 @@ func NewHttpCommands(config *config.AppConfig, osCommand *OSCommand) (*HttpComma
 	}
 	return command, nil
 }
+
+func (hc *HttpCommand) GetRequests() ([]*Request, error) {
+    requests, err := hc.OSCommand.GetRequests()
+    if err != nil {
+        return nil, err
+    }
+    for _, request := range requests {
+        request.HttpCommand = hc
+    }
+    return requests, nil
+}

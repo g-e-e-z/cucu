@@ -6,9 +6,9 @@ import (
 
 // Request: A request object
 type Request struct {
-	Name      string `json:"name"`
-	Url       string `json:"url"`
-	Method    string `json:"method"`
+	Name   string `json:"name"`
+	Url    string `json:"url"`
+	Method string `json:"method"`
 	// Data            string `json:"data"`
 	// Headers         string `json:"headers"`
 	// ResponseHeaders string `json:"responseHeaders"`
@@ -17,21 +17,23 @@ type Request struct {
 	// Duration        string `json:"duration"`
 	// Duration        time.Duration
 	// Formatter       formatter.ResponseFormatter
+
+	HttpCommand *HttpCommand
 }
 
-func (r *Request) Send() {
-
+func (r *Request) Send() error {
+	return nil
 }
 
 func (r *Request) GetParams() (url.Values, error) {
-    u, err := url.Parse(r.Url)
-    if err != nil {
-        return nil, err
-    }
-    m, err := url.ParseQuery(u.RawQuery)
-    if err != nil {
-        return nil, err
-    }
+	u, err := url.Parse(r.Url)
+	if err != nil {
+		return nil, err
+	}
+	m, err := url.ParseQuery(u.RawQuery)
+	if err != nil {
+		return nil, err
+	}
 
-    return m, nil
+	return m, nil
 }
