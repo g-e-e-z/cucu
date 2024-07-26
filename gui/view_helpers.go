@@ -1,8 +1,12 @@
 package gui
 
 import (
-	"github.com/jesseduffield/lazycore/pkg/utils"
+	"fmt"
+
+	"github.com/g-e-e-z/cucu/utils"
+	lcu "github.com/jesseduffield/lazycore/pkg/utils"
 	"github.com/jroimartin/gocui"
+	"github.com/spkg/bom"
 )
 
 func (gui *Gui) CurrentView() *gocui.View {
@@ -37,20 +41,20 @@ func (gui *Gui) focusPoint(selectedX int, selectedY int, lineCount int, v *gocui
 	originalCy := cy
 	_, height := v.Size()
 
-	ly := utils.Max(height-1, 0)
+	ly := lcu.Max(height-1, 0)
 
 	windowStart := oy
 	windowEnd := oy + ly
 
 	if selectedY < windowStart {
-		oy = utils.Max(oy-(windowStart-selectedY), 0)
+		oy = lcu.Max(oy-(windowStart-selectedY), 0)
 	} else if selectedY > windowEnd {
 		oy += (selectedY - windowEnd)
 	}
 
 	if windowEnd > lineCount-1 {
 		shiftAmount := (windowEnd - (lineCount - 1))
-		oy = utils.Max(oy-shiftAmount, 0)
+		oy = lcu.Max(oy-shiftAmount, 0)
 	}
 
 	if originalOy != oy {
@@ -62,4 +66,16 @@ func (gui *Gui) focusPoint(selectedX int, selectedY int, lineCount int, v *gocui
 		_ = v.SetCursor(cx, selectedY-oy)
 	}
 }
+
+func (gui *Gui) setViewContent(v *gocui.View, s string) error {
+	v.Clear()
+	fmt.Fprint(v, gui.cleanString(s))
+	return nil
+}
+
+func (gui *Gui) cleanString(s string) string {
+	output := string(bom.Clean([]byte(s)))
+	return utils.NormalizeLinefeeds(output)
+}
+
 
