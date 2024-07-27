@@ -3,7 +3,7 @@ package gui
 import (
 	"github.com/g-e-e-z/cucu/commands"
 	"github.com/g-e-e-z/cucu/gui/panels"
-	"github.com/jroimartin/gocui"
+	"github.com/jesseduffield/gocui"
 )
 
 func (gui *Gui) createRequestsPanel() *panels.RequestPanel {

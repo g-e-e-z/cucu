@@ -1,7 +1,7 @@
 package gui
 
 import (
-	"github.com/jroimartin/gocui"
+	"github.com/jesseduffield/gocui"
 )
 
 // getFocusLayout returns a manager function for when view gain and lose focus
@@ -75,7 +75,7 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 			// making the view take up the whole space in the background in case it needs
 			// to render content as soon as it appears, because lazyloaded content (via a pty task)
 			// cares about the size of the view.
-			_, err := g.SetView(viewName, 0, 0, width, height)
+			_, err := g.SetView(viewName, 0, 0, width, height, 0)
 			return view, err
 		}
 
@@ -89,6 +89,7 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 			viewPositionObj.Y0.GetCoordinate(height)-frameOffset,
 			viewPositionObj.X1.GetCoordinate(width)+frameOffset,
 			viewPositionObj.Y1.GetCoordinate(height)+frameOffset,
+            0,
 		)
 
 		return view, err
@@ -117,5 +118,5 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 func (gui *Gui) prepareView(viewName string) (*gocui.View, error) {
 	// arbitrarily giving the view enough size so that we don't get an error, but
 	// it's expected that the view will be given the correct size before being shown
-	return gui.g.SetView(viewName, 0, 0, 1, 1)
+	return gui.g.SetView(viewName, 0, 0, 1, 1, 0)
 }
