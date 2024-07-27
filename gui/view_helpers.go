@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/g-e-e-z/cucu/utils"
-	lcu "github.com/jesseduffield/lazycore/pkg/utils"
 	"github.com/jesseduffield/gocui"
+	lcu "github.com/jesseduffield/lazycore/pkg/utils"
 	"github.com/spkg/bom"
 )
 
@@ -37,6 +37,15 @@ func (gui *Gui) RenderErrorString(s string) {
 	_ = gui.renderString(gui.g, "response", s)
 }
 
+func (gui *Gui) allViews() []*gocui.View {
+	return []*gocui.View{
+		gui.Views.Requests,
+		gui.Views.Url,
+		gui.Views.Params,
+		gui.Views.Response,
+	}
+}
+
 // renderString resets the origin of a view and sets its content
 func (gui *Gui) renderString(g *gocui.Gui, viewName, s string) error {
 	g.Update(func(*gocui.Gui) error {
@@ -52,6 +61,67 @@ func (gui *Gui) renderString(g *gocui.Gui, viewName, s string) error {
 		}
 		return gui.setViewContent(v, s)
 	})
+	return nil
+}
+
+func (gui *Gui) nextView(g *gocui.Gui, v *gocui.View) error {
+	viewNames := gui.viewNames()
+	var focusedViewName string
+    gui.Log.Info("View Names", viewNames, len(viewNames))
+	if v == nil || v.Name() == viewNames[len(viewNames)-1] {
+		focusedViewName = viewNames[0]
+	} else {
+		viewName := v.Name()
+		for i := range viewNames {
+			if viewName == viewNames[i] {
+				focusedViewName = viewNames[i+1]
+				break
+			}
+			if i == len(viewNames)-1 {
+				gui.Log.Info("not in list of views")
+				return nil
+			}
+		}
+	}
+	focusedView, err := g.View(focusedViewName)
+	if err != nil {
+		panic(err)
+	}
+	// gui.resetMainView()
+	// return gui.switchFocus(focusedView)
+	if _, err := gui.g.SetCurrentView(focusedView.Name()); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (gui *Gui) previousView(g *gocui.Gui, v *gocui.View) error {
+	viewNames := gui.viewNames()
+	var focusedViewName string
+	if v == nil || v.Name() == viewNames[0] {
+		focusedViewName = viewNames[len(viewNames)-1]
+	} else {
+		viewName := v.Name()
+		for i := range viewNames {
+			if viewName == viewNames[i] {
+				focusedViewName = viewNames[i-1]
+				break
+			}
+			if i == len(viewNames)-1 {
+				gui.Log.Info("not in list of views")
+				return nil
+			}
+		}
+	}
+	focusedView, err := g.View(focusedViewName)
+	if err != nil {
+		panic(err)
+	}
+	// gui.resetMainView()
+	// return gui.switchFocus(focusedView)
+	if _, err := gui.g.SetCurrentView(focusedView.Name()); err != nil {
+		return err
+	}
 	return nil
 }
 

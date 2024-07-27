@@ -2,6 +2,9 @@ package gui
 
 import (
 	"log"
+
+	"github.com/jesseduffield/gocui"
+	"github.com/samber/lo"
 )
 
 const (
@@ -62,3 +65,14 @@ func (gui *Gui) getWindowDimensions() map[string]viewPosition {
 
 	return VIEW_POSITIONS
 }
+
+func (gui *Gui) viewNames() []string {
+	visibleViews := lo.Filter(gui.allViews(), func(view *gocui.View, _ int) bool {
+		return view.Visible
+	})
+
+	return lo.Map(visibleViews, func(view *gocui.View, _ int) string {
+		return view.Name()
+	})
+}
+
