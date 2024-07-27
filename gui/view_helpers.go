@@ -67,7 +67,6 @@ func (gui *Gui) renderString(g *gocui.Gui, viewName, s string) error {
 func (gui *Gui) nextView(g *gocui.Gui, v *gocui.View) error {
 	viewNames := gui.viewNames()
 	var focusedViewName string
-    gui.Log.Info("View Names", viewNames, len(viewNames))
 	if v == nil || v.Name() == viewNames[len(viewNames)-1] {
 		focusedViewName = viewNames[0]
 	} else {
