@@ -38,23 +38,6 @@ func (gui *Gui) SendRequest(request *commands.Request) error {
     if err != nil {
         return err
     }
-    // Commented out since this will re-instantiate requests: losing the response
-    // return gui.renderRequests()
     return gui.RequestPanel.Rerender()
-
-	// return gui.WithWaitingStatus(gui.Tr.PausingStatus, func() (err error) {
-	// 	if container.Details.State.Paused {
-	// 		err = container.Unpause()
-	// 	} else {
-	// 		err = container.Pause()
-	// 	}
-	//
-	// 	if err != nil {
-	// 		return gui.createErrorPanel(err.Error())
-	// 	}
-	//
-	// 	return gui.refreshContainersAndServices()
-	// })
-    return nil
 }
 

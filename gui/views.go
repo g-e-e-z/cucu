@@ -28,21 +28,23 @@ func (gui *Gui) orderedViewNameMappings() []viewNameMapping {
 }
 
 func (gui *Gui) createAllViews() error {
+    frameRunes := []rune{'─', '│', '╭', '╮', '╰', '╯'}
 	var err error
 	for _, mapping := range gui.orderedViewNameMappings() {
 		*mapping.viewPtr, err = gui.prepareView(mapping.name)
 		if err != nil && err.Error() != UNKNOWN_VIEW_ERROR_MSG {
 			return err
 		}
+        (*mapping.viewPtr).FrameRunes = frameRunes
 		(*mapping.viewPtr).FgColor = gocui.ColorDefault
 	}
 	gui.Views.Requests.Highlight = true
 	gui.Views.Requests.Title = "Requests"
 
-	gui.Views.Url.Highlight = true
+	gui.Views.Url.Highlight = false
 	gui.Views.Url.Title = "Request Url"
 
-	gui.Views.Params.Highlight = true
+	gui.Views.Params.Highlight = false
 	gui.Views.Params.Title = "Params"
 
 	gui.Views.Response.Highlight = true
