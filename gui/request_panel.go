@@ -16,16 +16,36 @@ func (gui *Gui) createRequestsPanel() *panels.RequestPanel {
 }
 
 func (gui *Gui) renderRequests() error {
-    requests, err := gui.HttpCommands.GetRequests()
-    if err != nil {
-        return err
-    }
+	requests, err := gui.HttpCommands.GetRequests()
+	if err != nil {
+		return err
+	}
 	gui.RequestPanel.SetRequests(requests)
 	return gui.RequestPanel.Rerender()
 }
 
+func (gui *Gui) reRenderRequests() error {
+    requests := gui.RequestPanel.Requests
+	gui.RequestPanel.SetRequests(requests)
+	return gui.RequestPanel.Rerender()
+}
+
+func (gui *Gui) handleNewRequest(g *gocui.Gui, v *gocui.View) error {
+	gui.Log.Info("Creating New Request")
+	newRequest := &commands.Request{
+		Name:        "NewRequest!",
+		Url:         "this is a placeholder string",
+		Method:      "GET",
+		Log:         gui.Log,
+		HttpCommand: gui.HttpCommands,
+	}
+	gui.RequestPanel.Requests = append(gui.RequestPanel.Requests, newRequest)
+
+	return gui.reRenderRequests()
+}
+
 func (gui *Gui) handleRequestSend(g *gocui.Gui, v *gocui.View) error {
-    request, err := gui.RequestPanel.GetSelectedRequest()
+	request, err := gui.RequestPanel.GetSelectedRequest()
 	if err != nil {
 		return nil
 	}
@@ -34,10 +54,9 @@ func (gui *Gui) handleRequestSend(g *gocui.Gui, v *gocui.View) error {
 }
 
 func (gui *Gui) SendRequest(request *commands.Request) error {
-    err := request.Send()
-    if err != nil {
-        return err
-    }
-    return gui.RequestPanel.Rerender()
+	err := request.Send()
+	if err != nil {
+		return err
+	}
+	return gui.RequestPanel.Rerender()
 }
-
