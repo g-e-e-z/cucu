@@ -80,21 +80,24 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			Handler:  gui.handleRequestSend,
 		},
 	}
-    setUpDownClickBindings := func(viewName string, onUp func() error, onDown func() error) {
+
+	for _, view := range gui.allViews() {
 		bindings = append(bindings, []*Binding{
-			{ViewName: viewName, Key: 'k', Modifier: gocui.ModNone, Handler: wrappedHandler(onUp)},
-			// {ViewName: viewName, Key: gocui.KeyArrowUp, Modifier: gocui.ModNone, Handler: wrappedHandler(onUp)},
-			// {ViewName: viewName, Key: gocui.MouseWheelUp, Modifier: gocui.ModNone, Handler: wrappedHandler(onUp)},
-			{ViewName: viewName, Key: 'j', Modifier: gocui.ModNone, Handler: wrappedHandler(onDown)},
-			// {ViewName: viewName, Key: gocui.KeyArrowDown, Modifier: gocui.ModNone, Handler: wrappedHandler(onDown)},
-			// {ViewName: viewName, Key: gocui.MouseWheelDown, Modifier: gocui.ModNone, Handler: wrappedHandler(onDown)},
-			// {ViewName: viewName, Key: gocui.MouseLeft, Modifier: gocui.ModNone, Handler: wrappedHandler(onClick)},
+			{ViewName: view.Name(), Key: 'h', Modifier: gocui.ModNone, Handler: gui.previousView},
+			{ViewName: view.Name(), Key: 'l', Modifier: gocui.ModNone, Handler: gui.nextView},
 		}...)
 	}
 
-    // TODO: Will likely need to make this a loop when other views are further along
-    rp := gui.RequestPanel
-    setUpDownClickBindings(rp.GetView().Name(), rp.HandlePrevLine, rp.HandleNextLine) //, rc.HandleClick)
+	setUpDownClickBindings := func(viewName string, onUp func() error, onDown func() error) {
+		bindings = append(bindings, []*Binding{
+			{ViewName: viewName, Key: 'k', Modifier: gocui.ModNone, Handler: wrappedHandler(onUp)},
+			{ViewName: viewName, Key: 'j', Modifier: gocui.ModNone, Handler: wrappedHandler(onDown)},
+		}...)
+	}
+
+	// TODO: Will likely need to make this a loop when other views are further along
+	rp := gui.RequestPanel
+	setUpDownClickBindings(rp.GetView().Name(), rp.HandlePrevLine, rp.HandleNextLine)
 
 	return bindings
 }
@@ -110,7 +113,6 @@ func (gui *Gui) keybindings(g *gocui.Gui) error {
 
 	return nil
 }
-
 
 func wrappedHandler(f func() error) func(*gocui.Gui, *gocui.View) error {
 	return func(g *gocui.Gui, v *gocui.View) error {
