@@ -31,7 +31,7 @@ type Request struct {
 }
 
 func (r *Request) Send() error {
-    var request *http.Request
+	var request *http.Request
 	var err error
 
 	if r.Data != nil {
@@ -51,18 +51,20 @@ func (r *Request) Send() error {
 	r.Log.Info("Sending request to: ", request.URL)
 	response, err := r.HttpCommand.Client.Do(request)
 	if err != nil {
+        // TODO: This handling is bad
 		r.Log.Error("Request failed: ", request.URL, err)
-		return err
-	}
-	responseBody, error := io.ReadAll(response.Body)
+        r.ResponseBody = err.Error()
+	} else {
+		responseBody, error := io.ReadAll(response.Body)
 
-	if error != nil {
-		fmt.Println(error)
-	}
+		if error != nil {
+			fmt.Println(error)
+		}
 
-	formattedData := formatJSON(responseBody)
-	r.ResponseBody = formattedData
-	r.Log.Info("Response received: ", response.Status, r.ResponseBody)
+		formattedData := formatJSON(responseBody)
+		r.ResponseBody = formattedData
+		r.Log.Info("Response received: ", response.Status, r.ResponseBody)
+	}
 
 	return nil
 }

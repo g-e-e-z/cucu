@@ -33,6 +33,28 @@ func (gui *Gui) FocusY(selectedY int, lineCount int, v *gocui.View) {
 	gui.focusPoint(0, selectedY, lineCount, v)
 }
 
+func (gui *Gui) RenderErrorString(s string) {
+	_ = gui.renderString(gui.g, "response", s)
+}
+
+// renderString resets the origin of a view and sets its content
+func (gui *Gui) renderString(g *gocui.Gui, viewName, s string) error {
+	g.Update(func(*gocui.Gui) error {
+		v, err := g.View(viewName)
+		if err != nil {
+			return nil // return gracefully if view has been deleted
+		}
+		if err := v.SetOrigin(0, 0); err != nil {
+			return err
+		}
+		if err := v.SetCursor(0, 0); err != nil {
+			return err
+		}
+		return gui.setViewContent(v, s)
+	})
+	return nil
+}
+
 // if the cursor down past the last item, move it to the last line
 // nolint:unparam
 func (gui *Gui) focusPoint(selectedX int, selectedY int, lineCount int, v *gocui.View) {
