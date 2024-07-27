@@ -86,6 +86,10 @@ func (gui *Gui) nextView(g *gocui.Gui, v *gocui.View) error {
 	if err != nil {
 		panic(err)
 	}
+    // Don't leave a view on editable
+    if v.Editable {
+        gui.handleToggleEdit(g, v)
+    }
 	// gui.resetMainView()
 	// return gui.switchFocus(focusedView)
 	if _, err := gui.g.SetCurrentView(focusedView.Name()); err != nil {
@@ -116,6 +120,10 @@ func (gui *Gui) previousView(g *gocui.Gui, v *gocui.View) error {
 	if err != nil {
 		panic(err)
 	}
+    // Don't leave a view on editable
+    if v.Editable {
+        gui.handleToggleEdit(g, v)
+    }
 	// gui.resetMainView()
 	// return gui.switchFocus(focusedView)
 	if _, err := gui.g.SetCurrentView(focusedView.Name()); err != nil {

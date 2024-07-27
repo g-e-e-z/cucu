@@ -44,7 +44,7 @@ func (gui *Gui) createAllViews() error {
 	gui.Views.Url.Highlight = false
 	gui.Views.Url.Title = "Request Url"
     gui.Views.Url.Wrap = false
-    gui.Views.Url.Editable = true
+    gui.Views.Url.Editable = false
     // gui.Views.Url.Editor = gocui.EditorFunc(gocui.SimpleEditor)
     gui.Views.Url.Editor = gocui.EditorFunc(gui.wrapEditor(gocui.SimpleEditor))
 
@@ -64,11 +64,8 @@ func (gui *Gui) wrapEditor(f func(v *gocui.View, key gocui.Key, ch rune, mod goc
 		matched := f(v, key, ch, mod)
         request, _:= gui.RequestPanel.GetSelectedRequest()
         request.Url = v.TextArea.GetContent()
-        gui.Log.Info("Text: ", v.TextArea.GetContent())
+        // gui.Log.Info("Text: ", v.TextArea.GetContent())
         gui.RequestPanel.Rerender()
-
-
-
 		// if matched {
 		// 	// if err := gui.onNewFilterNeedle(v.TextArea.GetContent()); err != nil {
 		// 	// 	gui.Log.Error(err)
@@ -94,15 +91,3 @@ func (gui *Gui) wrapEditor(f func(v *gocui.View, key gocui.Key, ch rune, mod goc
 // 	return gui.switchFocus(gui.Views.Filter)
 // }
 
-// func (gui *Gui) wrapEditor(f func(v *gocui.View, key gocui.Key, ch rune, mod gocui.Modifier) bool) func(v *gocui.View, key gocui.Key, ch rune, mod gocui.Modifier) bool {
-// 	return func(v *gocui.View, key gocui.Key, ch rune, mod gocui.Modifier) bool {
-// 		matched := f(v, key, ch, mod)
-// 		if matched {
-// 			if err := gui.onNewFilterNeedle(v.TextArea.GetContent()); err != nil {
-// 				gui.Log.Error(err)
-// 			}
-// 		}
-// 		return matched
-// 	}
-// }
-//

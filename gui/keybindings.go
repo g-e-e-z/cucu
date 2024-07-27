@@ -79,6 +79,12 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			Modifier: gocui.ModNone,
 			Handler:  gui.handleRequestSend,
 		},
+		{
+			ViewName: "url",
+			Key:      gocui.KeyCtrlE,
+			Modifier: gocui.ModNone,
+            Handler:  gui.handleToggleEdit, // Find a good place for this: Will be applicable to several views
+		},
 	}
 
 	for _, view := range gui.allViews() {

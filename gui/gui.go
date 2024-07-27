@@ -80,6 +80,10 @@ func (gui *Gui) Run() error {
 	return err
 }
 
+func (gui *Gui) Update(f func() error) {
+	gui.g.Update(func(*gocui.Gui) error { return f() })
+}
+
 func (gui *Gui) quit(g *gocui.Gui, v *gocui.View) error {
 	return gocui.ErrQuit
 }
@@ -109,6 +113,14 @@ func (gui *Gui) initiallyFocusedViewName() string {
 	return "requests"
 }
 
-func (gui *Gui) Update(f func() error) {
-	gui.g.Update(func(*gocui.Gui) error { return f() })
+// This works but I dont like it :(
+func (gui *Gui) handleToggleEdit(_ *gocui.Gui, v *gocui.View) error {
+    v.Editable = !v.Editable
+    editMessage := " | EDIT"
+    if v.Editable {
+        v.Title += editMessage
+    } else {
+        v.Title = v.Title[:len(editMessage)]
+    }
+    return nil
 }
