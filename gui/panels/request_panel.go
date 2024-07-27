@@ -6,7 +6,7 @@ import (
 
 	"github.com/g-e-e-z/cucu/commands"
 	"github.com/g-e-e-z/cucu/utils"
-	"github.com/jroimartin/gocui"
+	"github.com/jesseduffield/gocui"
 	"github.com/samber/lo"
 	"github.com/sirupsen/logrus"
 )

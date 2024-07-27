@@ -3,7 +3,7 @@ package gui
 import (
 	"fmt"
 
-	"github.com/jroimartin/gocui"
+	"github.com/jesseduffield/gocui"
 )
 
 // Binding - a keybinding mapping a key and modifier to a handler. The keypress

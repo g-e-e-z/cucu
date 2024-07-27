@@ -1,7 +1,7 @@
 package gui
 
 import (
-	"github.com/jroimartin/gocui"
+	"github.com/jesseduffield/gocui"
 )
 
 func (gui *Gui) SetColorScheme() error {

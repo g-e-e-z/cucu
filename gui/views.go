@@ -1,7 +1,7 @@
 package gui
 
 import (
-	"github.com/jroimartin/gocui"
+	"github.com/jesseduffield/gocui"
 )
 
 const UNKNOWN_VIEW_ERROR_MSG = "unknown view"

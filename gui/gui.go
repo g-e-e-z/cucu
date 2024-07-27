@@ -4,7 +4,7 @@ import (
 	"github.com/g-e-e-z/cucu/commands"
 	"github.com/g-e-e-z/cucu/config"
 	"github.com/g-e-e-z/cucu/gui/panels"
-	"github.com/jroimartin/gocui"
+	"github.com/jesseduffield/gocui"
 	"github.com/sirupsen/logrus"
 )
 
@@ -30,10 +30,14 @@ func NewGuiWrapper(log *logrus.Entry, config *config.AppConfig, osCommands *comm
 }
 
 func (gui *Gui) Run() error {
-	g, err := gocui.NewGui(gocui.Output256)
+	g, err := gocui.NewGui(gocui.NewGuiOpts{
+		OutputMode:       gocui.OutputTrue,
+		RuneReplacements: map[rune]string{},
+	})
 	if err != nil {
 		return err
 	}
+
 	defer g.Close()
 
 	gui.g = g

@@ -5,7 +5,7 @@ import (
 
 	"github.com/g-e-e-z/cucu/utils"
 	lcu "github.com/jesseduffield/lazycore/pkg/utils"
-	"github.com/jroimartin/gocui"
+	"github.com/jesseduffield/gocui"
 	"github.com/spkg/bom"
 )
 
