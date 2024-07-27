@@ -9,6 +9,7 @@ import (
 	"github.com/jesseduffield/gocui"
 	"github.com/samber/lo"
 	"github.com/sirupsen/logrus"
+	"github.com/spkg/bom"
 )
 
 type IGui interface {
@@ -105,10 +106,12 @@ func (rq *RequestPanel) Rerender() error {
 		}
 		fmt.Fprint(rq.View, renderedTable)
 
-		if rq.Gui.IsCurrentView(rq.View) {
-			return rq.HandleSelect()
-		}
-		return nil
+        // TODO: Find work around to get this back in/ evalute if its problematic being commented out: Figure out all callers
+		// if rq.Gui.IsCurrentView(rq.View) {
+		// 	return rq.HandleSelect()
+		// }
+		// return nil
+        return rq.HandleSelect()
 	})
 
 	return nil
@@ -132,10 +135,14 @@ func (rq *RequestPanel) renderContext(request *commands.Request) error {
 	// task := rq.ContextState.GetCurrentMainTab().Render(item)
 	// return rq.Gui.QueueTask(task)
 
-	// TODO: Don't write directly
+	// TODO: Don't write directly, this whole block is questionable, TextArea etc..
 	urlView := rq.Gui.GetUrlView()
-	urlView.Clear()
-	fmt.Fprint(urlView, request.Url)
+	urlView.ClearTextArea()
+    output := string(bom.Clean([]byte(request.Url)))
+    s := utils.NormalizeLinefeeds(output)
+    urlView.TextArea.TypeString(s)
+    urlView.SetCursor(len(s), 0)
+	fmt.Fprint(urlView, s)
 
 	paramsView := rq.Gui.GetParamsView()
 	paramsView.Clear()

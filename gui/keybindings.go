@@ -83,8 +83,9 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 
 	for _, view := range gui.allViews() {
 		bindings = append(bindings, []*Binding{
-			{ViewName: view.Name(), Key: 'h', Modifier: gocui.ModNone, Handler: gui.previousView},
-			{ViewName: view.Name(), Key: 'l', Modifier: gocui.ModNone, Handler: gui.nextView},
+            // TODO: Revist once editor is figured out
+			{ViewName: view.Name(), Key: gocui.KeyCtrlH, Modifier: gocui.ModNone, Handler: gui.previousView},
+			{ViewName: view.Name(), Key: gocui.KeyCtrlL, Modifier: gocui.ModNone, Handler: gui.nextView},
 		}...)
 	}
 

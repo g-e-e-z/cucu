@@ -56,6 +56,7 @@ func (r *Request) Send() error {
         r.ResponseBody = err.Error()
 	} else {
 		responseBody, error := io.ReadAll(response.Body)
+        defer response.Body.Close()
 
 		if error != nil {
 			fmt.Println(error)
