@@ -1,6 +1,8 @@
 package gui
 
 import (
+	"net/http"
+
 	"github.com/g-e-e-z/cucu/commands"
 	"github.com/g-e-e-z/cucu/gui/panels"
 	"github.com/jesseduffield/gocui"
@@ -35,7 +37,7 @@ func (gui *Gui) handleNewRequest(g *gocui.Gui, v *gocui.View) error {
 	newRequest := &commands.Request{
 		Name:        "NewRequest!",
 		Url:         "this is a placeholder string",
-		Method:      "GET",
+		Method:      http.MethodGet,
 		Log:         gui.Log,
 		HttpCommand: gui.HttpCommands,
 	}

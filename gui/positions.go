@@ -12,6 +12,8 @@ const (
 	URL_VIEW = "url"
 	PARAMS_VIEW   = "params"
 	RESPONSE_VIEW = "response"
+
+	EDIT_METHOD_VIEW = "editMethod"
 )
 
 type position struct {
@@ -52,6 +54,12 @@ var VIEW_POSITIONS = map[string]viewPosition{
         position{0.1, 0},   // Y0
         position{1.0, -1},  // X1
         position{1.0, -1},  // Y1
+	},
+	EDIT_METHOD_VIEW: {
+        position{0.25, 0},   // X0
+        position{0.25, 0},   // Y0
+        position{0.75, -1},  // X1
+        position{0.75, -1},  // Y1
 	},
 }
 
