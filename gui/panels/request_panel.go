@@ -24,6 +24,8 @@ type IGui interface {
 type RequestPanel struct {
 	Log            *logrus.Entry
 	View           *gocui.View
+    List            *FilteredList[T]
+
 	Requests       []*commands.Request
 	Gui            IGui
 	NoItemsMessage string
