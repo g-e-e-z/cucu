@@ -11,6 +11,9 @@ type Views struct {
 	Url      *gocui.View
 	Params   *gocui.View
 	Response *gocui.View
+
+    // popups
+    EditMethod *gocui.View
 }
 
 type viewNameMapping struct {
@@ -24,6 +27,8 @@ func (gui *Gui) orderedViewNameMappings() []viewNameMapping {
 		{viewPtr: &gui.Views.Url, name: "url"},
 		{viewPtr: &gui.Views.Params, name: "params"},
 		{viewPtr: &gui.Views.Response, name: "response"},
+
+        {viewPtr: &gui.Views.EditMethod, name: "editMethod"},
 	}
 }
 
@@ -56,13 +61,17 @@ func (gui *Gui) createAllViews() error {
 	gui.Views.Response.Title = "Response"
     gui.Views.Response.Wrap = true
 
+	gui.Views.EditMethod.Visible = false
+	gui.Views.EditMethod.Highlight = true
+	gui.Views.EditMethod.Title = "Choose Http Method"
+
 	return nil
 }
 
 func (gui *Gui) wrapEditor(f func(v *gocui.View, key gocui.Key, ch rune, mod gocui.Modifier) bool) func(v *gocui.View, key gocui.Key, ch rune, mod gocui.Modifier) bool {
 	return func(v *gocui.View, key gocui.Key, ch rune, mod gocui.Modifier) bool {
 		matched := f(v, key, ch, mod)
-        request, _:= gui.RequestPanel.GetSelectedRequest()
+        request, _:= gui.RequestPanel.GetSelectedItem(gui.RequestPanel.NoItemsMessage)
         request.Url = v.TextArea.GetContent()
         // gui.Log.Info("Text: ", v.TextArea.GetContent())
         gui.RequestPanel.Rerender()

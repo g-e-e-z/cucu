@@ -1,7 +1,6 @@
 package panels
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/g-e-e-z/cucu/commands"
@@ -21,54 +20,18 @@ type IGui interface {
 	Update(func() error)
 }
 
+// This should be one more level of generalization
 type RequestPanel struct {
-	Log            *logrus.Entry
-	View           *gocui.View
-	Requests       []*commands.Request
+	Log  *logrus.Entry
+	View *gocui.View
+	ListPanel[*commands.Request]
+
 	Gui            IGui
 	NoItemsMessage string
-
-	indices     []int
-	SelectedIdx int
 }
 
 func (rq *RequestPanel) GetView() *gocui.View {
 	return rq.View
-}
-
-func (rq *RequestPanel) SetRequests(requests []*commands.Request) error {
-	rq.Requests = requests
-	rq.indices = make([]int, len(rq.Requests))
-	for i := range rq.indices {
-		rq.indices[i] = i
-	}
-
-	return nil
-}
-
-func (rq *RequestPanel) GetRequests() []*commands.Request {
-	return rq.Requests
-}
-
-func (rq *RequestPanel) TryGet(index int) (*commands.Request, bool) {
-	if index < 0 || index >= len(rq.indices) {
-		var zero *commands.Request
-		return zero, false
-	}
-
-	return rq.Requests[rq.indices[index]], true
-}
-
-func (rq *RequestPanel) GetSelectedRequest() (*commands.Request, error) {
-	var zero *commands.Request
-
-	item, ok := rq.TryGet(rq.SelectedIdx)
-	if !ok {
-		// could probably have a better error here
-		return zero, errors.New(rq.NoItemsMessage)
-	}
-
-	return item, nil
 }
 
 func (rq *RequestPanel) GetRequestStrings(request *commands.Request) []string {
@@ -76,7 +39,7 @@ func (rq *RequestPanel) GetRequestStrings(request *commands.Request) []string {
 }
 
 func (rq *RequestPanel) HandleSelect() error {
-	item, err := rq.GetSelectedRequest()
+	item, err := rq.GetSelectedItem(rq.NoItemsMessage)
 	if err != nil {
 		if err.Error() != rq.NoItemsMessage {
 			return err
@@ -97,7 +60,7 @@ func (rq *RequestPanel) HandleSelect() error {
 func (rq *RequestPanel) Rerender() error {
 	rq.Gui.Update(func() error {
 		rq.View.Clear()
-		table := lo.Map(rq.GetRequests(), func(req *commands.Request, index int) []string {
+		table := lo.Map(rq.GetItems(), func(req *commands.Request, index int) []string {
 			return rq.GetRequestStrings(req)
 		})
 		renderedTable, err := utils.RenderComponent(table)
@@ -106,12 +69,12 @@ func (rq *RequestPanel) Rerender() error {
 		}
 		fmt.Fprint(rq.View, renderedTable)
 
-        // TODO: Find work around to get this back in/ evalute if its problematic being commented out: Figure out all callers
+		// TODO: Find work around to get this back in/ evalute if its problematic being commented out: Figure out all callers
 		// if rq.Gui.IsCurrentView(rq.View) {
 		// 	return rq.HandleSelect()
 		// }
 		// return nil
-        return rq.HandleSelect()
+		return rq.HandleSelect()
 	})
 
 	return nil
@@ -138,10 +101,10 @@ func (rq *RequestPanel) renderContext(request *commands.Request) error {
 	// TODO: Don't write directly, this whole block is questionable, TextArea etc..
 	urlView := rq.Gui.GetUrlView()
 	urlView.ClearTextArea()
-    output := string(bom.Clean([]byte(request.Url)))
-    s := utils.NormalizeLinefeeds(output)
-    urlView.TextArea.TypeString(s)
-    urlView.SetCursor(len(s), 0)
+	output := string(bom.Clean([]byte(request.Url)))
+	s := utils.NormalizeLinefeeds(output)
+	urlView.TextArea.TypeString(s)
+	urlView.SetCursor(len(s), 0)
 	fmt.Fprint(urlView, s)
 
 	paramsView := rq.Gui.GetParamsView()
@@ -163,8 +126,7 @@ func (rq *RequestPanel) renderContext(request *commands.Request) error {
 
 // Keybinding related
 func (rp *RequestPanel) Refocus() {
-	// rp.Gui.FocusY(rp.SelectedIdx, rp.Len(), rp.View)
-	rp.Gui.FocusY(rp.SelectedIdx, len(rp.Requests), rp.View)
+	rp.Gui.FocusY(rp.SelectedIdx, rp.List.Len(), rp.View)
 }
 
 func (rp *RequestPanel) HandleNextLine() error {
@@ -193,9 +155,8 @@ func (rp *RequestPanel) moveSelectedLine(delta int) {
 
 func (rp *RequestPanel) SetSelectedLineIdx(value int) {
 	clampedValue := 0
-	// if rp.Len() > 0 {
-	if len(rp.Requests) > 0 {
-		clampedValue = Clamp(value, 0, len(rp.Requests)-1)
+	if rp.List.Len() > 0 {
+		clampedValue = Clamp(value, 0, rp.List.Len()-1)
 	}
 
 	rp.SelectedIdx = clampedValue
@@ -203,7 +164,7 @@ func (rp *RequestPanel) SetSelectedLineIdx(value int) {
 
 // Get this from lazycore
 // Clamp returns a value x restricted between min and max
-func Clamp(x int, min int, max int) int {
+func Clamp(x, min, max int) int {
 	if x < min {
 		return min
 	} else if x > max {

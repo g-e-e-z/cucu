@@ -57,12 +57,6 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 	bindings := []*Binding{
 		{
 			ViewName: "",
-			Key:      'q',
-			Modifier: gocui.ModNone,
-			Handler:  gui.quit,
-		},
-		{
-			ViewName: "",
 			Key:      gocui.KeyCtrlC,
 			Modifier: gocui.ModNone,
 			Handler:  gui.quit,
@@ -78,6 +72,18 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			Key:      gocui.KeyCtrlR,
 			Modifier: gocui.ModNone,
 			Handler:  gui.handleRequestSend,
+		},
+		{
+			ViewName: "requests",
+			Key:      gocui.KeyCtrlE,
+			Modifier: gocui.ModNone,
+			Handler:  gui.handleEditMethod,
+		},
+		{
+			ViewName: "editMethod",
+			Key:      'q',
+			Modifier: gocui.ModNone,
+			Handler:  gui.handleCloseEditMethod,
 		},
 		{
 			ViewName: "url",
@@ -105,6 +111,8 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 	// TODO: Will likely need to make this a loop when other views are further along
 	rp := gui.RequestPanel
 	setUpDownClickBindings(rp.GetView().Name(), rp.HandlePrevLine, rp.HandleNextLine)
+    // TODO: Bad :(
+	setUpDownClickBindings("editMethod", rp.HandlePrevLine, rp.HandleNextLine)
 
 	return bindings
 }
