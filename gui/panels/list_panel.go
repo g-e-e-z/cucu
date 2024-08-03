@@ -6,6 +6,7 @@ import (
 	lcUtils "github.com/jesseduffield/lazycore/pkg/utils"
 )
 
+// List Panel Extends FilteredList to include a View and Current Index. Has methods for moving the SelectedIndex. The View is not directly accessed here. Consider moving up a level
 type ListPanel[T comparable] struct {
 	SelectedIdx int
 	List        *FilteredList[T]

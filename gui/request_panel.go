@@ -12,8 +12,13 @@ func (gui *Gui) createRequestsPanel() *panels.RequestPanel {
 	return &panels.RequestPanel{
 		Log:            gui.Log,
 		View:           gui.Views.Requests,
+		ListPanel:      panels.ListPanel[*commands.Request]{
+			List:        panels.NewFilteredList[*commands.Request](),
+			View:        gui.Views.Requests,
+		},
 		Gui:            gui.toInterface(),
 		NoItemsMessage: "No Requests",
+		SelectedIdx:    0,
 	}
 }
 

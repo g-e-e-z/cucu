@@ -21,11 +21,11 @@ type IGui interface {
 	Update(func() error)
 }
 
+// This should be one more level of generalization
 type RequestPanel struct {
-	Log            *logrus.Entry
-	View           *gocui.View
-    List            *FilteredList[T]
-
+	Log  *logrus.Entry
+	View *gocui.View
+	ListPanel[*commands.Request]
 	Requests       []*commands.Request
 	Gui            IGui
 	NoItemsMessage string
@@ -108,12 +108,12 @@ func (rq *RequestPanel) Rerender() error {
 		}
 		fmt.Fprint(rq.View, renderedTable)
 
-        // TODO: Find work around to get this back in/ evalute if its problematic being commented out: Figure out all callers
+		// TODO: Find work around to get this back in/ evalute if its problematic being commented out: Figure out all callers
 		// if rq.Gui.IsCurrentView(rq.View) {
 		// 	return rq.HandleSelect()
 		// }
 		// return nil
-        return rq.HandleSelect()
+		return rq.HandleSelect()
 	})
 
 	return nil
@@ -140,10 +140,10 @@ func (rq *RequestPanel) renderContext(request *commands.Request) error {
 	// TODO: Don't write directly, this whole block is questionable, TextArea etc..
 	urlView := rq.Gui.GetUrlView()
 	urlView.ClearTextArea()
-    output := string(bom.Clean([]byte(request.Url)))
-    s := utils.NormalizeLinefeeds(output)
-    urlView.TextArea.TypeString(s)
-    urlView.SetCursor(len(s), 0)
+	output := string(bom.Clean([]byte(request.Url)))
+	s := utils.NormalizeLinefeeds(output)
+	urlView.TextArea.TypeString(s)
+	urlView.SetCursor(len(s), 0)
 	fmt.Fprint(urlView, s)
 
 	paramsView := rq.Gui.GetParamsView()

@@ -6,9 +6,9 @@ import (
 	"sync"
 )
 
+// FilteredList is a wrapper aound an array for Setting/Filtering/Retrieving Items
 type FilteredList[T comparable] struct {
 	allItems []T
-	// indices of items in the allItems slice that are included in the filtered list
 	indices []int
 	mutex   sync.RWMutex
 }
