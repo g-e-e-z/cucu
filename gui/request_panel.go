@@ -18,7 +18,6 @@ func (gui *Gui) createRequestsPanel() *panels.RequestPanel {
 		},
 		Gui:            gui.toInterface(),
 		NoItemsMessage: "No Requests",
-		SelectedIdx:    0,
 	}
 }
 
@@ -27,13 +26,13 @@ func (gui *Gui) renderRequests() error {
 	if err != nil {
 		return err
 	}
-	gui.RequestPanel.SetRequests(requests)
+	gui.RequestPanel.SetItems(requests)
 	return gui.RequestPanel.Rerender()
 }
 
 func (gui *Gui) reRenderRequests() error {
-    requests := gui.RequestPanel.Requests
-	gui.RequestPanel.SetRequests(requests)
+    requests := gui.RequestPanel.GetItems()
+	gui.RequestPanel.SetItems(requests)
 	return gui.RequestPanel.Rerender()
 }
 
@@ -46,13 +45,15 @@ func (gui *Gui) handleNewRequest(g *gocui.Gui, v *gocui.View) error {
 		Log:         gui.Log,
 		HttpCommand: gui.HttpCommands,
 	}
-	gui.RequestPanel.Requests = append(gui.RequestPanel.Requests, newRequest)
+    newRequestList := append(gui.RequestPanel.GetItems(), newRequest)
+    gui.RequestPanel.SetItems(newRequestList)
 
 	return gui.reRenderRequests()
 }
 
 func (gui *Gui) handleRequestSend(g *gocui.Gui, v *gocui.View) error {
-	request, err := gui.RequestPanel.GetSelectedRequest()
+    // TODO: This is a weird way to handle the no items string, fix later
+	request, err := gui.RequestPanel.GetSelectedItem(gui.RequestPanel.NoItemsMessage)
 	if err != nil {
 		return nil
 	}

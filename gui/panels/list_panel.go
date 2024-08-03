@@ -2,6 +2,8 @@
 package panels
 
 import (
+	"errors"
+
 	"github.com/jesseduffield/gocui"
 	lcUtils "github.com/jesseduffield/lazycore/pkg/utils"
 )
@@ -43,3 +45,24 @@ func (self *ListPanel[T]) SelectPrevLine() {
 	self.moveSelectedLine(-1)
 }
 
+func (self *ListPanel[T]) SetItems(items []T) {
+	self.List.SetItems(items)
+	// self.FilterAndSort()
+}
+
+func (self *ListPanel[T]) GetItems() []T {
+    return self.List.GetItems()
+}
+
+
+func (self *ListPanel[T]) GetSelectedItem(noItemsStr string) (T, error) {
+	var zero T
+
+	item, ok := self.List.TryGet(self.SelectedIdx)
+	if !ok {
+		// could probably have a better error here
+		return zero, errors.New(noItemsStr)
+	}
+
+	return item, nil
+}
