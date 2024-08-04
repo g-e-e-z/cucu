@@ -10,9 +10,10 @@ import (
 
 // List Panel Extends FilteredList to include a View and Current Index. Has methods for moving the SelectedIndex. The View is not directly accessed here. Consider moving up a level
 type ListPanel[T comparable] struct {
-	SelectedIdx int
-	List        *FilteredList[T]
-	View        *gocui.View
+	SelectedIdx    int
+	List           *FilteredList[T]
+	View           *gocui.View
+	NoItemsMessage string
 }
 
 func (self *ListPanel[T]) SetSelectedLineIdx(value int) {
@@ -51,17 +52,16 @@ func (self *ListPanel[T]) SetItems(items []T) {
 }
 
 func (self *ListPanel[T]) GetItems() []T {
-    return self.List.GetItems()
+	return self.List.GetItems()
 }
 
-
-func (self *ListPanel[T]) GetSelectedItem(noItemsStr string) (T, error) {
+func (self *ListPanel[T]) GetSelectedItem() (T, error) {
 	var zero T
 
 	item, ok := self.List.TryGet(self.SelectedIdx)
 	if !ok {
 		// could probably have a better error here
-		return zero, errors.New(noItemsStr)
+		return zero, errors.New(self.NoItemsMessage)
 	}
 
 	return item, nil

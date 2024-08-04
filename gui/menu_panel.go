@@ -18,8 +18,8 @@ func (gui *Gui) getMenuPanel() *components.ListComponent[*types.MenuItem] {
 		ListPanel: components.ListPanel[*types.MenuItem]{
 			List: components.NewFilteredList[*types.MenuItem](),
 			View: gui.Views.Menu,
+            NoItemsMessage: "This should never be seen",
 		},
-		NoItemsMessage: "",
 		Gui:            gui.toInterface(),
 		GetTableCells:  presentation.GetMenuItemDisplayStrings,
 	}
@@ -38,7 +38,7 @@ func (gui *Gui) onMenuPress(menuItem *types.MenuItem) error {
 }
 
 func (gui *Gui) handleMenuPress() error {
-	selectedMenuItem, err := gui.Components.Menu.GetSelectedItem("")
+	selectedMenuItem, err := gui.Components.Menu.GetSelectedItem()
 	if err != nil {
 		return nil
 	}
