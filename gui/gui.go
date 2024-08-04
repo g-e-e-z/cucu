@@ -21,7 +21,7 @@ type Gui struct {
 }
 
 type Panels struct {
-	Requests *panels.RequestPanel
+	Requests *panels.ListComponent
 }
 
 func NewGuiWrapper(log *logrus.Entry, config *config.AppConfig, osCommands *commands.OSCommand, httpCommands *commands.HttpCommand) *Gui {
@@ -78,9 +78,9 @@ func (gui *Gui) Run() error {
 	gui.renderRequests()
 
 	err = gui.g.MainLoop()
-	// if err == gocui.ErrQuit {
-	// 	return nil
-	// }
+	if err == gocui.ErrQuit {
+		return nil
+	}
 	return err
 }
 

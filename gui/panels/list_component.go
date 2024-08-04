@@ -21,7 +21,7 @@ type IGui interface {
 }
 
 // This should be one more level of generalization
-type RequestPanel struct {
+type ListComponent struct {
 	Log  *logrus.Entry
 	View *gocui.View
 	ListPanel[*commands.Request]
@@ -30,76 +30,76 @@ type RequestPanel struct {
 	NoItemsMessage string
 }
 
-func (rq *RequestPanel) GetView() *gocui.View {
-	return rq.View
+func (self *ListComponent) GetView() *gocui.View {
+	return self.View
 }
 
-func (rq *RequestPanel) GetRequestStrings(request *commands.Request) []string {
+func (self *ListComponent) GetRequestStrings(request *commands.Request) []string {
 	return []string{request.Method, request.Name}
 }
 
-func (rq *RequestPanel) HandleSelect() error {
-	item, err := rq.GetSelectedItem(rq.NoItemsMessage)
+func (self *ListComponent) HandleSelect() error {
+	item, err := self.GetSelectedItem(self.NoItemsMessage)
 	if err != nil {
-		if err.Error() != rq.NoItemsMessage {
+		if err.Error() != self.NoItemsMessage {
 			return err
 		}
 
-		if rq.NoItemsMessage != "" {
-			rq.Log.Warn(rq.NoItemsMessage)
+		if self.NoItemsMessage != "" {
+			self.Log.Warn(self.NoItemsMessage)
 		}
 
 		return nil
 	}
 
-	rq.Refocus()
+	self.Refocus()
 
-	return rq.renderContext(item)
+	return self.renderContext(item)
 }
 
-func (rq *RequestPanel) Rerender() error {
-	rq.Gui.Update(func() error {
-		rq.View.Clear()
-		table := lo.Map(rq.GetItems(), func(req *commands.Request, index int) []string {
-			return rq.GetRequestStrings(req)
+func (self *ListComponent) Rerender() error {
+	self.Gui.Update(func() error {
+		self.View.Clear()
+		table := lo.Map(self.GetItems(), func(req *commands.Request, index int) []string {
+			return self.GetRequestStrings(req)
 		})
 		renderedTable, err := utils.RenderComponent(table)
 		if err != nil {
 			return err
 		}
-		fmt.Fprint(rq.View, renderedTable)
+		fmt.Fprint(self.View, renderedTable)
 
 		// TODO: Find work around to get this back in/ evalute if its problematic being commented out: Figure out all callers
-		// if rq.Gui.IsCurrentView(rq.View) {
-		// 	return rq.HandleSelect()
+		// if self.Gui.IsCurrentView(self.View) {
+		// 	return self.HandleSelect()
 		// }
 		// return nil
-		return rq.HandleSelect()
+		return self.HandleSelect()
 	})
 
 	return nil
 }
 
-func (rq *RequestPanel) renderContext(request *commands.Request) error {
-	// if rq.ContextState == nil {
+func (self *ListComponent) renderContext(request *commands.Request) error {
+	// if self.ContextState == nil {
 	// 	return nil
 	// }
 
 	// In lazydocker this is the tab names in the main view, will use something similar in future iterations
-	// key := rq.ContextState.GetCurrentContextKey(item)
-	// if !rq.Gui.ShouldRefresh(key) {
+	// key := self.ContextState.GetCurrentContextKey(item)
+	// if !self.Gui.ShouldRefresh(key) {
 	// 	return nil
 	// }
 
-	// mainView := rq.Gui.GetMainView()
-	// mainView.Tabs = rq.ContextState.GetMainTabTitles()
-	// mainView.TabIndex = rq.ContextState.mainTabIdx
+	// mainView := self.Gui.GetMainView()
+	// mainView.Tabs = self.ContextState.GetMainTabTitles()
+	// mainView.TabIndex = self.ContextState.mainTabIdx
 
-	// task := rq.ContextState.GetCurrentMainTab().Render(item)
-	// return rq.Gui.QueueTask(task)
+	// task := self.ContextState.GetCurrentMainTab().Render(item)
+	// return self.Gui.QueueTask(task)
 
 	// TODO: Don't write directly, this whole block is questionable, TextArea etc..
-	urlView := rq.Gui.GetUrlView()
+	urlView := self.Gui.GetUrlView()
 	urlView.ClearTextArea()
 	output := string(bom.Clean([]byte(request.Url)))
 	s := utils.NormalizeLinefeeds(output)
@@ -107,7 +107,7 @@ func (rq *RequestPanel) renderContext(request *commands.Request) error {
 	urlView.SetCursor(len(s), 0)
 	fmt.Fprint(urlView, s)
 
-	paramsView := rq.Gui.GetParamsView()
+	paramsView := self.Gui.GetParamsView()
 	paramsView.Clear()
 	params, err := request.GetParams()
 	if err != nil {
@@ -117,7 +117,7 @@ func (rq *RequestPanel) renderContext(request *commands.Request) error {
 	renderedTable, err := utils.RenderComponent(table)
 	fmt.Fprint(paramsView, renderedTable)
 
-	responseView := rq.Gui.GetResponseView()
+	responseView := self.Gui.GetResponseView()
 	responseView.Clear()
 	fmt.Fprint(responseView, request.ResponseBody)
 
@@ -125,35 +125,35 @@ func (rq *RequestPanel) renderContext(request *commands.Request) error {
 }
 
 // Keybinding related
-func (rp *RequestPanel) Refocus() {
+func (rp *ListComponent) Refocus() {
 	rp.Gui.FocusY(rp.SelectedIdx, rp.List.Len(), rp.View)
 }
 
-func (rp *RequestPanel) HandleNextLine() error {
+func (rp *ListComponent) HandleNextLine() error {
 	rp.SelectNextLine()
 
 	return rp.HandleSelect()
 }
 
-func (rp *RequestPanel) HandlePrevLine() error {
+func (rp *ListComponent) HandlePrevLine() error {
 	rp.SelectPrevLine()
 
 	return rp.HandleSelect()
 }
 
-func (rp *RequestPanel) SelectNextLine() {
+func (rp *ListComponent) SelectNextLine() {
 	rp.moveSelectedLine(1)
 }
 
-func (rp *RequestPanel) SelectPrevLine() {
+func (rp *ListComponent) SelectPrevLine() {
 	rp.moveSelectedLine(-1)
 }
 
-func (rp *RequestPanel) moveSelectedLine(delta int) {
+func (rp *ListComponent) moveSelectedLine(delta int) {
 	rp.SetSelectedLineIdx(rp.SelectedIdx + delta)
 }
 
-func (rp *RequestPanel) SetSelectedLineIdx(value int) {
+func (rp *ListComponent) SetSelectedLineIdx(value int) {
 	clampedValue := 0
 	if rp.List.Len() > 0 {
 		clampedValue = Clamp(value, 0, rp.List.Len()-1)

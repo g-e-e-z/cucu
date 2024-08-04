@@ -8,8 +8,8 @@ import (
 	"github.com/jesseduffield/gocui"
 )
 
-func (gui *Gui) getRequestsPanel() *panels.RequestPanel {
-	return &panels.RequestPanel{
+func (gui *Gui) getRequestsPanel() *panels.ListComponent {
+	return &panels.ListComponent{
 		Log:            gui.Log,
 		View:           gui.Views.Requests,
 		ListPanel:      panels.ListPanel[*commands.Request]{
