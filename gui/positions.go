@@ -13,7 +13,7 @@ const (
 	PARAMS_VIEW   = "params"
 	RESPONSE_VIEW = "response"
 
-	EDIT_METHOD_VIEW = "editMethod"
+	EDIT_METHOD_VIEW = "menu"
 )
 
 type position struct {

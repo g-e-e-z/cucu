@@ -3,6 +3,7 @@ package gui
 import (
 	"fmt"
 
+	"github.com/g-e-e-z/cucu/gui/components"
 	"github.com/g-e-e-z/cucu/utils"
 	"github.com/jesseduffield/gocui"
 	lcu "github.com/jesseduffield/lazycore/pkg/utils"
@@ -45,6 +46,14 @@ func (gui *Gui) allViews() []*gocui.View {
 		gui.Views.ResponseInfo,
 	}
 }
+
+func (gui *Gui) allListComponents() []components.ISideListPanel {
+	return []components.ISideListPanel{
+		gui.Components.Requests,
+		gui.Components.Menu,
+	}
+}
+
 
 // renderString resets the origin of a view and sets its content
 func (gui *Gui) renderString(g *gocui.Gui, viewName, s string) error {

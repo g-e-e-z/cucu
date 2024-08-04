@@ -4,11 +4,22 @@ package components
 import (
 	"fmt"
 
+	"github.com/g-e-e-z/cucu/commands"
 	"github.com/g-e-e-z/cucu/utils"
 	"github.com/jesseduffield/gocui"
 	"github.com/samber/lo"
 	"github.com/sirupsen/logrus"
 )
+
+type ISideListPanel interface {
+	HandleSelect() error
+	GetView() *gocui.View
+	Refocus()
+	RerenderList() error
+	HandleNextLine() error
+	HandlePrevLine() error
+}
+
 
 type IGui interface {
 	IsCurrentView(*gocui.View) bool
@@ -24,7 +35,7 @@ type ListComponent[T comparable] struct {
 	View *gocui.View
 
     // Im in too deep with the generic, RequestContext will always be using a Request
-	RequestContext *RequestContext[T]
+	RequestContext *RequestContext[*commands.Request]
 	ListPanel[T]
 
 	Gui            IGui
@@ -35,131 +46,131 @@ type ListComponent[T comparable] struct {
 	GetTableCells func(T) []string
 }
 
-func (rp *ListComponent[T]) GetView() *gocui.View {
-	return rp.View
+func (self *ListComponent[T]) GetView() *gocui.View {
+	return self.View
 }
 
-func (rp *ListComponent[T]) HandleSelect() error {
-	item, err := rp.GetSelectedItem(rp.NoItemsMessage)
+func (self *ListComponent[T]) HandleSelect() error {
+	_, err := self.GetSelectedItem(self.NoItemsMessage)
 	if err != nil {
-		if err.Error() != rp.NoItemsMessage {
+		if err.Error() != self.NoItemsMessage {
 			return err
 		}
 
-		if rp.NoItemsMessage != "" {
-			rp.Log.Warn(rp.NoItemsMessage)
+		if self.NoItemsMessage != "" {
+			self.Log.Warn(self.NoItemsMessage)
 		}
 
 		return nil
 	}
 
-	rp.Refocus()
+	self.Refocus()
 
-	return rp.renderContext(item)
+	return self.renderContext()
 }
 
-func (rp *ListComponent[T]) Rerender() error {
-	rp.Gui.Update(func() error {
-		rp.View.Clear()
-		table := lo.Map(rp.List.GetItems(), func(item T, index int) []string {
-			return rp.GetTableCells(item)
+func (self *ListComponent[T]) RerenderList() error {
+	self.Gui.Update(func() error {
+		self.View.Clear()
+		table := lo.Map(self.List.GetItems(), func(item T, index int) []string {
+			return self.GetTableCells(item)
 		})
 
 		renderedTable, err := utils.RenderComponent(table)
 		if err != nil {
 			return err
 		}
-		fmt.Fprint(rp.View, renderedTable)
+		fmt.Fprint(self.View, renderedTable)
 
 		// TODO: Find work around to get this back in/ evalute if its problematic being commented out: Figure out all callers
-		// if rp.Gui.IsCurrentView(rp.View) {
-		// 	return rp.HandleSelect()
+		// if self.Gui.IsCurrentView(self.View) {
+		// 	return self.HandleSelect()
 		// }
 		// return nil
-		return rp.HandleSelect()
+		return self.HandleSelect()
 	})
 
 	return nil
 }
 
-func (rp *ListComponent[T]) renderContext(item T) error {
-	if rp.RequestContext == nil {
+func (self *ListComponent[T]) renderContext() error {
+	if self.RequestContext == nil {
 		return nil
 	}
 
-	rp.RequestContext.RenderUrl(item)
+	self.RequestContext.RenderUrl()
 
-	requestInfoView := rp.Gui.GetRequestInfoView()
-	requestInfoView.Tabs = rp.RequestContext.GetRequestInfoTabTitles()
-	requestInfoView.TabIndex = rp.RequestContext.requestTabIdx
-	rp.RequestContext.GetCurrentRequestInfoTab().Render(item)
-	// task := rp.RequestContext.GetCurrentRequestInfoTab().Render(item)
+	requestInfoView := self.Gui.GetRequestInfoView()
+	requestInfoView.Tabs = self.RequestContext.GetRequestInfoTabTitles()
+	requestInfoView.TabIndex = self.RequestContext.requestTabIdx
+	self.RequestContext.GetCurrentRequestInfoTab().Render()
+	// task := self.RequestContext.GetCurrentRequestInfoTab().Render(item)
 
-	responseInfoView := rp.Gui.GetResponseInfoView()
-	responseInfoView.Tabs = rp.RequestContext.GetResponseInfoTabTitles()
-	responseInfoView.TabIndex = rp.RequestContext.responseTabIdx
-	rp.RequestContext.GetCurrentResponseInfoTab().Render(item)
-	// task := rp.RequestContext.GetCurrentResponseInfoTab().Render(item)
+	responseInfoView := self.Gui.GetResponseInfoView()
+	responseInfoView.Tabs = self.RequestContext.GetResponseInfoTabTitles()
+	responseInfoView.TabIndex = self.RequestContext.responseTabIdx
+	self.RequestContext.GetCurrentResponseInfoTab().Render()
+	// task := self.RequestContext.GetCurrentResponseInfoTab().Render(item)
 
 	return nil
 }
 
 // Keybinding related
-func (rp *ListComponent[T]) Refocus() {
-	rp.Gui.FocusY(rp.SelectedIdx, rp.List.Len(), rp.View)
+func (self *ListComponent[T]) Refocus() {
+	self.Gui.FocusY(self.SelectedIdx, self.List.Len(), self.View)
 }
 
-func (rp *ListComponent[T]) HandleNextLine() error {
-	rp.SelectNextLine()
+func (self *ListComponent[T]) HandleNextLine() error {
+	self.SelectNextLine()
 
-	return rp.HandleSelect()
+	return self.HandleSelect()
 }
 
-func (rp *ListComponent[T]) HandlePrevLine() error {
-	rp.SelectPrevLine()
+func (self *ListComponent[T]) HandlePrevLine() error {
+	self.SelectPrevLine()
 
-	return rp.HandleSelect()
+	return self.HandleSelect()
 }
 
-func (rp *ListComponent[T]) SelectNextLine() {
-	rp.moveSelectedLine(1)
+func (self *ListComponent[T]) SelectNextLine() {
+	self.moveSelectedLine(1)
 }
 
-func (rp *ListComponent[T]) SelectPrevLine() {
-	rp.moveSelectedLine(-1)
+func (self *ListComponent[T]) SelectPrevLine() {
+	self.moveSelectedLine(-1)
 }
 
-func (rp *ListComponent[T]) moveSelectedLine(delta int) {
-	rp.SetSelectedLineIdx(rp.SelectedIdx + delta)
+func (self *ListComponent[T]) moveSelectedLine(delta int) {
+	self.SetSelectedLineIdx(self.SelectedIdx + delta)
 }
 
-func (rp *ListComponent[T]) SetSelectedLineIdx(value int) {
+func (self *ListComponent[T]) SetSelectedLineIdx(value int) {
 	clampedValue := 0
-	if rp.List.Len() > 0 {
-		clampedValue = Clamp(value, 0, rp.List.Len()-1)
+	if self.List.Len() > 0 {
+		clampedValue = Clamp(value, 0, self.List.Len()-1)
 	}
 
-	rp.SelectedIdx = clampedValue
+	self.SelectedIdx = clampedValue
 }
 
-func (rp *ListComponent[T]) HandleNextTab() error {
-	if rp.RequestContext == nil {
+func (self *ListComponent[T]) HandleNextTab() error {
+	if self.RequestContext == nil {
 		return nil
 	}
 
-	rp.RequestContext.HandleNextTab()
+	self.RequestContext.HandleNextTab()
 
-	return rp.HandleSelect()
+	return self.HandleSelect()
 }
 
-func (rp *ListComponent[T]) HandlePrevTab() error {
-	if rp.RequestContext == nil {
+func (self *ListComponent[T]) HandlePrevTab() error {
+	if self.RequestContext == nil {
 		return nil
 	}
 
-	rp.RequestContext.HandlePrevTab()
+	self.RequestContext.HandlePrevTab()
 
-	return rp.HandleSelect()
+	return self.HandleSelect()
 }
 
 

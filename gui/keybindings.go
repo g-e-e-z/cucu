@@ -92,7 +92,32 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			Handler:  wrappedHandler(gui.Components.Requests.HandlePrevTab),
 		},
 		{
-			ViewName: "editMethod",
+			ViewName: "menu",
+			Key:      'q',
+			Modifier: gocui.ModNone,
+			Handler:  wrappedHandler(gui.handleMenuClose),
+		},
+		{
+			ViewName: "menu",
+			Key:      ' ',
+			Modifier: gocui.ModNone,
+			Handler:  wrappedHandler(gui.handleMenuPress),
+		},
+		{
+			ViewName: "menu",
+			Key:      gocui.KeyEnter,
+			Modifier: gocui.ModNone,
+			Handler:  wrappedHandler(gui.handleMenuPress),
+		},
+		{
+			ViewName: "menu",
+			Key:      'y',
+			Modifier: gocui.ModNone,
+			Handler:  wrappedHandler(gui.handleMenuPress),
+		},
+		// TODO: Remove below method
+		{
+			ViewName: "menu",
 			Key:      'q',
 			Modifier: gocui.ModNone,
 			Handler:  gui.handleCloseEditMethod,
@@ -101,13 +126,13 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			ViewName: "url",
 			Key:      gocui.KeyCtrlE,
 			Modifier: gocui.ModNone,
-            Handler:  gui.handleToggleEdit, // Find a good place for this: Will be applicable to several views
+			Handler:  gui.handleToggleEdit, // Find a good place for this: Will be applicable to several views
 		},
 	}
 
 	for _, view := range gui.allViews() {
 		bindings = append(bindings, []*Binding{
-            // TODO: Revist once editor is figured out
+			// TODO: Revist once editor is figured out
 			{ViewName: view.Name(), Key: gocui.KeyCtrlH, Modifier: gocui.ModNone, Handler: gui.previousView},
 			{ViewName: view.Name(), Key: gocui.KeyCtrlL, Modifier: gocui.ModNone, Handler: gui.nextView},
 		}...)
@@ -120,11 +145,9 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 		}...)
 	}
 
-	// TODO: Will likely need to make this a loop when other views are further along
-	rp := gui.Components.Requests
-	setUpDownClickBindings(rp.GetView().Name(), rp.HandlePrevLine, rp.HandleNextLine)
-    // TODO: Bad :(
-	setUpDownClickBindings("editMethod", rp.HandlePrevLine, rp.HandleNextLine)
+	for _, component := range gui.allListComponents() {
+		setUpDownClickBindings(component.GetView().Name(), component.HandlePrevLine, component.HandleNextLine)
+	}
 
 	return bindings
 }
