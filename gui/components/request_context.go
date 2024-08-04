@@ -24,11 +24,11 @@ type Tab[T any] struct {
 	// title of the tab, rendered in the respective view
 	Title string
 	// function to render the content of the tab
-	Render func(item T) // tasks.TaskFunc
+	Render func() error // tasks.TaskFunc
 }
 
-func (rc *RequestContext[T]) RenderUrl(item T) {
-    rc.GetUrlTab().Render(item)
+func (rc *RequestContext[T]) RenderUrl() {
+    rc.GetUrlTab().Render()
 }
 
 func (rc *RequestContext[T]) GetRequestInfoTabTitles() []string {

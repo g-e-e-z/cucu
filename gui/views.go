@@ -13,7 +13,7 @@ type Views struct {
 	ResponseInfo *gocui.View
 
     // popups
-    EditMethod *gocui.View
+    Menu *gocui.View
 }
 
 type viewNameMapping struct {
@@ -28,7 +28,7 @@ func (gui *Gui) orderedViewNameMappings() []viewNameMapping {
 		{viewPtr: &gui.Views.RequestInfo, name: "params"},
 		{viewPtr: &gui.Views.ResponseInfo, name: "response"},
 
-        {viewPtr: &gui.Views.EditMethod, name: "editMethod"},
+        {viewPtr: &gui.Views.Menu, name: "menu"},
 	}
 }
 
@@ -62,9 +62,9 @@ func (gui *Gui) createAllViews() error {
 	gui.Views.ResponseInfo.Title = "Response"
     gui.Views.ResponseInfo.Wrap = true
 
-	gui.Views.EditMethod.Visible = false
-	gui.Views.EditMethod.Highlight = true
-	gui.Views.EditMethod.Title = "Choose Http Method"
+	gui.Views.Menu.Visible = false
+	gui.Views.Menu.Highlight = true
+	gui.Views.Menu.Title = "Choose Http Method"
 
 	return nil
 }

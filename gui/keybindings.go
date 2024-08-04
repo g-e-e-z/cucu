@@ -92,7 +92,7 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			Handler:  wrappedHandler(gui.Components.Requests.HandlePrevTab),
 		},
 		{
-			ViewName: "editMethod",
+			ViewName: "menu",
 			Key:      'q',
 			Modifier: gocui.ModNone,
 			Handler:  gui.handleCloseEditMethod,
@@ -124,7 +124,7 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 	rp := gui.Components.Requests
 	setUpDownClickBindings(rp.GetView().Name(), rp.HandlePrevLine, rp.HandleNextLine)
     // TODO: Bad :(
-	setUpDownClickBindings("editMethod", rp.HandlePrevLine, rp.HandleNextLine)
+	setUpDownClickBindings("menu", rp.HandlePrevLine, rp.HandleNextLine)
 
 	return bindings
 }

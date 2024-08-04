@@ -4,6 +4,7 @@ package components
 import (
 	"fmt"
 
+	"github.com/g-e-e-z/cucu/commands"
 	"github.com/g-e-e-z/cucu/utils"
 	"github.com/jesseduffield/gocui"
 	"github.com/samber/lo"
@@ -24,7 +25,7 @@ type ListComponent[T comparable] struct {
 	View *gocui.View
 
     // Im in too deep with the generic, RequestContext will always be using a Request
-	RequestContext *RequestContext[T]
+	RequestContext *RequestContext[*commands.Request]
 	ListPanel[T]
 
 	Gui            IGui
@@ -40,7 +41,7 @@ func (rp *ListComponent[T]) GetView() *gocui.View {
 }
 
 func (rp *ListComponent[T]) HandleSelect() error {
-	item, err := rp.GetSelectedItem(rp.NoItemsMessage)
+	_, err := rp.GetSelectedItem(rp.NoItemsMessage)
 	if err != nil {
 		if err.Error() != rp.NoItemsMessage {
 			return err
@@ -55,7 +56,7 @@ func (rp *ListComponent[T]) HandleSelect() error {
 
 	rp.Refocus()
 
-	return rp.renderContext(item)
+	return rp.renderContext()
 }
 
 func (rp *ListComponent[T]) Rerender() error {
@@ -82,23 +83,23 @@ func (rp *ListComponent[T]) Rerender() error {
 	return nil
 }
 
-func (rp *ListComponent[T]) renderContext(item T) error {
+func (rp *ListComponent[T]) renderContext() error {
 	if rp.RequestContext == nil {
 		return nil
 	}
 
-	rp.RequestContext.RenderUrl(item)
+	rp.RequestContext.RenderUrl()
 
 	requestInfoView := rp.Gui.GetRequestInfoView()
 	requestInfoView.Tabs = rp.RequestContext.GetRequestInfoTabTitles()
 	requestInfoView.TabIndex = rp.RequestContext.requestTabIdx
-	rp.RequestContext.GetCurrentRequestInfoTab().Render(item)
+	rp.RequestContext.GetCurrentRequestInfoTab().Render()
 	// task := rp.RequestContext.GetCurrentRequestInfoTab().Render(item)
 
 	responseInfoView := rp.Gui.GetResponseInfoView()
 	responseInfoView.Tabs = rp.RequestContext.GetResponseInfoTabTitles()
 	responseInfoView.TabIndex = rp.RequestContext.responseTabIdx
-	rp.RequestContext.GetCurrentResponseInfoTab().Render(item)
+	rp.RequestContext.GetCurrentResponseInfoTab().Render()
 	// task := rp.RequestContext.GetCurrentResponseInfoTab().Render(item)
 
 	return nil

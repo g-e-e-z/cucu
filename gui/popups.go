@@ -20,9 +20,9 @@ var httpMethods = []string{
 }
 
 func (gui *Gui) handleEditMethod(_ *gocui.Gui, v *gocui.View) error {
-    editView := gui.Views.EditMethod
+    editView := gui.Views.Menu
 	editView.Visible = true
-    gui.g.SetCurrentView("editMethod")
+    gui.g.SetCurrentView("menu")
     // TODO: I already regret this no items message shenanigans
 	req, _ := gui.Components.Requests.GetSelectedItem(gui.Components.Requests.NoItemsMessage)
 	currentMethod := req.Method
@@ -37,7 +37,7 @@ func (gui *Gui) handleEditMethod(_ *gocui.Gui, v *gocui.View) error {
 
 func (gui *Gui) handleCloseEditMethod(_ *gocui.Gui, v *gocui.View) error {
     // Need to modify keybinds here as well: for now, just making non-competing keybinds
-    editView := gui.Views.EditMethod
+    editView := gui.Views.Menu
 	editView.Visible = false
     gui.g.SetCurrentView("requests")
 	return nil

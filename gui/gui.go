@@ -4,6 +4,7 @@ import (
 	"github.com/g-e-e-z/cucu/commands"
 	"github.com/g-e-e-z/cucu/config"
 	"github.com/g-e-e-z/cucu/gui/components"
+	"github.com/g-e-e-z/cucu/gui/types"
 	"github.com/jesseduffield/gocui"
 	"github.com/sirupsen/logrus"
 )
@@ -22,6 +23,8 @@ type Gui struct {
 
 type Components struct {
 	Requests *components.ListComponent[*commands.Request]
+
+    Menu *components.ListComponent[*types.MenuItem]
 }
 
 func NewGuiWrapper(log *logrus.Entry, config *config.AppConfig, osCommands *commands.OSCommand, httpCommands *commands.HttpCommand) *Gui {
