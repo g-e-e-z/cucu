@@ -196,7 +196,11 @@ func (gui *Gui) handleEditMethod(_ *gocui.Gui, v *gocui.View) error {
     }
 
     var menuItems []*types.MenuItem
-    for _, method := range httpMethods {
+    var currentIndex int
+    for i, method := range httpMethods {
+        if method == request.Method {
+            currentIndex = i
+        }
         menuItems = append(menuItems, &types.MenuItem{
         		Label:        method,
         		OnPress: func() error {return handleMenuPress(method) },
@@ -205,9 +209,10 @@ func (gui *Gui) handleEditMethod(_ *gocui.Gui, v *gocui.View) error {
     }
 
 	return gui.Menu(CreateMenuOptions{
-		Title: "Change Request Method",
-		Items: menuItems,
-        HideCancel: true,
+		Title:      "Change Request Method",
+		Items:      menuItems,
+		Index:      currentIndex,
+		HideCancel: true,
 	})
 }
 

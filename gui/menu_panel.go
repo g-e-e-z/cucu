@@ -6,22 +6,24 @@ import (
 	"github.com/g-e-e-z/cucu/gui/types"
 	"github.com/g-e-e-z/cucu/utils"
 )
+
 type CreateMenuOptions struct {
 	Title      string
 	Items      []*types.MenuItem
+	Index      int
 	HideCancel bool
 }
 
 func (gui *Gui) getMenuPanel() *components.ListComponent[*types.MenuItem] {
 	return &components.ListComponent[*types.MenuItem]{
-        View: gui.Views.Menu,
+		View: gui.Views.Menu,
 		ListPanel: components.ListPanel[*types.MenuItem]{
-			List: components.NewFilteredList[*types.MenuItem](),
-			View: gui.Views.Menu,
-            NoItemsMessage: "This should never be seen",
+			List:           components.NewFilteredList[*types.MenuItem](),
+			View:           gui.Views.Menu,
+			NoItemsMessage: "This should never be seen",
 		},
-		Gui:            gui.toInterface(),
-		GetTableCells:  presentation.GetMenuItemDisplayStrings,
+		Gui:           gui.toInterface(),
+		GetTableCells: presentation.GetMenuItemDisplayStrings,
 	}
 }
 
@@ -45,7 +47,6 @@ func (gui *Gui) handleMenuPress() error {
 
 	return gui.onMenuPress(selectedMenuItem)
 }
-
 
 func (gui *Gui) Menu(opts CreateMenuOptions) error {
 	if !opts.HideCancel {
@@ -80,7 +81,7 @@ func (gui *Gui) Menu(opts CreateMenuOptions) error {
 		}
 	}
 	gui.Components.Menu.SetItems(opts.Items)
-	gui.Components.Menu.SetSelectedLineIdx(0)
+	gui.Components.Menu.SetSelectedLineIdx(opts.Index)
 
 	if err := gui.Components.Menu.RerenderList(); err != nil {
 		return err
@@ -89,9 +90,9 @@ func (gui *Gui) Menu(opts CreateMenuOptions) error {
 	gui.Views.Menu.Title = opts.Title
 	gui.Views.Menu.Visible = true
 
-    gui.g.SetCurrentView(gui.Views.Menu.Name())
+	gui.g.SetCurrentView(gui.Views.Menu.Name())
 	// return gui.switchFocus(gui.Views.Menu)
-    return nil
+	return nil
 }
 
 func (gui *Gui) handleMenuClose() error {
@@ -111,11 +112,10 @@ func (gui *Gui) handleMenuClose() error {
 	// }
 
 	// return gui.returnFocus()
-    _, err := gui.g.SetCurrentView(gui.Views.Requests.Name())
-    if err != nil {
-        return err
-    }
-    gui.Components.Requests.RerenderList()
-    return nil
+	_, err := gui.g.SetCurrentView(gui.Views.Requests.Name())
+	if err != nil {
+		return err
+	}
+	gui.Components.Requests.RerenderList()
+	return nil
 }
-
