@@ -20,11 +20,11 @@ type IGui interface {
 }
 
 type ListComponent[T comparable] struct {
-    // Im in too deep with the generic, RequestContext will always be using a Request
-	RequestContext *RequestContext[T]
-
 	Log  *logrus.Entry
 	View *gocui.View
+
+    // Im in too deep with the generic, RequestContext will always be using a Request
+	RequestContext *RequestContext[T]
 	ListPanel[T]
 
 	Gui            IGui

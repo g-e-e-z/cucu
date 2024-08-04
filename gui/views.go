@@ -56,6 +56,7 @@ func (gui *Gui) createAllViews() error {
 
 	gui.Views.RequestInfo.Highlight = false
 	gui.Views.RequestInfo.Title = "Params"
+	// gui.Views.RequestInfo.SelBgColor = gocui.ColorRed // Come back later
 
 	gui.Views.ResponseInfo.Highlight = false
 	gui.Views.ResponseInfo.Title = "Response"

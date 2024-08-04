@@ -9,6 +9,7 @@ type RequestContext[T any] struct {
 	responseTabIdx int
 	// this function returns the tabs that we can display for an item (the tabs
 	// are shown on the request and response views)
+	GetUrlTab func() Tab[T]
 	GetRequestInfoTabs  func() []Tab[T]
 	GetResponseInfoTabs func() []Tab[T]
 	// This tells us whether we need to re-render to the main panel for a given item.
@@ -26,7 +27,9 @@ type Tab[T any] struct {
 	Render func(item T) // tasks.TaskFunc
 }
 
-func (rc *RequestContext[T]) RenderUrl(T) {}
+func (rc *RequestContext[T]) RenderUrl(item T) {
+    rc.GetUrlTab().Render(item)
+}
 
 func (rc *RequestContext[T]) GetRequestInfoTabTitles() []string {
 	return lo.Map(rc.GetRequestInfoTabs(), func(tab Tab[T], _ int) string {
