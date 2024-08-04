@@ -17,12 +17,12 @@ func (gui *Gui) GetUrlView() *gocui.View {
 	return gui.Views.Url
 }
 
-func (gui *Gui) GetParamsView() *gocui.View {
-	return gui.Views.Params
+func (gui *Gui) GetRequestInfoView() *gocui.View {
+	return gui.Views.RequestInfo
 }
 
-func (gui *Gui) GetResponseView() *gocui.View {
-	return gui.Views.Response
+func (gui *Gui) GetResponseInfoView() *gocui.View {
+	return gui.Views.ResponseInfo
 }
 
 func (gui *Gui) IsCurrentView(view *gocui.View) bool {
@@ -41,8 +41,8 @@ func (gui *Gui) allViews() []*gocui.View {
 	return []*gocui.View{
 		gui.Views.Requests,
 		gui.Views.Url,
-		gui.Views.Params,
-		gui.Views.Response,
+		gui.Views.RequestInfo,
+		gui.Views.ResponseInfo,
 	}
 }
 

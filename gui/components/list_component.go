@@ -1,21 +1,20 @@
+// This is copy paste of jesseduffield lazydocker side_list_panel - Side doesnt have much meaning in the context of this project
 package components
 
 import (
 	"fmt"
 
-	"github.com/g-e-e-z/cucu/commands"
 	"github.com/g-e-e-z/cucu/utils"
 	"github.com/jesseduffield/gocui"
 	"github.com/samber/lo"
 	"github.com/sirupsen/logrus"
-	"github.com/spkg/bom"
 )
 
 type IGui interface {
 	IsCurrentView(*gocui.View) bool
 	GetUrlView() *gocui.View
-	GetParamsView() *gocui.View
-	GetResponseView() *gocui.View
+	GetRequestInfoView() *gocui.View
+	GetResponseInfoView() *gocui.View
 	FocusY(selectedLine int, itemCount int, view *gocui.View)
 	Update(func() error)
 }
@@ -23,104 +22,84 @@ type IGui interface {
 type ListComponent[T comparable] struct {
 	Log  *logrus.Entry
 	View *gocui.View
+
+    // Im in too deep with the generic, RequestContext will always be using a Request
+	RequestContext *RequestContext[T]
 	ListPanel[T]
 
 	Gui            IGui
 	NoItemsMessage string
 
-    // returns the cells that we render to the view in a table format. The cells will
+	// returns the cells that we render to the view in a table format. The cells will
 	// be rendered with padding.
 	GetTableCells func(T) []string
-
 }
 
-func (self *ListComponent[T]) GetView() *gocui.View {
-	return self.View
+func (rp *ListComponent[T]) GetView() *gocui.View {
+	return rp.View
 }
 
-func (self *ListComponent[T]) HandleSelect() error {
-	item, err := self.GetSelectedItem(self.NoItemsMessage)
+func (rp *ListComponent[T]) HandleSelect() error {
+	item, err := rp.GetSelectedItem(rp.NoItemsMessage)
 	if err != nil {
-		if err.Error() != self.NoItemsMessage {
+		if err.Error() != rp.NoItemsMessage {
 			return err
 		}
 
-		if self.NoItemsMessage != "" {
-			self.Log.Warn(self.NoItemsMessage)
+		if rp.NoItemsMessage != "" {
+			rp.Log.Warn(rp.NoItemsMessage)
 		}
 
 		return nil
 	}
 
-	self.Refocus()
+	rp.Refocus()
 
-	return self.renderContext(item)
+	return rp.renderContext(item)
 }
 
-func (self *ListComponent[T]) Rerender() error {
-	self.Gui.Update(func() error {
-		self.View.Clear()
-        table := lo.Map(self.List.GetItems(), func(item T, index int) []string {
-			return self.GetTableCells(item)
+func (rp *ListComponent[T]) Rerender() error {
+	rp.Gui.Update(func() error {
+		rp.View.Clear()
+		table := lo.Map(rp.List.GetItems(), func(item T, index int) []string {
+			return rp.GetTableCells(item)
 		})
 
 		renderedTable, err := utils.RenderComponent(table)
 		if err != nil {
 			return err
 		}
-		fmt.Fprint(self.View, renderedTable)
+		fmt.Fprint(rp.View, renderedTable)
 
 		// TODO: Find work around to get this back in/ evalute if its problematic being commented out: Figure out all callers
-		// if self.Gui.IsCurrentView(self.View) {
-		// 	return self.HandleSelect()
+		// if rp.Gui.IsCurrentView(rp.View) {
+		// 	return rp.HandleSelect()
 		// }
 		// return nil
-		return self.HandleSelect()
+		return rp.HandleSelect()
 	})
 
 	return nil
 }
 
-func (self *ListComponent[T]) renderContext(item T) error {
-	// if self.ContextState == nil {
-	// 	return nil
-	// }
-
-	// In lazydocker this is the tab names in the main view, will use something similar in future iterations
-	// key := self.ContextState.GetCurrentContextKey(item)
-	// if !self.Gui.ShouldRefresh(key) {
-	// 	return nil
-	// }
-
-	// mainView := self.Gui.GetMainView()
-	// mainView.Tabs = self.ContextState.GetMainTabTitles()
-	// mainView.TabIndex = self.ContextState.mainTabIdx
-
-	// task := self.ContextState.GetCurrentMainTab().Render(item)
-	// return self.Gui.QueueTask(task)
-
-	// TODO: Don't write directly, this whole block is questionable, TextArea etc..
-	urlView := self.Gui.GetUrlView()
-	urlView.ClearTextArea()
-	output := string(bom.Clean([]byte(item.Url)))
-	s := utils.NormalizeLinefeeds(output)
-	urlView.TextArea.TypeString(s)
-	urlView.SetCursor(len(s), 0)
-	fmt.Fprint(urlView, s)
-
-	paramsView := self.Gui.GetParamsView()
-	paramsView.Clear()
-	params, err := item.GetParams()
-	if err != nil {
-		return err
+func (rp *ListComponent[T]) renderContext(item T) error {
+	if rp.RequestContext == nil {
+		return nil
 	}
-	table := utils.MapToSlice(utils.ValuesToMap(params))
-	renderedTable, err := utils.RenderComponent(table)
-	fmt.Fprint(paramsView, renderedTable)
 
-	responseView := self.Gui.GetResponseView()
-	responseView.Clear()
-	fmt.Fprint(responseView, item.ResponseBody)
+	rp.RequestContext.RenderUrl(item)
+
+	requestInfoView := rp.Gui.GetRequestInfoView()
+	requestInfoView.Tabs = rp.RequestContext.GetRequestInfoTabTitles()
+	requestInfoView.TabIndex = rp.RequestContext.requestTabIdx
+	rp.RequestContext.GetCurrentRequestInfoTab().Render(item)
+	// task := rp.RequestContext.GetCurrentRequestInfoTab().Render(item)
+
+	responseInfoView := rp.Gui.GetResponseInfoView()
+	responseInfoView.Tabs = rp.RequestContext.GetResponseInfoTabTitles()
+	responseInfoView.TabIndex = rp.RequestContext.responseTabIdx
+	rp.RequestContext.GetCurrentResponseInfoTab().Render(item)
+	// task := rp.RequestContext.GetCurrentResponseInfoTab().Render(item)
 
 	return nil
 }
@@ -162,6 +141,27 @@ func (rp *ListComponent[T]) SetSelectedLineIdx(value int) {
 
 	rp.SelectedIdx = clampedValue
 }
+
+func (rp *ListComponent[T]) HandleNextTab() error {
+	if rp.RequestContext == nil {
+		return nil
+	}
+
+	rp.RequestContext.HandleNextTab()
+
+	return rp.HandleSelect()
+}
+
+func (rp *ListComponent[T]) HandlePrevTab() error {
+	if rp.RequestContext == nil {
+		return nil
+	}
+
+	rp.RequestContext.HandlePrevTab()
+
+	return rp.HandleSelect()
+}
+
 
 // Get this from lazycore
 // Clamp returns a value x restricted between min and max

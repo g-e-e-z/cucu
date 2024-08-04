@@ -21,7 +21,7 @@ type Gui struct {
 }
 
 type Components struct {
-	Requests *components.ListComponent
+	Requests *components.ListComponent[*commands.Request]
 }
 
 func NewGuiWrapper(log *logrus.Entry, config *config.AppConfig, osCommands *commands.OSCommand, httpCommands *commands.HttpCommand) *Gui {

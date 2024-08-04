@@ -1,30 +1,76 @@
 package gui
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/g-e-e-z/cucu/commands"
 	"github.com/g-e-e-z/cucu/gui/components"
 	"github.com/g-e-e-z/cucu/gui/presentation"
+	"github.com/g-e-e-z/cucu/utils"
 	"github.com/jesseduffield/gocui"
+	"github.com/spkg/bom"
 )
 
 func (gui *Gui) getRequestsPanel() *components.ListComponent[*commands.Request] {
 	return &components.ListComponent[*commands.Request]{
-		Log:            gui.Log,
-		View:           gui.Views.Requests,
-		ListPanel:      components.ListPanel[*commands.Request]{
-			List:        components.NewFilteredList[*commands.Request](),
-			View:        gui.Views.Requests,
+		Log:  gui.Log,
+		View: gui.Views.Requests,
+		RequestContext: &components.RequestContext[*commands.Request]{
+            GetUrlTab:  func() components.Tab[*commands.Request] {
+                return components.Tab[*commands.Request]{
+                	Key:   "url",
+                	Title: "Url",
+                	Render: gui.renderUrl,
+                }
+            },
+			GetRequestInfoTabs: func() []components.Tab[*commands.Request] {
+				return []components.Tab[*commands.Request]{
+					// {
+					// 	Key:    "headers",
+					// 	Title:  "Params",
+					// 	Render: func(*commands.Request) {},
+					// },
+					{
+						Key:    "params",
+						Title:  "Params",
+						Render: gui.renderRequestParams,
+					},
+					{
+						Key:    "body",
+						Title:  "Body",
+						Render: gui.renderRequestBody,
+					},
+				}
+			},
+			GetResponseInfoTabs: func() []components.Tab[*commands.Request] {
+				return []components.Tab[*commands.Request]{
+					{
+						Key:    "body",
+						Title:  "Body",
+						Render: gui.renderResponseBody,
+					},
+					{
+						Key:    "headers",
+						Title:  "Headers",
+						Render: gui.renderResponseHeaders,
+					},
+				}
+			},
+		},
+		ListPanel: components.ListPanel[*commands.Request]{
+			List: components.NewFilteredList[*commands.Request](),
+			View: gui.Views.Requests,
 		},
 		Gui:            gui.toInterface(),
 		NoItemsMessage: "No Requests",
-        GetTableCells: func(request *commands.Request) []string {
+		GetTableCells: func(request *commands.Request) []string {
 			return presentation.GetRequestStrings(request)
 		},
 	}
 }
 
+// Rendering
 func (gui *Gui) renderRequests() error {
 	requests, err := gui.HttpCommands.GetRequests()
 	if err != nil {
@@ -35,11 +81,71 @@ func (gui *Gui) renderRequests() error {
 }
 
 func (gui *Gui) reRenderRequests() error {
-    requests := gui.Components.Requests.GetItems()
+	requests := gui.Components.Requests.GetItems()
 	gui.Components.Requests.SetItems(requests)
 	return gui.Components.Requests.Rerender()
 }
 
+func (gui *Gui) renderUrl(request *commands.Request) {
+    urlView := gui.Views.Url
+	urlView.ClearTextArea()
+	output := string(bom.Clean([]byte(request.Url)))
+	s := utils.NormalizeLinefeeds(output)
+	urlView.TextArea.TypeString(s)
+	urlView.SetCursor(len(s), 0)
+	fmt.Fprint(urlView, s)
+    // Below sets origin and cursor to 0, not friendly with editing
+    // gui.renderString(gui.g, gui.Views.Url.Name(), s)
+}
+
+func (gui *Gui) renderRequestParams(request *commands.Request) {
+    params, err := request.GetParams()
+    if err != nil {
+        // TODO: This better
+        gui.renderString(gui.g, gui.Views.RequestInfo.Name(), "")
+        return
+    }
+    table := utils.MapToSlice(utils.ValuesToMap(params))
+    renderedTable, err := utils.RenderComponent(table)
+
+    gui.renderString(gui.g, gui.Views.RequestInfo.Name(), renderedTable)
+}
+
+func (gui *Gui) renderRequestBody(request *commands.Request) {
+    if request.Data == nil {
+        // TODO: This better
+        gui.renderString(gui.g, gui.Views.RequestInfo.Name(), "")
+        return
+    }
+    params, err := request.GetData()
+    if err != nil {
+        return
+    }
+    table := utils.MapToSlice(params)
+    renderedTable, err := utils.RenderComponent(table)
+
+    gui.renderString(gui.g, gui.Views.RequestInfo.Name(), renderedTable)
+}
+func (gui *Gui) renderResponseHeaders(request *commands.Request) {
+    // if request.ResponseBody == "" {
+    //     // TODO: This better
+    //     gui.renderString(gui.g, gui.Views.ResponseInfo.Name(), "")
+    //     return
+    // }
+    // gui.renderString(gui.g, gui.Views.ResponseInfo.Name(), request.ResponseBody)
+}
+
+func (gui *Gui) renderResponseBody(request *commands.Request) {
+    if request.ResponseBody == "" {
+        // TODO: This better
+        gui.renderString(gui.g, gui.Views.ResponseInfo.Name(), "")
+        return
+    }
+    gui.renderString(gui.g, gui.Views.ResponseInfo.Name(), request.ResponseBody)
+}
+
+
+// Keybind Actions
 func (gui *Gui) handleNewRequest(g *gocui.Gui, v *gocui.View) error {
 	gui.Log.Info("Creating New Request")
 	newRequest := &commands.Request{
@@ -49,14 +155,14 @@ func (gui *Gui) handleNewRequest(g *gocui.Gui, v *gocui.View) error {
 		Log:         gui.Log,
 		HttpCommand: gui.HttpCommands,
 	}
-    newRequestList := append(gui.Components.Requests.GetItems(), newRequest)
-    gui.Components.Requests.SetItems(newRequestList)
+	newRequestList := append(gui.Components.Requests.GetItems(), newRequest)
+	gui.Components.Requests.SetItems(newRequestList)
 
 	return gui.reRenderRequests()
 }
 
 func (gui *Gui) handleRequestSend(g *gocui.Gui, v *gocui.View) error {
-    // TODO: This is a weird way to handle the no items string, fix later
+	// TODO: This is a weird way to handle the no items string, fix later
 	request, err := gui.Components.Requests.GetSelectedItem(gui.Components.Requests.NoItemsMessage)
 	if err != nil {
 		return nil

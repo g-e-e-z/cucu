@@ -3,6 +3,7 @@ package commands
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -69,7 +70,30 @@ func (r *Request) Send() error {
 
 	return nil
 }
+func (r *Request) GetData() (map[string]string, error) {
+	if r.Data == nil {
+		return nil, errors.New("data is nil")
+	}
 
+    result := make(map[string]string)
+	for key, value := range r.Data {
+		result[key] = fmt.Sprintf("%v", value)
+	}
+
+	return result, nil
+}
+func (r *Request) GetParams() (url.Values, error) {
+	u, err := url.Parse(r.Url)
+	if err != nil {
+		return nil, err
+	}
+	m, err := url.ParseQuery(u.RawQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	return m, nil
+}
 // TODO: Move to Utils
 // function to format JSON data
 func formatJSON(data []byte) string {
@@ -84,15 +108,3 @@ func formatJSON(data []byte) string {
 	return string(d)
 }
 
-func (r *Request) GetParams() (url.Values, error) {
-	u, err := url.Parse(r.Url)
-	if err != nil {
-		return nil, err
-	}
-	m, err := url.ParseQuery(u.RawQuery)
-	if err != nil {
-		return nil, err
-	}
-
-	return m, nil
-}
