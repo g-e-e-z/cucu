@@ -5,11 +5,12 @@ import (
 
 	"github.com/g-e-e-z/cucu/commands"
 	"github.com/g-e-e-z/cucu/gui/components"
+	"github.com/g-e-e-z/cucu/gui/presentation"
 	"github.com/jesseduffield/gocui"
 )
 
-func (gui *Gui) getRequestsPanel() *components.ListComponent {
-	return &components.ListComponent{
+func (gui *Gui) getRequestsPanel() *components.ListComponent[*commands.Request] {
+	return &components.ListComponent[*commands.Request]{
 		Log:            gui.Log,
 		View:           gui.Views.Requests,
 		ListPanel:      components.ListPanel[*commands.Request]{
@@ -18,6 +19,9 @@ func (gui *Gui) getRequestsPanel() *components.ListComponent {
 		},
 		Gui:            gui.toInterface(),
 		NoItemsMessage: "No Requests",
+        GetTableCells: func(request *commands.Request) []string {
+			return presentation.GetRequestStrings(request)
+		},
 	}
 }
 

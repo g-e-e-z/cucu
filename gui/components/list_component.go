@@ -20,25 +20,25 @@ type IGui interface {
 	Update(func() error)
 }
 
-// This should be one more level of generalization
-type ListComponent struct {
+type ListComponent[T comparable] struct {
 	Log  *logrus.Entry
 	View *gocui.View
-	ListPanel[*commands.Request]
+	ListPanel[T]
 
 	Gui            IGui
 	NoItemsMessage string
+
+    // returns the cells that we render to the view in a table format. The cells will
+	// be rendered with padding.
+	GetTableCells func(T) []string
+
 }
 
-func (self *ListComponent) GetView() *gocui.View {
+func (self *ListComponent[T]) GetView() *gocui.View {
 	return self.View
 }
 
-func (self *ListComponent) GetRequestStrings(request *commands.Request) []string {
-	return []string{request.Method, request.Name}
-}
-
-func (self *ListComponent) HandleSelect() error {
+func (self *ListComponent[T]) HandleSelect() error {
 	item, err := self.GetSelectedItem(self.NoItemsMessage)
 	if err != nil {
 		if err.Error() != self.NoItemsMessage {
@@ -57,12 +57,13 @@ func (self *ListComponent) HandleSelect() error {
 	return self.renderContext(item)
 }
 
-func (self *ListComponent) Rerender() error {
+func (self *ListComponent[T]) Rerender() error {
 	self.Gui.Update(func() error {
 		self.View.Clear()
-		table := lo.Map(self.GetItems(), func(req *commands.Request, index int) []string {
-			return self.GetRequestStrings(req)
+        table := lo.Map(self.List.GetItems(), func(item T, index int) []string {
+			return self.GetTableCells(item)
 		})
+
 		renderedTable, err := utils.RenderComponent(table)
 		if err != nil {
 			return err
@@ -80,7 +81,7 @@ func (self *ListComponent) Rerender() error {
 	return nil
 }
 
-func (self *ListComponent) renderContext(request *commands.Request) error {
+func (self *ListComponent[T]) renderContext(item T) error {
 	// if self.ContextState == nil {
 	// 	return nil
 	// }
@@ -101,7 +102,7 @@ func (self *ListComponent) renderContext(request *commands.Request) error {
 	// TODO: Don't write directly, this whole block is questionable, TextArea etc..
 	urlView := self.Gui.GetUrlView()
 	urlView.ClearTextArea()
-	output := string(bom.Clean([]byte(request.Url)))
+	output := string(bom.Clean([]byte(item.Url)))
 	s := utils.NormalizeLinefeeds(output)
 	urlView.TextArea.TypeString(s)
 	urlView.SetCursor(len(s), 0)
@@ -109,7 +110,7 @@ func (self *ListComponent) renderContext(request *commands.Request) error {
 
 	paramsView := self.Gui.GetParamsView()
 	paramsView.Clear()
-	params, err := request.GetParams()
+	params, err := item.GetParams()
 	if err != nil {
 		return err
 	}
@@ -119,41 +120,41 @@ func (self *ListComponent) renderContext(request *commands.Request) error {
 
 	responseView := self.Gui.GetResponseView()
 	responseView.Clear()
-	fmt.Fprint(responseView, request.ResponseBody)
+	fmt.Fprint(responseView, item.ResponseBody)
 
 	return nil
 }
 
 // Keybinding related
-func (rp *ListComponent) Refocus() {
+func (rp *ListComponent[T]) Refocus() {
 	rp.Gui.FocusY(rp.SelectedIdx, rp.List.Len(), rp.View)
 }
 
-func (rp *ListComponent) HandleNextLine() error {
+func (rp *ListComponent[T]) HandleNextLine() error {
 	rp.SelectNextLine()
 
 	return rp.HandleSelect()
 }
 
-func (rp *ListComponent) HandlePrevLine() error {
+func (rp *ListComponent[T]) HandlePrevLine() error {
 	rp.SelectPrevLine()
 
 	return rp.HandleSelect()
 }
 
-func (rp *ListComponent) SelectNextLine() {
+func (rp *ListComponent[T]) SelectNextLine() {
 	rp.moveSelectedLine(1)
 }
 
-func (rp *ListComponent) SelectPrevLine() {
+func (rp *ListComponent[T]) SelectPrevLine() {
 	rp.moveSelectedLine(-1)
 }
 
-func (rp *ListComponent) moveSelectedLine(delta int) {
+func (rp *ListComponent[T]) moveSelectedLine(delta int) {
 	rp.SetSelectedLineIdx(rp.SelectedIdx + delta)
 }
 
-func (rp *ListComponent) SetSelectedLineIdx(value int) {
+func (rp *ListComponent[T]) SetSelectedLineIdx(value int) {
 	clampedValue := 0
 	if rp.List.Len() > 0 {
 		clampedValue = Clamp(value, 0, rp.List.Len()-1)
