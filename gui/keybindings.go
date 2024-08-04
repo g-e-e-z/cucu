@@ -109,7 +109,7 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 	}
 
 	// TODO: Will likely need to make this a loop when other views are further along
-	rp := gui.RequestPanel
+	rp := gui.Components.Requests
 	setUpDownClickBindings(rp.GetView().Name(), rp.HandlePrevLine, rp.HandleNextLine)
     // TODO: Bad :(
 	setUpDownClickBindings("editMethod", rp.HandlePrevLine, rp.HandleNextLine)

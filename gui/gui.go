@@ -3,7 +3,7 @@ package gui
 import (
 	"github.com/g-e-e-z/cucu/commands"
 	"github.com/g-e-e-z/cucu/config"
-	"github.com/g-e-e-z/cucu/gui/panels"
+	"github.com/g-e-e-z/cucu/gui/components"
 	"github.com/jesseduffield/gocui"
 	"github.com/sirupsen/logrus"
 )
@@ -17,7 +17,11 @@ type Gui struct {
 	HttpCommands *commands.HttpCommand
 	Views        Views
 
-	RequestPanel *panels.RequestPanel
+	Components       Components
+}
+
+type Components struct {
+	Requests *components.ListComponent
 }
 
 func NewGuiWrapper(log *logrus.Entry, config *config.AppConfig, osCommands *commands.OSCommand, httpCommands *commands.HttpCommand) *Gui {
@@ -52,7 +56,7 @@ func (gui *Gui) Run() error {
 		return err
 	}
 
-	gui.RequestPanel = gui.createRequestsPanel()
+	gui.createPanels()
 
 	if err = gui.keybindings(g); err != nil {
 		return err
@@ -74,10 +78,16 @@ func (gui *Gui) Run() error {
 	gui.renderRequests()
 
 	err = gui.g.MainLoop()
-	// if err == gocui.ErrQuit {
-	// 	return nil
-	// }
+	if err == gocui.ErrQuit {
+		return nil
+	}
 	return err
+}
+
+func (gui *Gui) createPanels() {
+	gui.Components = Components{
+		Requests: gui.getRequestsPanel(),
+	}
 }
 
 func (gui *Gui) Update(f func() error) {
@@ -115,12 +125,12 @@ func (gui *Gui) initiallyFocusedViewName() string {
 
 // This works but I dont like it :(
 func (gui *Gui) handleToggleEdit(_ *gocui.Gui, v *gocui.View) error {
-    v.Editable = !v.Editable
-    editMessage := " | EDIT"
-    if v.Editable {
-        v.Title += editMessage
-    } else {
-        v.Title = v.Title[:len(editMessage)]
-    }
-    return nil
+	v.Editable = !v.Editable
+	editMessage := " | EDIT"
+	if v.Editable {
+		v.Title += editMessage
+	} else {
+		v.Title = v.Title[:len(editMessage)]
+	}
+	return nil
 }

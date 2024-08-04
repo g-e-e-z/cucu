@@ -1,5 +1,5 @@
 // This is copy paste of jesseduffield lazydocker filteredlist
-package panels
+package components
 
 import (
 	"sort"
