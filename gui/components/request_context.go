@@ -50,3 +50,24 @@ func (rc *RequestContext[T]) GetResponseInfoTabTitles() []string {
 func (rc *RequestContext[T]) GetCurrentResponseInfoTab() Tab[T] {
     return rc.GetResponseInfoTabs()[rc.responseTabIdx]
 }
+
+func (rp *RequestContext[T]) HandleNextTab() {
+	tabs := rp.GetRequestInfoTabs()
+
+	if len(tabs) == 0 {
+		return
+	}
+
+	rp.requestTabIdx = (rp.requestTabIdx+ 1) % len(tabs)
+}
+
+func (rp *RequestContext[T]) HandlePrevTab() {
+	tabs := rp.GetRequestInfoTabs()
+
+	if len(tabs) == 0 {
+		return
+	}
+
+	rp.requestTabIdx = (rp.requestTabIdx - 1 + len(tabs)) % len(tabs)
+}
+

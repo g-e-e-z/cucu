@@ -80,6 +80,18 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			Handler:  gui.handleEditMethod,
 		},
 		{
+			ViewName: "requests",
+			Key:      '[',
+			Modifier: gocui.ModNone,
+			Handler:  wrappedHandler(gui.Components.Requests.HandleNextTab),
+		},
+		{
+			ViewName: "requests",
+			Key:      ']',
+			Modifier: gocui.ModNone,
+			Handler:  wrappedHandler(gui.Components.Requests.HandlePrevTab),
+		},
+		{
 			ViewName: "editMethod",
 			Key:      'q',
 			Modifier: gocui.ModNone,
