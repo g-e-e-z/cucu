@@ -9,8 +9,8 @@ const UNKNOWN_VIEW_ERROR_MSG = "unknown view"
 type Views struct {
 	Requests *gocui.View
 	Url      *gocui.View
-	Params   *gocui.View
-	Response *gocui.View
+	RequestInfo   *gocui.View
+	ResponseInfo *gocui.View
 
     // popups
     EditMethod *gocui.View
@@ -25,8 +25,8 @@ func (gui *Gui) orderedViewNameMappings() []viewNameMapping {
 	return []viewNameMapping{
 		{viewPtr: &gui.Views.Requests, name: "requests"},
 		{viewPtr: &gui.Views.Url, name: "url"},
-		{viewPtr: &gui.Views.Params, name: "params"},
-		{viewPtr: &gui.Views.Response, name: "response"},
+		{viewPtr: &gui.Views.RequestInfo, name: "params"},
+		{viewPtr: &gui.Views.ResponseInfo, name: "response"},
 
         {viewPtr: &gui.Views.EditMethod, name: "editMethod"},
 	}
@@ -54,12 +54,12 @@ func (gui *Gui) createAllViews() error {
     gui.Views.Url.Editor = gocui.EditorFunc(gui.wrapEditor(gocui.SimpleEditor))
 
 
-	gui.Views.Params.Highlight = false
-	gui.Views.Params.Title = "Params"
+	gui.Views.RequestInfo.Highlight = false
+	gui.Views.RequestInfo.Title = "Params"
 
-	gui.Views.Response.Highlight = false
-	gui.Views.Response.Title = "Response"
-    gui.Views.Response.Wrap = true
+	gui.Views.ResponseInfo.Highlight = false
+	gui.Views.ResponseInfo.Title = "Response"
+    gui.Views.ResponseInfo.Wrap = true
 
 	gui.Views.EditMethod.Visible = false
 	gui.Views.EditMethod.Highlight = true
