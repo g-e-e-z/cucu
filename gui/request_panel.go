@@ -8,6 +8,7 @@ import (
 	"github.com/g-e-e-z/cucu/commands"
 	"github.com/g-e-e-z/cucu/gui/components"
 	"github.com/g-e-e-z/cucu/gui/presentation"
+	"github.com/g-e-e-z/cucu/gui/types"
 	"github.com/g-e-e-z/cucu/utils"
 	"github.com/jesseduffield/gocui"
 	"github.com/spkg/bom"
@@ -78,13 +79,13 @@ func (gui *Gui) renderRequests() error {
 		return err
 	}
 	gui.Components.Requests.SetItems(requests)
-	return gui.Components.Requests.Rerender()
+	return gui.Components.Requests.RerenderList()
 }
 
 func (gui *Gui) reRenderRequests() error {
 	requests := gui.Components.Requests.GetItems()
 	gui.Components.Requests.SetItems(requests)
-	return gui.Components.Requests.Rerender()
+	return gui.Components.Requests.RerenderList()
 }
 
 func (gui *Gui) renderUrl() error {
@@ -169,6 +170,70 @@ func (gui *Gui) renderResponseBody() error {
 
 
 // Keybind Actions
+
+var httpMethods = []string{
+	http.MethodGet,
+	http.MethodHead,
+	http.MethodPost,
+	http.MethodPut,
+	http.MethodPatch,
+	http.MethodDelete,
+	http.MethodConnect,
+	http.MethodOptions,
+	http.MethodTrace,
+}
+
+func (gui *Gui) handleEditMethod(_ *gocui.Gui, v *gocui.View) error {
+    request, err := gui.Components.Requests.GetSelectedItem("")
+    if err != nil {
+        return err
+    }
+
+    handleMenuPress := func (method string) error {
+        request.Method = method
+        return nil
+
+    }
+
+    var menuItems []*types.MenuItem
+    for _, method := range httpMethods {
+        menuItems = append(menuItems, &types.MenuItem{
+        		Label:        method,
+        		OnPress: func() error {return handleMenuPress(method) },
+        	},
+        )
+    }
+
+	return gui.Menu(CreateMenuOptions{
+		Title: "Change Request Method",
+		Items: menuItems,
+        HideCancel: true,
+	})
+
+ //    editView := gui.Views.Menu
+	// editView.Visible = true
+ //    gui.g.SetCurrentView("menu")
+ //    // TODO: I already regret this no items message shenanigans
+	// req, _ := gui.Components.Requests.GetSelectedItem(gui.Components.Requests.NoItemsMessage)
+	// currentMethod := req.Method
+ //    editView.Clear()
+ //    fmt.Fprint(editView, "Current Method: ", currentMethod, "\n")
+ //    for _, httpMethod := range httpMethods {
+ //        fmt.Fprint(editView, httpMethod, "\n")
+ //    }
+	//
+	// return nil
+}
+
+func (gui *Gui) handleCloseEditMethod(_ *gocui.Gui, v *gocui.View) error {
+    // Need to modify keybinds here as well: for now, just making non-competing keybinds
+    editView := gui.Views.Menu
+	editView.Visible = false
+    gui.g.SetCurrentView("requests")
+	return nil
+}
+
+
 func (gui *Gui) handleNewRequest(g *gocui.Gui, v *gocui.View) error {
 	gui.Log.Info("Creating New Request")
 	newRequest := &commands.Request{
@@ -199,5 +264,5 @@ func (gui *Gui) SendRequest(request *commands.Request) error {
 	if err != nil {
 		return err
 	}
-	return gui.Components.Requests.Rerender()
+	return gui.Components.Requests.RerenderList()
 }

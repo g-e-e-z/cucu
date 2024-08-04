@@ -91,3 +91,11 @@ func NormalizeLinefeeds(str string) string {
 	return str
 }
 
+// Max returns the maximum of two integers
+func Max(x, y int) int {
+	if x > y {
+		return x
+	}
+	return y
+}
+

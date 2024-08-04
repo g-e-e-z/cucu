@@ -12,7 +12,6 @@ type Views struct {
 	RequestInfo   *gocui.View
 	ResponseInfo *gocui.View
 
-    // popups
     Menu *gocui.View
 }
 
@@ -75,7 +74,7 @@ func (gui *Gui) wrapEditor(f func(v *gocui.View, key gocui.Key, ch rune, mod goc
         request, _:= gui.Components.Requests.GetSelectedItem(gui.Components.Requests.NoItemsMessage)
         request.Url = v.TextArea.GetContent()
         // gui.Log.Info("Text: ", v.TextArea.GetContent())
-        gui.Components.Requests.Rerender()
+        gui.Components.Requests.RerenderList()
 		// if matched {
 		// 	// if err := gui.onNewFilterNeedle(v.TextArea.GetContent()); err != nil {
 		// 	// 	gui.Log.Error(err)

@@ -18,13 +18,13 @@ type Gui struct {
 	HttpCommands *commands.HttpCommand
 	Views        Views
 
-	Components       Components
+	Components Components
 }
 
 type Components struct {
 	Requests *components.ListComponent[*commands.Request]
 
-    Menu *components.ListComponent[*types.MenuItem]
+	Menu *components.ListComponent[*types.MenuItem]
 }
 
 func NewGuiWrapper(log *logrus.Entry, config *config.AppConfig, osCommands *commands.OSCommand, httpCommands *commands.HttpCommand) *Gui {
@@ -90,6 +90,7 @@ func (gui *Gui) Run() error {
 func (gui *Gui) createPanels() {
 	gui.Components = Components{
 		Requests: gui.getRequestsPanel(),
+		Menu:     gui.getMenuPanel(),
 	}
 }
 
