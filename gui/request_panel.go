@@ -8,7 +8,7 @@ import (
 	"github.com/jesseduffield/gocui"
 )
 
-func (gui *Gui) createRequestsPanel() *panels.RequestPanel {
+func (gui *Gui) getRequestsPanel() *panels.RequestPanel {
 	return &panels.RequestPanel{
 		Log:            gui.Log,
 		View:           gui.Views.Requests,
@@ -26,14 +26,14 @@ func (gui *Gui) renderRequests() error {
 	if err != nil {
 		return err
 	}
-	gui.RequestPanel.SetItems(requests)
-	return gui.RequestPanel.Rerender()
+	gui.Panels.Requests.SetItems(requests)
+	return gui.Panels.Requests.Rerender()
 }
 
 func (gui *Gui) reRenderRequests() error {
-    requests := gui.RequestPanel.GetItems()
-	gui.RequestPanel.SetItems(requests)
-	return gui.RequestPanel.Rerender()
+    requests := gui.Panels.Requests.GetItems()
+	gui.Panels.Requests.SetItems(requests)
+	return gui.Panels.Requests.Rerender()
 }
 
 func (gui *Gui) handleNewRequest(g *gocui.Gui, v *gocui.View) error {
@@ -45,15 +45,15 @@ func (gui *Gui) handleNewRequest(g *gocui.Gui, v *gocui.View) error {
 		Log:         gui.Log,
 		HttpCommand: gui.HttpCommands,
 	}
-    newRequestList := append(gui.RequestPanel.GetItems(), newRequest)
-    gui.RequestPanel.SetItems(newRequestList)
+    newRequestList := append(gui.Panels.Requests.GetItems(), newRequest)
+    gui.Panels.Requests.SetItems(newRequestList)
 
 	return gui.reRenderRequests()
 }
 
 func (gui *Gui) handleRequestSend(g *gocui.Gui, v *gocui.View) error {
     // TODO: This is a weird way to handle the no items string, fix later
-	request, err := gui.RequestPanel.GetSelectedItem(gui.RequestPanel.NoItemsMessage)
+	request, err := gui.Panels.Requests.GetSelectedItem(gui.Panels.Requests.NoItemsMessage)
 	if err != nil {
 		return nil
 	}
@@ -66,5 +66,5 @@ func (gui *Gui) SendRequest(request *commands.Request) error {
 	if err != nil {
 		return err
 	}
-	return gui.RequestPanel.Rerender()
+	return gui.Panels.Requests.Rerender()
 }

@@ -17,7 +17,11 @@ type Gui struct {
 	HttpCommands *commands.HttpCommand
 	Views        Views
 
-	RequestPanel *panels.RequestPanel
+	Panels       Panels
+}
+
+type Panels struct {
+	Requests *panels.RequestPanel
 }
 
 func NewGuiWrapper(log *logrus.Entry, config *config.AppConfig, osCommands *commands.OSCommand, httpCommands *commands.HttpCommand) *Gui {
@@ -52,7 +56,7 @@ func (gui *Gui) Run() error {
 		return err
 	}
 
-	gui.RequestPanel = gui.createRequestsPanel()
+	gui.createPanels()
 
 	if err = gui.keybindings(g); err != nil {
 		return err
@@ -78,6 +82,12 @@ func (gui *Gui) Run() error {
 	// 	return nil
 	// }
 	return err
+}
+
+func (gui *Gui) createPanels() {
+	gui.Panels = Panels{
+		Requests: gui.getRequestsPanel(),
+	}
 }
 
 func (gui *Gui) Update(f func() error) {
@@ -115,12 +125,12 @@ func (gui *Gui) initiallyFocusedViewName() string {
 
 // This works but I dont like it :(
 func (gui *Gui) handleToggleEdit(_ *gocui.Gui, v *gocui.View) error {
-    v.Editable = !v.Editable
-    editMessage := " | EDIT"
-    if v.Editable {
-        v.Title += editMessage
-    } else {
-        v.Title = v.Title[:len(editMessage)]
-    }
-    return nil
+	v.Editable = !v.Editable
+	editMessage := " | EDIT"
+	if v.Editable {
+		v.Title += editMessage
+	} else {
+		v.Title = v.Title[:len(editMessage)]
+	}
+	return nil
 }

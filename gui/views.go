@@ -71,10 +71,10 @@ func (gui *Gui) createAllViews() error {
 func (gui *Gui) wrapEditor(f func(v *gocui.View, key gocui.Key, ch rune, mod gocui.Modifier) bool) func(v *gocui.View, key gocui.Key, ch rune, mod gocui.Modifier) bool {
 	return func(v *gocui.View, key gocui.Key, ch rune, mod gocui.Modifier) bool {
 		matched := f(v, key, ch, mod)
-        request, _:= gui.RequestPanel.GetSelectedItem(gui.RequestPanel.NoItemsMessage)
+        request, _:= gui.Panels.Requests.GetSelectedItem(gui.Panels.Requests.NoItemsMessage)
         request.Url = v.TextArea.GetContent()
         // gui.Log.Info("Text: ", v.TextArea.GetContent())
-        gui.RequestPanel.Rerender()
+        gui.Panels.Requests.Rerender()
 		// if matched {
 		// 	// if err := gui.onNewFilterNeedle(v.TextArea.GetContent()); err != nil {
 		// 	// 	gui.Log.Error(err)
