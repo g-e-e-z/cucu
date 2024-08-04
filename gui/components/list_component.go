@@ -1,4 +1,4 @@
-package panels
+package components
 
 import (
 	"fmt"

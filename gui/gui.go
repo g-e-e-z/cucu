@@ -3,7 +3,7 @@ package gui
 import (
 	"github.com/g-e-e-z/cucu/commands"
 	"github.com/g-e-e-z/cucu/config"
-	"github.com/g-e-e-z/cucu/gui/panels"
+	"github.com/g-e-e-z/cucu/gui/components"
 	"github.com/jesseduffield/gocui"
 	"github.com/sirupsen/logrus"
 )
@@ -17,11 +17,11 @@ type Gui struct {
 	HttpCommands *commands.HttpCommand
 	Views        Views
 
-	Panels       Panels
+	Components       Components
 }
 
-type Panels struct {
-	Requests *panels.ListComponent
+type Components struct {
+	Requests *components.ListComponent
 }
 
 func NewGuiWrapper(log *logrus.Entry, config *config.AppConfig, osCommands *commands.OSCommand, httpCommands *commands.HttpCommand) *Gui {
@@ -85,7 +85,7 @@ func (gui *Gui) Run() error {
 }
 
 func (gui *Gui) createPanels() {
-	gui.Panels = Panels{
+	gui.Components = Components{
 		Requests: gui.getRequestsPanel(),
 	}
 }

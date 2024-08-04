@@ -1,5 +1,5 @@
 // This is copy paste of jesseduffield lazydocker list_panel
-package panels
+package components
 
 import (
 	"errors"

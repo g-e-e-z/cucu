@@ -24,7 +24,7 @@ func (gui *Gui) handleEditMethod(_ *gocui.Gui, v *gocui.View) error {
 	editView.Visible = true
     gui.g.SetCurrentView("editMethod")
     // TODO: I already regret this no items message shenanigans
-	req, _ := gui.Panels.Requests.GetSelectedItem(gui.Panels.Requests.NoItemsMessage)
+	req, _ := gui.Components.Requests.GetSelectedItem(gui.Components.Requests.NoItemsMessage)
 	currentMethod := req.Method
     editView.Clear()
     fmt.Fprint(editView, "Current Method: ", currentMethod, "\n")

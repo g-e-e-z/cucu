@@ -1,7 +1,7 @@
 package gui
 
-import "github.com/g-e-e-z/cucu/gui/panels"
+import "github.com/g-e-e-z/cucu/gui/components"
 
-func (gui *Gui) toInterface() panels.IGui {
+func (gui *Gui) toInterface() components.IGui {
     return gui
 }

@@ -4,16 +4,16 @@ import (
 	"net/http"
 
 	"github.com/g-e-e-z/cucu/commands"
-	"github.com/g-e-e-z/cucu/gui/panels"
+	"github.com/g-e-e-z/cucu/gui/components"
 	"github.com/jesseduffield/gocui"
 )
 
-func (gui *Gui) getRequestsPanel() *panels.ListComponent {
-	return &panels.ListComponent{
+func (gui *Gui) getRequestsPanel() *components.ListComponent {
+	return &components.ListComponent{
 		Log:            gui.Log,
 		View:           gui.Views.Requests,
-		ListPanel:      panels.ListPanel[*commands.Request]{
-			List:        panels.NewFilteredList[*commands.Request](),
+		ListPanel:      components.ListPanel[*commands.Request]{
+			List:        components.NewFilteredList[*commands.Request](),
 			View:        gui.Views.Requests,
 		},
 		Gui:            gui.toInterface(),
@@ -26,14 +26,14 @@ func (gui *Gui) renderRequests() error {
 	if err != nil {
 		return err
 	}
-	gui.Panels.Requests.SetItems(requests)
-	return gui.Panels.Requests.Rerender()
+	gui.Components.Requests.SetItems(requests)
+	return gui.Components.Requests.Rerender()
 }
 
 func (gui *Gui) reRenderRequests() error {
-    requests := gui.Panels.Requests.GetItems()
-	gui.Panels.Requests.SetItems(requests)
-	return gui.Panels.Requests.Rerender()
+    requests := gui.Components.Requests.GetItems()
+	gui.Components.Requests.SetItems(requests)
+	return gui.Components.Requests.Rerender()
 }
 
 func (gui *Gui) handleNewRequest(g *gocui.Gui, v *gocui.View) error {
@@ -45,15 +45,15 @@ func (gui *Gui) handleNewRequest(g *gocui.Gui, v *gocui.View) error {
 		Log:         gui.Log,
 		HttpCommand: gui.HttpCommands,
 	}
-    newRequestList := append(gui.Panels.Requests.GetItems(), newRequest)
-    gui.Panels.Requests.SetItems(newRequestList)
+    newRequestList := append(gui.Components.Requests.GetItems(), newRequest)
+    gui.Components.Requests.SetItems(newRequestList)
 
 	return gui.reRenderRequests()
 }
 
 func (gui *Gui) handleRequestSend(g *gocui.Gui, v *gocui.View) error {
     // TODO: This is a weird way to handle the no items string, fix later
-	request, err := gui.Panels.Requests.GetSelectedItem(gui.Panels.Requests.NoItemsMessage)
+	request, err := gui.Components.Requests.GetSelectedItem(gui.Components.Requests.NoItemsMessage)
 	if err != nil {
 		return nil
 	}
@@ -66,5 +66,5 @@ func (gui *Gui) SendRequest(request *commands.Request) error {
 	if err != nil {
 		return err
 	}
-	return gui.Panels.Requests.Rerender()
+	return gui.Components.Requests.Rerender()
 }
