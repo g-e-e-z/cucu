@@ -71,7 +71,7 @@ func (gui *Gui) createAllViews() error {
 func (gui *Gui) wrapEditor(f func(v *gocui.View, key gocui.Key, ch rune, mod gocui.Modifier) bool) func(v *gocui.View, key gocui.Key, ch rune, mod gocui.Modifier) bool {
 	return func(v *gocui.View, key gocui.Key, ch rune, mod gocui.Modifier) bool {
 		matched := f(v, key, ch, mod)
-        request, _:= gui.Components.Requests.GetSelectedItem(gui.Components.Requests.NoItemsMessage)
+        request, _:= gui.Components.Requests.GetSelectedItem()
         request.Url = v.TextArea.GetContent()
         // gui.Log.Info("Text: ", v.TextArea.GetContent())
         gui.Components.Requests.RerenderList()

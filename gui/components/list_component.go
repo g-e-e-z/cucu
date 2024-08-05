@@ -34,12 +34,10 @@ type ListComponent[T comparable] struct {
 	Log  *logrus.Entry
 	View *gocui.View
 
-    // Im in too deep with the generic, RequestContext will always be using a Request
 	RequestContext *RequestContext[*commands.Request]
 	ListPanel[T]
 
 	Gui            IGui
-	NoItemsMessage string
 
 	// returns the cells that we render to the view in a table format. The cells will
 	// be rendered with padding.
@@ -51,7 +49,7 @@ func (self *ListComponent[T]) GetView() *gocui.View {
 }
 
 func (self *ListComponent[T]) HandleSelect() error {
-	_, err := self.GetSelectedItem(self.NoItemsMessage)
+	_, err := self.GetSelectedItem()
 	if err != nil {
 		if err.Error() != self.NoItemsMessage {
 			return err

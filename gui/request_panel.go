@@ -61,11 +61,11 @@ func (gui *Gui) getRequestsPanel() *components.ListComponent[*commands.Request] 
 			},
 		},
 		ListPanel: components.ListPanel[*commands.Request]{
-			List: components.NewFilteredList[*commands.Request](),
-			View: gui.Views.Requests,
+			List:           components.NewFilteredList[*commands.Request](),
+			View:           gui.Views.Requests,
+			NoItemsMessage: "No Requests Loaded",
 		},
 		Gui:            gui.toInterface(),
-		NoItemsMessage: "No Requests",
 		GetTableCells: func(request *commands.Request) []string {
 			return presentation.GetRequestStrings(request)
 		},
@@ -89,7 +89,7 @@ func (gui *Gui) reRenderRequests() error {
 }
 
 func (gui *Gui) renderUrl() error {
-    request, err := gui.Components.Requests.GetSelectedItem("")
+    request, err := gui.Components.Requests.GetSelectedItem()
     if err != nil {
         return err
     }
@@ -107,7 +107,7 @@ func (gui *Gui) renderUrl() error {
 }
 
 func (gui *Gui) renderRequestParams() error {
-    request, err := gui.Components.Requests.GetSelectedItem("")
+    request, err := gui.Components.Requests.GetSelectedItem()
     if err != nil {
         return err
     }
@@ -125,7 +125,7 @@ func (gui *Gui) renderRequestParams() error {
 }
 
 func (gui *Gui) renderRequestBody() error {
-    request, err := gui.Components.Requests.GetSelectedItem("")
+    request, err := gui.Components.Requests.GetSelectedItem()
     if err != nil {
         return err
     }
@@ -155,7 +155,7 @@ func (gui *Gui) renderResponseHeaders() error {
 }
 
 func (gui *Gui) renderResponseBody() error {
-    request, err := gui.Components.Requests.GetSelectedItem("")
+    request, err := gui.Components.Requests.GetSelectedItem()
     if err != nil {
         return err
     }
@@ -184,7 +184,7 @@ var httpMethods = []string{
 }
 
 func (gui *Gui) handleEditMethod(_ *gocui.Gui, v *gocui.View) error {
-    request, err := gui.Components.Requests.GetSelectedItem("")
+    request, err := gui.Components.Requests.GetSelectedItem()
     if err != nil {
         return err
     }
@@ -196,7 +196,11 @@ func (gui *Gui) handleEditMethod(_ *gocui.Gui, v *gocui.View) error {
     }
 
     var menuItems []*types.MenuItem
-    for _, method := range httpMethods {
+    var currentIndex int
+    for i, method := range httpMethods {
+        if method == request.Method {
+            currentIndex = i
+        }
         menuItems = append(menuItems, &types.MenuItem{
         		Label:        method,
         		OnPress: func() error {return handleMenuPress(method) },
@@ -205,24 +209,11 @@ func (gui *Gui) handleEditMethod(_ *gocui.Gui, v *gocui.View) error {
     }
 
 	return gui.Menu(CreateMenuOptions{
-		Title: "Change Request Method",
-		Items: menuItems,
-        HideCancel: true,
+		Title:      "Change Request Method",
+		Items:      menuItems,
+		Index:      currentIndex,
+		HideCancel: true,
 	})
-
- //    editView := gui.Views.Menu
-	// editView.Visible = true
- //    gui.g.SetCurrentView("menu")
- //    // TODO: I already regret this no items message shenanigans
-	// req, _ := gui.Components.Requests.GetSelectedItem(gui.Components.Requests.NoItemsMessage)
-	// currentMethod := req.Method
- //    editView.Clear()
- //    fmt.Fprint(editView, "Current Method: ", currentMethod, "\n")
- //    for _, httpMethod := range httpMethods {
- //        fmt.Fprint(editView, httpMethod, "\n")
- //    }
-	//
-	// return nil
 }
 
 func (gui *Gui) handleCloseEditMethod(_ *gocui.Gui, v *gocui.View) error {
@@ -251,7 +242,7 @@ func (gui *Gui) handleNewRequest(g *gocui.Gui, v *gocui.View) error {
 
 func (gui *Gui) handleRequestSend(g *gocui.Gui, v *gocui.View) error {
 	// TODO: This is a weird way to handle the no items string, fix later
-	request, err := gui.Components.Requests.GetSelectedItem(gui.Components.Requests.NoItemsMessage)
+	request, err := gui.Components.Requests.GetSelectedItem()
 	if err != nil {
 		return nil
 	}
