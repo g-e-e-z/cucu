@@ -92,6 +92,18 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			Handler:  wrappedHandler(gui.Components.Requests.HandlePrevTab),
 		},
 		{
+			ViewName: "params",
+			Key:      '[',
+			Modifier: gocui.ModNone,
+			Handler:  wrappedHandler(gui.Components.Requests.HandleNextTab),
+		},
+		{
+			ViewName: "params",
+			Key:      ']',
+			Modifier: gocui.ModNone,
+			Handler:  wrappedHandler(gui.Components.Requests.HandlePrevTab),
+		},
+		{
 			ViewName: "menu",
 			Key:      'q',
 			Modifier: gocui.ModNone,
