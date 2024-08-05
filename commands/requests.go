@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"net/url"
 
+	"github.com/g-e-e-z/cucu/utils"
 	"github.com/sirupsen/logrus"
 )
 
@@ -63,7 +63,7 @@ func (r *Request) Send() error {
 			fmt.Println(error)
 		}
 
-		formattedData := formatJSON(responseBody)
+		formattedData := utils.FormatJSON(responseBody)
 		r.ResponseBody = formattedData
 		r.Log.Info("Response received: ", response.Status, r.ResponseBody)
 	}
@@ -82,29 +82,13 @@ func (r *Request) GetData() (map[string]string, error) {
 
 	return result, nil
 }
-func (r *Request) GetParams() (url.Values, error) {
-	u, err := url.Parse(r.Url)
-	if err != nil {
-		return nil, err
-	}
-	m, err := url.ParseQuery(u.RawQuery)
+func (r *Request) GetParams() ([][]string, error) {
+    params, err := utils.Parse(r.Url)
 	if err != nil {
 		return nil, err
 	}
 
-	return m, nil
+	return params, nil
 }
-// TODO: Move to Utils
-// function to format JSON data
-func formatJSON(data []byte) string {
-	var out bytes.Buffer
-	err := json.Indent(&out, data, "", " ")
 
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	d := out.Bytes()
-	return string(d)
-}
 

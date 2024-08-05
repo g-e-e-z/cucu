@@ -114,11 +114,10 @@ func (gui *Gui) renderRequestParams() error {
     params, err := request.GetParams()
     if err != nil {
         // TODO: This better
-        gui.renderString(gui.g, gui.Views.RequestInfo.Name(), "")
+        gui.renderString(gui.g, gui.Views.RequestInfo.Name(), err.Error())
         return err
     }
-    table := utils.MapToSlice(utils.ValuesToMap(params))
-    renderedTable, err := utils.RenderComponent(table)
+    renderedTable, err := utils.RenderComponent(params)
 
     gui.renderString(gui.g, gui.Views.RequestInfo.Name(), renderedTable)
     return nil

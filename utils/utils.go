@@ -1,8 +1,10 @@
 package utils
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
-	"net/url"
+	"fmt"
 	"strings"
 )
 
@@ -66,12 +68,12 @@ func displayArraysAligned(stringArrays [][]string) bool {
 // }
 //
 
-func ValuesToMap(values url.Values) map[string]string {
+func ValuesToMap(params [][2]string) map[string]string {
 	result := make(map[string]string)
-	for key, valueSlice := range values {
-		if len(valueSlice) == 1 { // only take keys with a single value
-			result[key] = valueSlice[0]
-		}
+	for _, pair := range params {
+        key := pair[0]
+        val := pair[1]
+        result[key] = val
 	}
 	return result
 }
@@ -99,3 +101,48 @@ func Max(x, y int) int {
 	return y
 }
 
+// Parse function that takes a URL string and returns a slice of key-value pairs
+func Parse(rawURL string) ([][]string, error) {
+	// Split the URL into the base URL and the query string
+	parts := strings.SplitN(rawURL, "?", 2)
+	if len(parts) < 2 {
+		return nil, fmt.Errorf("no query parameters found")
+	}
+
+	// Split the query string into key-value pairs
+	query := parts[1]
+	pairs := strings.Split(query, "&")
+
+	// Create a slice to store the key-value pairs
+	var result [][]string
+
+	// Iterate over each pair and split into key and value
+	for _, pair := range pairs {
+		kv := strings.SplitN(pair, "=", 2)
+		if len(kv) != 2 {
+			return nil, fmt.Errorf("invalid query parameter: %s", pair)
+		}
+
+		// Decode the key and value
+		key := strings.ReplaceAll(kv[0], "%20", " ")
+		value := strings.ReplaceAll(kv[1], "%20", " ")
+
+		// Append the key-value tuple to the result slice
+		result = append(result, []string{key, value})
+	}
+
+	return result, nil
+}
+
+// function to format JSON data
+func FormatJSON(data []byte) string {
+	var out bytes.Buffer
+	err := json.Indent(&out, data, "", " ")
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	d := out.Bytes()
+	return string(d)
+}
