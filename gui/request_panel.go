@@ -216,15 +216,6 @@ func (gui *Gui) handleEditMethod(_ *gocui.Gui, v *gocui.View) error {
 	})
 }
 
-func (gui *Gui) handleCloseEditMethod(_ *gocui.Gui, v *gocui.View) error {
-    // Need to modify keybinds here as well: for now, just making non-competing keybinds
-    editView := gui.Views.Menu
-	editView.Visible = false
-    gui.g.SetCurrentView("requests")
-	return nil
-}
-
-
 func (gui *Gui) handleNewRequest(g *gocui.Gui, v *gocui.View) error {
 	gui.Log.Info("Creating New Request")
 	newRequest := &commands.Request{

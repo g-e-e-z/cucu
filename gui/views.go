@@ -49,7 +49,7 @@ func (gui *Gui) createAllViews() error {
 	gui.Views.Url.Title = "Request Url"
     gui.Views.Url.Wrap = false
     gui.Views.Url.Editable = false
-    // gui.Views.Url.Editor = gocui.EditorFunc(gocui.SimpleEditor)
+
     gui.Views.Url.Editor = gocui.EditorFunc(gui.wrapEditor(gocui.SimpleEditor))
 
 
@@ -73,7 +73,6 @@ func (gui *Gui) wrapEditor(f func(v *gocui.View, key gocui.Key, ch rune, mod goc
 		matched := f(v, key, ch, mod)
         request, _:= gui.Components.Requests.GetSelectedItem()
         request.Url = v.TextArea.GetContent()
-        // gui.Log.Info("Text: ", v.TextArea.GetContent())
         gui.Components.Requests.RerenderList()
 		// if matched {
 		// 	// if err := gui.onNewFilterNeedle(v.TextArea.GetContent()); err != nil {
@@ -83,20 +82,3 @@ func (gui *Gui) wrapEditor(f func(v *gocui.View, key gocui.Key, ch rune, mod goc
 		return matched
 	}
 }
-
-// func (gui *Gui) handleOpenFilter() error {
-// 	panel, ok := gui.currentListPanel()
-// 	if !ok {
-// 		return nil
-// 	}
-//
-// 	if panel.IsFilterDisabled() {
-// 		return nil
-// 	}
-//
-// 	gui.State.Filter.active = true
-// 	gui.State.Filter.panel = panel
-//
-// 	return gui.switchFocus(gui.Views.Filter)
-// }
-

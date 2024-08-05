@@ -99,7 +99,7 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 		},
 		{
 			ViewName: "menu",
-			Key:      ' ',
+			Key:      gocui.KeySpace,
 			Modifier: gocui.ModNone,
 			Handler:  wrappedHandler(gui.handleMenuPress),
 		},
@@ -115,12 +115,11 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			Modifier: gocui.ModNone,
 			Handler:  wrappedHandler(gui.handleMenuPress),
 		},
-		// TODO: Remove below method
 		{
-			ViewName: "menu",
-			Key:      'q',
+			ViewName: "url",
+			Key:      gocui.KeyEnter,
 			Modifier: gocui.ModNone,
-			Handler:  gui.handleCloseEditMethod,
+			Handler:  gui.handleToggleEdit, // Find a good place for this: Will be applicable to several views
 		},
 		{
 			ViewName: "url",
