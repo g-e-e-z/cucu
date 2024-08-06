@@ -1,7 +1,6 @@
 package gui
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -160,10 +159,10 @@ func (gui *Gui) renderResponseBody() error {
     if err != nil {
         return err
     }
-    if request.ResponseBody == "" {
+    if request.Status == "" {
         // TODO: This better
         gui.renderString(gui.g, gui.Views.ResponseInfo.Name(), "")
-        return errors.New("No Response Body")
+        return nil
     }
     renderString := formatBody(request, gui.Views.ResponseInfo.Width())
     gui.renderString(gui.g, gui.Views.ResponseInfo.Name(), renderString)

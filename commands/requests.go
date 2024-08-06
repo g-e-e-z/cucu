@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -55,21 +54,22 @@ func (r *Request) Send() error {
 	r.Log.Info("Sending request to: ", request.URL)
     startTime := time.Now()
 	response, err := r.HttpCommand.Client.Do(request)
+    r.Duration = time.Since(startTime)
+	r.Status = response.Status
+    r.ResponseHeaders = response.Header
 	if err != nil {
 		// TODO: This handling is bad
 		r.Log.Error("Request failed: ", request.URL, err)
 		r.ResponseBody = err.Error()
 		return nil
 	}
-    r.Duration = time.Since(startTime)
-	r.Status = response.Status
-    r.ResponseHeaders = response.Header
 
-	responseBody, error := io.ReadAll(response.Body)
+	responseBody, err := io.ReadAll(response.Body)
 	defer response.Body.Close()
 
-	if error != nil {
-		fmt.Println(error)
+	if err != nil {
+		r.Log.Error("Request failed: ", request.URL, err)
+		r.ResponseBody = err.Error()
 	}
 
     contentType := r.ResponseHeaders.Get("Content-Type")
