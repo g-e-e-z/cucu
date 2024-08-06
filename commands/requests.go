@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
+	"time"
 
 	"github.com/g-e-e-z/cucu/utils"
 	"github.com/sirupsen/logrus"
@@ -14,17 +16,18 @@ import (
 
 // Request: A request object
 type Request struct {
-	Name         string                 `json:"name"`
-	Url          string                 `json:"url"`
-	Method       string                 `json:"method"`
-	ContentType  string                 `json:"contentType,omitempty"`
-	Data         map[string]interface{} `json:"data,omitempty"`
-	ResponseBody string                 `json:"rawResponseBody,omitempty"`
-	// ResponseHeaders string `json:"responseHeaders"`
+	Name        string `json:"name"`
+	Url         string `json:"url"`
+	Method      string `json:"method"`
+	ContentType string `json:"contentType,omitempty"`
 	// Headers         string `json:"headers"`
-	// RawResponseBody byte   `json:"rawResponseBody"`
-	// Duration        string `json:"duration"`
-	// Duration        time.Duration
+	Data map[string]interface{} `json:"data,omitempty"`
+
+	Status          string
+	ResponseBody    string
+	ResponseHeaders http.Header
+	Duration        time.Duration
+
 	// Formatter       formatter.ResponseFormatter
 
 	Log         *logrus.Entry
@@ -50,45 +53,53 @@ func (r *Request) Send() error {
 	}
 	// request.Header.Set("do headers here")
 	r.Log.Info("Sending request to: ", request.URL)
+    startTime := time.Now()
 	response, err := r.HttpCommand.Client.Do(request)
 	if err != nil {
-        // TODO: This handling is bad
+		// TODO: This handling is bad
 		r.Log.Error("Request failed: ", request.URL, err)
-        r.ResponseBody = err.Error()
-	} else {
-		responseBody, error := io.ReadAll(response.Body)
-        defer response.Body.Close()
-
-		if error != nil {
-			fmt.Println(error)
-		}
-
-		formattedData := utils.FormatJSON(responseBody)
-		r.ResponseBody = formattedData
-		r.Log.Info("Response received: ", response.Status, r.ResponseBody)
+		r.ResponseBody = err.Error()
+		return nil
 	}
+    r.Duration = time.Since(startTime)
+	r.Status = response.Status
+    r.ResponseHeaders = response.Header
+
+	responseBody, error := io.ReadAll(response.Body)
+	defer response.Body.Close()
+
+	if error != nil {
+		fmt.Println(error)
+	}
+
+    contentType := r.ResponseHeaders.Get("Content-Type")
+    var formattedData string
+    if strings.Contains(contentType, "json") {
+        formattedData = utils.FormatJSON(responseBody)
+    }
+	r.ResponseBody = formattedData
+	r.Log.Info("Response received: ", response.Status, contentType, r.Duration)
 
 	return nil
 }
-func (r *Request) GetData() (map[string]string, error) {
+
+func (r *Request) GetData() (map[string]interface{}, error) {
 	if r.Data == nil {
-		return nil, errors.New("data is nil")
+		return nil, errors.New("request data is empty")
 	}
 
-    result := make(map[string]string)
+	result := make(map[string]interface{})
 	for key, value := range r.Data {
-		result[key] = fmt.Sprintf("%v", value)
+		result[key] = value
 	}
 
 	return result, nil
 }
 func (r *Request) GetParams() ([][]string, error) {
-    params, err := utils.Parse(r.Url)
+	params, err := utils.Parse(r.Url)
 	if err != nil {
 		return nil, err
 	}
 
 	return params, nil
 }
-
-

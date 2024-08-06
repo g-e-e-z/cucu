@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/g-e-e-z/cucu/commands"
 	"github.com/g-e-e-z/cucu/gui/components"
@@ -128,19 +129,20 @@ func (gui *Gui) renderRequestBody() error {
     if err != nil {
         return err
     }
-    if request.Data == nil {
-        // TODO: This better
-        gui.renderString(gui.g, gui.Views.RequestInfo.Name(), "")
-        return errors.New("No Request Data")
-    }
-    params, err := request.GetData()
+    data, err := request.GetData()
     if err != nil {
+        gui.renderString(gui.g, gui.Views.RequestInfo.Name(), err.Error())
         return err
     }
-    table := utils.MapToSlice(params)
-    renderedTable, err := utils.RenderComponent(table)
 
-    gui.renderString(gui.g, gui.Views.RequestInfo.Name(), renderedTable)
+    // TODO: Wont always be rendered as JSON... x-www-form-urlencoded, graphql..
+    // This should also modify how its presented
+    jsonData, err := utils.ToJSON(data)
+    if err != nil {
+        return  err
+    }
+
+    gui.renderString(gui.g, gui.Views.RequestInfo.Name(), jsonData)
     return nil
 }
 func (gui *Gui) renderResponseHeaders() error {
@@ -163,8 +165,18 @@ func (gui *Gui) renderResponseBody() error {
         gui.renderString(gui.g, gui.Views.ResponseInfo.Name(), "")
         return errors.New("No Response Body")
     }
-    gui.renderString(gui.g, gui.Views.ResponseInfo.Name(), request.ResponseBody)
+    renderString := formatBody(request, gui.Views.ResponseInfo.Width())
+    gui.renderString(gui.g, gui.Views.ResponseInfo.Name(), renderString)
     return nil
+}
+
+func formatBody(request *commands.Request, width int) string {
+    // TODO: This is god awful -> make a func in utils that isnt shit
+    formattedString := request.Status + " | " + fmt.Sprintf("%f", request.Duration.Seconds()) + " seconds\n"
+    formattedString += strings.Repeat("=", width)
+    formattedString += "\n"
+    formattedString += request.ResponseBody
+    return formattedString
 }
 
 

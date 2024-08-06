@@ -134,6 +134,18 @@ func Parse(rawURL string) ([][]string, error) {
 	return result, nil
 }
 
+// ToJSON function converts a map[string]interface{} to a formatted JSON string
+func ToJSON(data map[string]interface{}) (string, error) {
+	// Marshal the map into a JSON byte slice with indentation
+	jsonData, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		return "", err
+	}
+
+	// Convert the JSON byte slice to a string and return it
+	return string(jsonData), nil
+}
+
 // function to format JSON data
 func FormatJSON(data []byte) string {
 	var out bytes.Buffer
