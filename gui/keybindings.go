@@ -129,6 +129,12 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 		},
 		{
 			ViewName: "url",
+			Key:      gocui.KeyCtrlR,
+			Modifier: gocui.ModNone,
+			Handler:  gui.handleRequestSend,
+		},
+		{
+			ViewName: "url",
 			Key:      gocui.KeyEnter,
 			Modifier: gocui.ModNone,
 			Handler:  gui.handleToggleEdit, // Find a good place for this: Will be applicable to several views

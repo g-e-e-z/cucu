@@ -47,6 +47,14 @@ func (c *OSCommand) FileExists(path string) (bool, error) {
 }
 
 func (c *OSCommand) GetRequests() ([]*Request, error) {
+    var exists bool
+    var err error
+    if exists, err = c.FileExists(c.Config.RequestFilename()); err != nil {
+        return nil, err
+    }
+    if !exists {
+        c.InitRequests()
+    }
 	file, err := os.Open(c.Config.RequestFilename())
 	if err != nil {
 		return nil, err
@@ -62,4 +70,13 @@ func (c *OSCommand) GetRequests() ([]*Request, error) {
     }
 
 	return requests, nil
+}
+
+func (c *OSCommand) InitRequests() error {
+    jsonString := []byte(`[{"name":"Kanye Rest","url":"https://api.kanye.rest/","method":"GET"}]`)
+    err := os.WriteFile(c.Config.RequestFilename(), jsonString, os.ModePerm)
+    if err != nil {
+        return err
+    }
+    return nil
 }

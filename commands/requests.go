@@ -54,23 +54,20 @@ func (r *Request) Send() error {
 	r.Log.Info("Sending request to: ", request.URL)
     startTime := time.Now()
 	response, err := r.HttpCommand.Client.Do(request)
-    r.Duration = time.Since(startTime)
-	r.Status = response.Status
-    r.ResponseHeaders = response.Header
 	if err != nil {
 		// TODO: This handling is bad
 		r.Log.Error("Request failed: ", request.URL, err)
+        r.Status = "503 Service Unavailable"
+        r.Duration = time.Since(startTime)
 		r.ResponseBody = err.Error()
 		return nil
 	}
+    r.Duration = time.Since(startTime)
+	r.Status = response.Status
+    r.ResponseHeaders = response.Header
 
 	responseBody, err := io.ReadAll(response.Body)
 	defer response.Body.Close()
-
-	if err != nil {
-		r.Log.Error("Request failed: ", request.URL, err)
-		r.ResponseBody = err.Error()
-	}
 
     contentType := r.ResponseHeaders.Get("Content-Type")
     var formattedData string
