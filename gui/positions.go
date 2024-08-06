@@ -34,17 +34,17 @@ var VIEW_POSITIONS = map[string]viewPosition{
 	REQUESTS_VIEW: {
         position{0.0, 0},   // X0
         position{0.0, 0},   // Y0
-        position{0.2, -1},  // X1
+        position{0.25, -1},  // X1
         position{1.0, -1},  // Y1
 	},
 	URL_VIEW: {
-        position{0.2, 0},   // X0
+        position{0.25, 0},   // X0
         position{0.0, 0},   // Y0
         position{1.0, -1},  // X1
         position{0.1, -1},  // Y1
 	},
 	PARAMS_VIEW: {
-        position{0.2, 0},   // X0
+        position{0.25, 0},   // X0
         position{0.1, 0},   // Y0
         position{0.6, -1},  // X1
         position{1.0, -1},  // Y1
