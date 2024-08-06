@@ -200,7 +200,11 @@ func (gui *Gui) handleEditMethod(_ *gocui.Gui, v *gocui.View) error {
     }
 
     handleMenuPress := func (method string) error {
+        if request.Method != method {
+            request.Modified = true
+        }
         request.Method = method
+
         return nil
 
     }

@@ -31,6 +31,7 @@ type Request struct {
 
 	Log         *logrus.Entry
 	HttpCommand *HttpCommand
+    Modified    bool
 }
 
 func (r *Request) Send() error {
