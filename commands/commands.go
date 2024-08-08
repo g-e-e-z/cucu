@@ -36,7 +36,7 @@ func (hc *HttpCommand) GetRequests() ([]*Request, error) {
 		request.Log = hc.Log
 		request.HttpCommand = hc
         // TODO: This is kinda gross, and might just be a bad approach in general. Working for now
-        request.createHash()
+        request.hash = request.createHash()
 	}
 	return requests, nil
 }
@@ -49,10 +49,8 @@ func (hc *HttpCommand) SaveRequest(r *Request) error {
     for i, request := range requests {
         if request.hash == r.hash {
             r.Modified = false
-            r.createHash()
+            r.hash = r.createHash()
             requests[i] = r
-            r.Log.Info("request: commands.go", request.hash)
-            r.Log.Info("r: commands.go", r.hash)
             break
         }
     }

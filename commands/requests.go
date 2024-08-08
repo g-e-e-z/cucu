@@ -34,8 +34,16 @@ type Request struct {
 	Modified    bool
 }
 
-func (r *Request) createHash() {
-    r.hash = r.Name+r.Method+r.Url
+func (r *Request) CheckModifed() {
+    if r.hash != r.createHash() {
+        r.Modified = true
+    } else {
+        r.Modified = false
+    }
+}
+
+func (r *Request) createHash() string {
+    return r.Name+r.Method+r.Url
 }
 
 func (r *Request) toJSON() string {
@@ -62,7 +70,6 @@ func (r *Request) Save() error {
 	if !r.Modified {
 		return nil
 	}
-    r.Log.Info("Saving Request: requests.go")
 	return r.HttpCommand.SaveRequest(r)
 }
 
