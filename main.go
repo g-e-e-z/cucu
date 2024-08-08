@@ -60,7 +60,6 @@ func main() {
     app, err := app.NewApp(appConfig)
     if err == nil {
 		err = app.Run()
-        fmt.Print(err)
 	}
     // app.Close()
 
