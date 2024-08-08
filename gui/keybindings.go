@@ -81,6 +81,12 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 		},
 		{
 			ViewName: "requests",
+			Key:      gocui.KeyCtrlS,
+			Modifier: gocui.ModNone,
+			Handler:  gui.handleSaveRequest,
+		},
+		{
+			ViewName: "requests",
 			Key:      '[',
 			Modifier: gocui.ModNone,
 			Handler:  wrappedHandler(gui.Components.Requests.HandleNextTab),

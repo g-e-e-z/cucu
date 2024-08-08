@@ -262,3 +262,21 @@ func (gui *Gui) SendRequest(request *commands.Request) error {
 	}
 	return gui.Components.Requests.RerenderList()
 }
+
+func (gui * Gui) handleSaveRequest(g *gocui.Gui, v *gocui.View) error {
+	request, err := gui.Components.Requests.GetSelectedItem()
+	if err != nil {
+		return nil
+	}
+    return gui.SaveRequest(request)
+}
+
+func (gui *Gui) SaveRequest(request *commands.Request) error {
+    err := request.Save()
+    if err != nil {
+        gui.Log.Warn("Error saving request: ", err.Error())
+        return err
+    }
+
+	return gui.Components.Requests.RerenderList()
+}

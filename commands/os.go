@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"path/filepath"
 
 	"github.com/g-e-e-z/cucu/config"
 )
@@ -70,6 +71,50 @@ func (c *OSCommand) GetRequests() ([]*Request, error) {
     }
 
 	return requests, nil
+}
+
+func (c *OSCommand) SaveRequests(requests []*Request) error {
+    tmpName := filepath.Join(c.Config.ConfigDir, "old_requests.json")
+    os.Rename(c.Config.RequestFilename(), tmpName)
+    defer os.Remove(tmpName)
+
+	outFile, err := os.Create(c.Config.RequestFilename())
+	if err != nil {
+		return err
+	}
+	defer outFile.Close()
+
+	// Write the opening bracket for the JSON array
+	_, err = outFile.WriteString("[\n")
+	if err != nil {
+		return err
+	}
+
+	// Iterate over the requests and write them as JSON
+	for i, request := range requests {
+		jsonString:= request.toJSON()
+
+		// Add a comma if this isn't the last request
+		if i != 0 {
+			_, err = outFile.WriteString(",\n")
+			if err != nil {
+				return err
+			}
+		}
+
+		_, err = outFile.WriteString(jsonString)
+		if err != nil {
+			return err
+		}
+	}
+
+	// Write the closing bracket for the JSON array
+	_, err = outFile.WriteString("\n]\n")
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (c *OSCommand) InitRequests() error {

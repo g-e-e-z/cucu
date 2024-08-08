@@ -15,23 +15,55 @@ import (
 
 // Request: A request object
 type Request struct {
-	Name        string `json:"name"`
-	Url         string `json:"url"`
-	Method      string `json:"method"`
-	ContentType string `json:"contentType,omitempty"`
-	// Headers         string `json:"headers"`
-	Data map[string]interface{} `json:"data,omitempty"`
-
+	Name            string                 `json:"name"`
+	Url             string                 `json:"url"`
+	Method          string                 `json:"method"`
+	ContentType     string                 `json:"contentType,omitempty"`
+	Data            map[string]interface{} `json:"data,omitempty"`
 	Status          string
 	ResponseBody    string
 	ResponseHeaders http.Header
 	Duration        time.Duration
 
+	// Headers         string `json:"headers"`
 	// Formatter       formatter.ResponseFormatter
+    hash            string
 
 	Log         *logrus.Entry
 	HttpCommand *HttpCommand
-    Modified    bool
+	Modified    bool
+}
+
+func (r *Request) createHash() {
+    r.hash = r.Name+r.Method+r.Url
+}
+
+func (r *Request) toJSON() string {
+	// Create a map to hold the JSON representation
+	jsonMap := map[string]interface{}{
+		"name":        r.Name,
+		"url":         r.Url,
+		"method":      r.Method,
+		"contentType": r.ContentType,
+		"data":        r.Data,
+	}
+
+	// Marshal the map into a JSON string
+	jsonBytes, err := json.Marshal(jsonMap)
+	if err != nil {
+		r.Log.WithError(err).Error("Failed to marshal JSON")
+		return ""
+	}
+
+	return string(jsonBytes)
+}
+
+func (r *Request) Save() error {
+	if !r.Modified {
+		return nil
+	}
+    r.Log.Info("Saving Request: requests.go")
+	return r.HttpCommand.SaveRequest(r)
 }
 
 func (r *Request) Send() error {
@@ -53,28 +85,28 @@ func (r *Request) Send() error {
 	}
 	// request.Header.Set("do headers here")
 	r.Log.Info("Sending request to: ", request.URL)
-    startTime := time.Now()
+	startTime := time.Now()
 	response, err := r.HttpCommand.Client.Do(request)
 	if err != nil {
 		// TODO: This handling is bad
 		r.Log.Error("Request failed: ", request.URL, err)
-        r.Status = "503 Service Unavailable"
-        r.Duration = time.Since(startTime)
+		r.Status = "503 Service Unavailable"
+		r.Duration = time.Since(startTime)
 		r.ResponseBody = err.Error()
 		return nil
 	}
-    r.Duration = time.Since(startTime)
+	r.Duration = time.Since(startTime)
 	r.Status = response.Status
-    r.ResponseHeaders = response.Header
+	r.ResponseHeaders = response.Header
 
 	responseBody, err := io.ReadAll(response.Body)
 	defer response.Body.Close()
 
-    contentType := r.ResponseHeaders.Get("Content-Type")
-    var formattedData string
-    if strings.Contains(contentType, "json") {
-        formattedData = utils.FormatJSON(responseBody)
-    }
+	contentType := r.ResponseHeaders.Get("Content-Type")
+	var formattedData string
+	if strings.Contains(contentType, "json") {
+		formattedData = utils.FormatJSON(responseBody)
+	}
 	r.ResponseBody = formattedData
 	r.Log.Info("Response received: ", response.Status, contentType, r.Duration)
 
