@@ -74,8 +74,6 @@ func (gui *Gui) wrapEditor(f func(v *gocui.View, key gocui.Key, ch rune, mod goc
         request, _:= gui.Components.Requests.GetSelectedItem()
         request.Url = v.TextArea.GetContent()
         gui.Components.Requests.RerenderList()
-        // TODO: Handle Modified Better, save initial state? hash?
-        request.CheckModifed()
 
 		return matched
 	}

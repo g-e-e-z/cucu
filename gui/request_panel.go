@@ -201,7 +201,6 @@ func (gui *Gui) handleEditMethod(_ *gocui.Gui, v *gocui.View) error {
 
     handleMenuPress := func (method string) error {
         request.Method = method
-        request.CheckModifed()
 
         return nil
 
@@ -258,7 +257,7 @@ func (gui *Gui) SendRequest(request *commands.Request) error {
 	if err != nil {
 		return err
 	}
-	return gui.Components.Requests.RerenderList()
+	return gui.reRenderRequests()
 }
 
 func (gui * Gui) handleSaveRequest(g *gocui.Gui, v *gocui.View) error {
@@ -276,5 +275,5 @@ func (gui *Gui) SaveRequest(request *commands.Request) error {
         return err
     }
 
-	return gui.Components.Requests.RerenderList()
+	return gui.reRenderRequests()
 }

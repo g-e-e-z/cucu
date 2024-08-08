@@ -46,15 +46,17 @@ func (hc *HttpCommand) SaveRequest(r *Request) error {
 	if err != nil {
 		return  err
 	}
+    // Update if its existing
     for i, request := range requests {
         if request.hash == r.hash {
             r.Modified = false
             r.hash = r.createHash()
             requests[i] = r
-            break
+            return hc.OSCommand.SaveRequests(requests)
         }
     }
-    hc.OSCommand.SaveRequests(requests)
-    return nil
+    // Append if new
+    requests = append(requests, r)
+    return hc.OSCommand.SaveRequests(requests)
 }
 
