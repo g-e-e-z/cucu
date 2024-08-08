@@ -183,11 +183,11 @@ func formatBody(request *commands.Request, width int) string {
 
 var httpMethods = []string{
 	http.MethodGet,
-	http.MethodHead,
 	http.MethodPost,
 	http.MethodPut,
-	http.MethodPatch,
 	http.MethodDelete,
+	http.MethodHead,
+	http.MethodPatch,
 	http.MethodConnect,
 	http.MethodOptions,
 	http.MethodTrace,
