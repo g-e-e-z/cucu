@@ -39,11 +39,22 @@ func getDefaultConfigDir() string {
 
 	return filepath.Join(configFolderLocation, "cucu")
 }
+func findOrCreateConfigDir(folder string) (string, error) {
+	if folder == "" {
+		folder = getDefaultConfigDir()
+	}
+	err := os.MkdirAll(folder, 0o755)
+	if err != nil {
+		return "", err
+	}
+
+	return folder, nil
+}
 
 func NewAppConfig(configDir string, projectDir string) (*AppConfig, error) {
-	if configDir == "" {
-		// Load config from default path
-		configDir = getDefaultConfigDir()
+	configDir, err := findOrCreateConfigDir(configDir)
+	if err != nil {
+		return nil, err
 	}
 
 	appConfig := &AppConfig{
