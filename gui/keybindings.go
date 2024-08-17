@@ -75,6 +75,12 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 		},
 		{
 			ViewName: "requests",
+			Key:      'r',
+			Modifier: gocui.ModNone,
+			Handler:  gui.handleEditName,
+		},
+		{
+			ViewName: "requests",
 			Key:      'm',
 			Modifier: gocui.ModNone,
 			Handler:  gui.handleEditMethod,

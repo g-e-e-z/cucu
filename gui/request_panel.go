@@ -193,6 +193,15 @@ var httpMethods = []string{
 	http.MethodTrace,
 }
 
+func (gui *Gui) handleEditName(_ *gocui.Gui, v *gocui.View) error {
+    request, err := gui.Components.Requests.GetSelectedItem()
+    if err != nil {
+        return err
+    }
+    request.Name += "!"
+	return gui.Components.Requests.RerenderList()
+}
+
 func (gui *Gui) handleEditMethod(_ *gocui.Gui, v *gocui.View) error {
     request, err := gui.Components.Requests.GetSelectedItem()
     if err != nil {
