@@ -49,7 +49,6 @@ func (gui *Gui) handleEditConfirm() error {
         request.Url = gui.Views.Edit.TextArea.GetContent()
     }
 
-
 	return gui.Components.Requests.RerenderList()
 }
 

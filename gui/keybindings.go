@@ -77,7 +77,7 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			ViewName: "requests",
 			Key:      'r',
 			Modifier: gocui.ModNone,
-			Handler:  gui.handleEditName,
+			Handler:  gui.handleEditField,
 		},
 		{
 			ViewName: "requests",
@@ -167,13 +167,7 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			ViewName: "url",
 			Key:      gocui.KeyEnter,
 			Modifier: gocui.ModNone,
-			Handler:  gui.handleToggleEdit, // Find a good place for this: Will be applicable to several views
-		},
-		{
-			ViewName: "url",
-			Key:      gocui.KeyCtrlE,
-			Modifier: gocui.ModNone,
-			Handler:  gui.handleToggleEdit, // Find a good place for this: Will be applicable to several views
+			Handler:  gui.handleEditField,
 		},
 	}
 

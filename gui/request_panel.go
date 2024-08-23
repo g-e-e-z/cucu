@@ -192,16 +192,40 @@ var httpMethods = []string{
 	http.MethodTrace,
 }
 
-func (gui *Gui) handleEditName(_ *gocui.Gui, v *gocui.View) error {
+func (gui *Gui) handleEditField(_ *gocui.Gui, v *gocui.View) error {
 	request, err := gui.Components.Requests.GetSelectedItem()
 	if err != nil {
 		return err
 	}
+	gui.Log.Info(v.Name())
+	var editOpts CreateEditOptions
+	// switch v.Name() {
+	// case "requests ":
+	// 	editOpts = CreateEditOptions{
+	// 		Title: "Edit Name",
+	// 		Value: request.Name,
+	// 	}
+	// case "url":
+	// 	editOpts = CreateEditOptions{
+	// 		Title: "Edit Url",
+	// 		Value: request.Url,
+	// 	}
+	//
+	// }
+	if v.Name() == "requests" {
+		editOpts = CreateEditOptions{
+			Title: "Edit Name",
+			Value: request.Name,
+		}
+	}
+	if v.Name() == "url" {
+		editOpts = CreateEditOptions{
+			Title: "Edit Url",
+			Value: request.Url,
+		}
+	}
 
-	return gui.Edit(CreateEditOptions{
-		Title: "Edit Name",
-		Value: request.Name,
-	})
+	return gui.Edit(editOpts)
 }
 
 func (gui *Gui) handleEditMethod(_ *gocui.Gui, v *gocui.View) error {
