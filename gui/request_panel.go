@@ -295,6 +295,15 @@ func (gui *Gui) SendRequest(request *commands.Request) error {
 	return gui.reRenderRequests()
 }
 
+func (gui *Gui) handleDeleteRequest(g *gocui.Gui, v *gocui.View) error {
+    // Must delete from memory and file
+	request, err := gui.Components.Requests.RemoveSelectedItem()
+	if err != nil {
+		return nil
+	}
+	return gui.DeleteRequest(request)
+}
+
 func (gui *Gui) handleSaveRequest(g *gocui.Gui, v *gocui.View) error {
 	request, err := gui.Components.Requests.GetSelectedItem()
 	if err != nil {
@@ -307,6 +316,16 @@ func (gui *Gui) SaveRequest(request *commands.Request) error {
 	err := request.Save()
 	if err != nil {
 		gui.Log.Warn("Error saving request: ", err.Error())
+		return err
+	}
+
+	return gui.reRenderRequests()
+}
+
+func (gui *Gui) DeleteRequest(request *commands.Request) error {
+	err := request.Delete()
+	if err != nil {
+		gui.Log.Warn("Error deleting request: ", err.Error())
 		return err
 	}
 

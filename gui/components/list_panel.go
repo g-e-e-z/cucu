@@ -66,3 +66,20 @@ func (self *ListPanel[T]) GetSelectedItem() (T, error) {
 
 	return item, nil
 }
+
+func (self *ListPanel[T]) RemoveSelectedItem() (T, error) {
+	var zero T
+
+	item, ok := self.List.TryGet(self.SelectedIdx)
+	if !ok {
+		// could probably have a better error here
+		return zero, errors.New(self.NoItemsMessage)
+	}
+
+    items := self.GetItems()
+    newItems := append(items[:self.SelectedIdx], items[self.SelectedIdx+1:]...)
+    self.SetItems(newItems)
+    self.SelectedIdx = min(self.SelectedIdx, self.List.Len()-1)
+
+	return item, nil
+}

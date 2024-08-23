@@ -93,6 +93,12 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 		},
 		{
 			ViewName: "requests",
+			Key:      'd',
+			Modifier: gocui.ModNone,
+			Handler:  gui.handleDeleteRequest,
+		},
+		{
+			ViewName: "requests",
 			Key:      '[',
 			Modifier: gocui.ModNone,
 			Handler:  wrappedHandler(gui.Components.Requests.HandleNextTab),

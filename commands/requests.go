@@ -73,6 +73,10 @@ func (r *Request) Save() error {
 	return r.HttpCommand.SaveRequest(r)
 }
 
+func (r *Request) Delete() error {
+	return nil //r.HttpCommand.DeleteRequest(r)
+}
+
 func (r *Request) Send() error {
 	var request *http.Request
 	var err error
