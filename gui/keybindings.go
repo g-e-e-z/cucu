@@ -139,6 +139,24 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			Modifier: gocui.ModNone,
 			Handler:  wrappedHandler(gui.handleMenuPress),
 		},
+        {
+			ViewName: "edit",
+			Key:      gocui.KeyCtrlC,
+			Modifier: gocui.ModNone,
+			Handler:  wrappedHandler(gui.handleEditCancel),
+		},
+        {
+			ViewName: "edit",
+			Key:      gocui.KeyEsc,
+			Modifier: gocui.ModNone,
+			Handler:  wrappedHandler(gui.handleEditCancel),
+		},
+        {
+			ViewName: "edit",
+			Key:      gocui.KeyEnter,
+			Modifier: gocui.ModNone,
+			Handler:  wrappedHandler(gui.handleEditConfirm),
+		},
 		{
 			ViewName: "url",
 			Key:      gocui.KeyCtrlR,

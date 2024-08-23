@@ -13,7 +13,8 @@ const (
 	PARAMS_VIEW   = "params"
 	RESPONSE_VIEW = "response"
 
-	EDIT_METHOD_VIEW = "menu"
+	MENU_VIEW = "menu"
+	EDIT_VIEW = "edit"
 )
 
 type position struct {
@@ -55,7 +56,13 @@ var VIEW_POSITIONS = map[string]viewPosition{
         position{1.0, -1},  // X1
         position{1.0, -1},  // Y1
 	},
-	EDIT_METHOD_VIEW: {
+	MENU_VIEW: {
+        position{0.25, 0},   // X0
+        position{0.25, 0},   // Y0
+        position{0.75, -1},  // X1
+        position{0.75, -1},  // Y1
+	},
+	EDIT_VIEW: {
         position{0.25, 0},   // X0
         position{0.25, 0},   // Y0
         position{0.75, -1},  // X1
