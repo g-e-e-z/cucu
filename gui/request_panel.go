@@ -199,19 +199,7 @@ func (gui *Gui) handleEditField(_ *gocui.Gui, v *gocui.View) error {
 	}
 	gui.Log.Info(v.Name())
 	var editOpts CreateEditOptions
-	// switch v.Name() {
-	// case "requests ":
-	// 	editOpts = CreateEditOptions{
-	// 		Title: "Edit Name",
-	// 		Value: request.Name,
-	// 	}
-	// case "url":
-	// 	editOpts = CreateEditOptions{
-	// 		Title: "Edit Url",
-	// 		Value: request.Url,
-	// 	}
-	//
-	// }
+
 	if v.Name() == "requests" {
 		editOpts = CreateEditOptions{
 			Title: "Edit Name",
@@ -222,6 +210,21 @@ func (gui *Gui) handleEditField(_ *gocui.Gui, v *gocui.View) error {
 		editOpts = CreateEditOptions{
 			Title: "Edit Url",
 			Value: request.Url,
+		}
+	}
+	if v.Name() == "params" {
+		tabTitle := gui.Components.Requests.RequestContext.GetCurrentRequestInfoTab().Title
+		switch tabTitle {
+		case "Body":
+			editOpts = CreateEditOptions{
+				Title: "Edit Body",
+				Value: request.DataToJSON(),
+			}
+		case "Params":
+			editOpts = CreateEditOptions{
+				Title: "Edit Params",
+				Value: request.Url,
+			}
 		}
 	}
 
@@ -265,6 +268,8 @@ func (gui *Gui) handleEditMethod(_ *gocui.Gui, v *gocui.View) error {
 func (gui *Gui) handleNewRequest(g *gocui.Gui, v *gocui.View) error {
 	gui.Log.Info("Creating New Request")
 	newRequest := &commands.Request{
+		// Fix
+		Uuid:        "random",
 		Name:        "NewRequest!",
 		Url:         "this is a placeholder string",
 		Method:      http.MethodGet,
@@ -296,7 +301,7 @@ func (gui *Gui) SendRequest(request *commands.Request) error {
 }
 
 func (gui *Gui) handleDeleteRequest(g *gocui.Gui, v *gocui.View) error {
-    // Must delete from memory and file
+	// Must delete from memory and file
 	request, err := gui.Components.Requests.RemoveSelectedItem()
 	if err != nil {
 		return nil

@@ -118,7 +118,7 @@ func (c *OSCommand) SaveRequests(requests []*Request) error {
 }
 
 func (c *OSCommand) InitRequests() error {
-    jsonString := []byte(`[{"name":"Kanye Rest","url":"https://api.kanye.rest/","method":"GET"}]`)
+    jsonString := []byte(`[{"uuid":"123123","name":"Kanye Rest","url":"https://api.kanye.rest/","method":"GET"}]`)
     err := os.WriteFile(c.Config.RequestFilename(), jsonString, os.ModePerm)
     if err != nil {
         return err

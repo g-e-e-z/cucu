@@ -97,29 +97,35 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			Modifier: gocui.ModNone,
 			Handler:  gui.handleDeleteRequest,
 		},
+		// {
+		// 	ViewName: "requests",
+		// 	Key:      '[',
+		// 	Modifier: gocui.ModNone,
+		// 	Handler:  wrappedHandler(gui.Components.Requests.HandleNextTab),
+		// },
+		// {
+		// 	ViewName: "requests",
+		// 	Key:      ']',
+		// 	Modifier: gocui.ModNone,
+		// 	Handler:  wrappedHandler(gui.Components.Requests.HandlePrevTab),
+		// },
 		{
-			ViewName: "requests",
+			ViewName: "params",
 			Key:      '[',
 			Modifier: gocui.ModNone,
 			Handler:  wrappedHandler(gui.Components.Requests.HandleNextTab),
 		},
 		{
-			ViewName: "requests",
+			ViewName: "params",
 			Key:      ']',
 			Modifier: gocui.ModNone,
 			Handler:  wrappedHandler(gui.Components.Requests.HandlePrevTab),
 		},
 		{
 			ViewName: "params",
-			Key:      '[',
+			Key:      gocui.KeyEnter,
 			Modifier: gocui.ModNone,
-			Handler:  wrappedHandler(gui.Components.Requests.HandleNextTab),
-		},
-		{
-			ViewName: "params",
-			Key:      ']',
-			Modifier: gocui.ModNone,
-			Handler:  wrappedHandler(gui.Components.Requests.HandlePrevTab),
+			Handler:  gui.handleEditField,
 		},
 		{
 			ViewName: "menu",
@@ -145,19 +151,19 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			Modifier: gocui.ModNone,
 			Handler:  wrappedHandler(gui.handleMenuPress),
 		},
-        {
+		{
 			ViewName: "edit",
 			Key:      gocui.KeyCtrlC,
 			Modifier: gocui.ModNone,
 			Handler:  wrappedHandler(gui.handleEditCancel),
 		},
-        {
+		{
 			ViewName: "edit",
 			Key:      gocui.KeyEsc,
 			Modifier: gocui.ModNone,
 			Handler:  wrappedHandler(gui.handleEditCancel),
 		},
-        {
+		{
 			ViewName: "edit",
 			Key:      gocui.KeyEnter,
 			Modifier: gocui.ModNone,

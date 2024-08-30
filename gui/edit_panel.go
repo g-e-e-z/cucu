@@ -1,6 +1,7 @@
 package gui
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 )
@@ -41,12 +42,22 @@ func (gui *Gui) handleEditConfirm() error {
 	if err != nil {
 		return err
 	}
+    content := gui.Views.Edit.TextArea.GetContent()
     field := words[1]
     if field == "Name" {
-        request.Name = gui.Views.Edit.TextArea.GetContent()
+        request.Name = content
     }
     if field == "Url" {
-        request.Url = gui.Views.Edit.TextArea.GetContent()
+        request.Url = content
+    }
+    if field == "Body" {
+        var data map[string]interface{}
+        err = json.Unmarshal([]byte(content), &data)
+        if err != nil {
+            gui.Log.Info("Failed to unmarshal json")
+            return nil
+        }
+        request.Data = data
     }
 
 	return gui.Components.Requests.RerenderList()

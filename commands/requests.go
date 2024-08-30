@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	// "go/token"
 	"io"
 	"net/http"
 	"strings"
@@ -15,6 +16,7 @@ import (
 
 // Request: A request object
 type Request struct {
+	Uuid            string                 `json:"uuid"`
 	Name            string                 `json:"name"`
 	Url             string                 `json:"url"`
 	Method          string                 `json:"method"`
@@ -27,7 +29,7 @@ type Request struct {
 
 	// Headers         string `json:"headers"`
 	// Formatter       formatter.ResponseFormatter
-    hash            string
+	hash string
 
 	Log         *logrus.Entry
 	HttpCommand *HttpCommand
@@ -35,20 +37,30 @@ type Request struct {
 }
 
 func (r *Request) CheckModifed() {
-    if r.hash != r.createHash() {
-        r.Modified = true
-    } else {
-        r.Modified = false
-    }
+	if r.hash != r.createHash() {
+		r.Modified = true
+	} else {
+		r.Modified = false
+	}
 }
 
 func (r *Request) createHash() string {
-    return r.Name+r.Method+r.Url
+	return r.Name + r.Method + r.Url
+}
+
+func (r *Request) DataToJSON() string {
+    bytes, err := json.Marshal(r.Data)
+	if err != nil {
+		r.Log.WithError(err).Error("Failed to marshal JSON")
+		return ""
+	}
+	return string(bytes)
 }
 
 func (r *Request) toJSON() string {
 	// Create a map to hold the JSON representation
 	jsonMap := map[string]interface{}{
+		"uuid":        r.Uuid,
 		"name":        r.Name,
 		"url":         r.Url,
 		"method":      r.Method,
