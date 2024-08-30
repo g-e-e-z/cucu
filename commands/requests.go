@@ -45,7 +45,7 @@ func (r *Request) CheckModifed() {
 }
 
 func (r *Request) createHash() string {
-	return r.Name + r.Method + r.Url
+	return r.Name + r.Method + r.Url + r.DataToJSON()
 }
 
 func (r *Request) DataToJSON() string {
