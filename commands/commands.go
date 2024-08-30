@@ -36,7 +36,7 @@ func (hc *HttpCommand) GetRequests() ([]*Request, error) {
 		request.Log = hc.Log
 		request.HttpCommand = hc
         // TODO: This is kinda gross, and might just be a bad approach in general. Working for now
-        request.hash = request.createHash()
+        request.Hash = request.CreateHash()
 	}
 	return requests, nil
 }
@@ -48,9 +48,9 @@ func (hc *HttpCommand) SaveRequest(r *Request) error {
 	}
     // Update if its existing
     for i, request := range requests {
-        if request.hash == r.hash {
+        if request.Uuid == r.Uuid {
             r.Modified = false
-            r.hash = r.createHash()
+            r.Hash = r.CreateHash()
             requests[i] = r
             return hc.OSCommand.SaveRequests(requests)
         }

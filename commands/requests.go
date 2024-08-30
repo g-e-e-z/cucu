@@ -4,13 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	// "go/token"
 	"io"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/g-e-e-z/cucu/utils"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )
 
@@ -29,27 +29,41 @@ type Request struct {
 
 	// Headers         string `json:"headers"`
 	// Formatter       formatter.ResponseFormatter
-	hash string
+	Hash string
 
 	Log         *logrus.Entry
 	HttpCommand *HttpCommand
 	Modified    bool
 }
 
+func NewRequest(log *logrus.Entry, httpCommand *HttpCommand) *Request {
+    request := &Request{
+    	Uuid:            uuid.New().String(),
+    	Name:            "NewReq",
+    	Url:             "placeholder url",
+    	Method:          http.MethodGet,
+    	Log:             log,
+    	HttpCommand:     httpCommand,
+    }
+    // This feels silly
+    request.Hash = request.CreateHash()
+    return request
+}
+
 func (r *Request) CheckModifed() {
-	if r.hash != r.createHash() {
+	if r.Hash != r.CreateHash() {
 		r.Modified = true
 	} else {
 		r.Modified = false
 	}
 }
 
-func (r *Request) createHash() string {
+func (r *Request) CreateHash() string {
 	return r.Name + r.Method + r.Url + r.DataToJSON()
 }
 
 func (r *Request) DataToJSON() string {
-    bytes, err := json.Marshal(r.Data)
+	bytes, err := json.Marshal(r.Data)
 	if err != nil {
 		r.Log.WithError(err).Error("Failed to marshal JSON")
 		return ""

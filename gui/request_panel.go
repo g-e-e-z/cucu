@@ -267,15 +267,7 @@ func (gui *Gui) handleEditMethod(_ *gocui.Gui, v *gocui.View) error {
 
 func (gui *Gui) handleNewRequest(g *gocui.Gui, v *gocui.View) error {
 	gui.Log.Info("Creating New Request")
-	newRequest := &commands.Request{
-		// Fix
-		Uuid:        "random",
-		Name:        "NewRequest!",
-		Url:         "this is a placeholder string",
-		Method:      http.MethodGet,
-		Log:         gui.Log,
-		HttpCommand: gui.HttpCommands,
-	}
+    newRequest := commands.NewRequest(gui.Log, gui.HttpCommands)
 	newRequestList := append(gui.Components.Requests.GetItems(), newRequest)
 	gui.Components.Requests.SetItems(newRequestList)
 
