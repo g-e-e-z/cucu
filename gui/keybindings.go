@@ -97,29 +97,29 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			Modifier: gocui.ModNone,
 			Handler:  gui.handleDeleteRequest,
 		},
-		// {
-		// 	ViewName: "requests",
-		// 	Key:      '[',
-		// 	Modifier: gocui.ModNone,
-		// 	Handler:  wrappedHandler(gui.Components.Requests.HandleNextTab),
-		// },
-		// {
-		// 	ViewName: "requests",
-		// 	Key:      ']',
-		// 	Modifier: gocui.ModNone,
-		// 	Handler:  wrappedHandler(gui.Components.Requests.HandlePrevTab),
-		// },
+		{
+			ViewName: "response",
+			Key:      '[',
+			Modifier: gocui.ModNone,
+			Handler:  wrappedHandler(gui.Components.Requests.HandleNextResTab),
+		},
+		{
+			ViewName: "response",
+			Key:      ']',
+			Modifier: gocui.ModNone,
+			Handler:  wrappedHandler(gui.Components.Requests.HandlePrevResTab),
+		},
 		{
 			ViewName: "params",
 			Key:      '[',
 			Modifier: gocui.ModNone,
-			Handler:  wrappedHandler(gui.Components.Requests.HandlePrevTab),
+			Handler:  wrappedHandler(gui.Components.Requests.HandlePrevReqTab),
 		},
 		{
 			ViewName: "params",
 			Key:      ']',
 			Modifier: gocui.ModNone,
-			Handler:  wrappedHandler(gui.Components.Requests.HandleNextTab),
+			Handler:  wrappedHandler(gui.Components.Requests.HandleNextReqTab),
 		},
 		{
 			ViewName: "params",

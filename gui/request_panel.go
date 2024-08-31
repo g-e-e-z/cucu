@@ -116,11 +116,11 @@ func (gui *Gui) renderRequestHeaders() error {
 		gui.renderString(gui.g, gui.Views.RequestInfo.Name(), err.Error())
 		return err
 	}
-    var formattedHeaders [][]string
-    for k, v := range headers {
-        strSlice := []string{k, fmt.Sprintf("%v", v)}
-        formattedHeaders = append(formattedHeaders, strSlice)
-    }
+	var formattedHeaders [][]string
+	for k, v := range headers {
+		strSlice := []string{k, fmt.Sprintf("%v", v)}
+		formattedHeaders = append(formattedHeaders, strSlice)
+	}
 
 	renderedTable, err := utils.RenderComponent(formattedHeaders)
 
@@ -167,12 +167,16 @@ func (gui *Gui) renderRequestBody() error {
 	return nil
 }
 func (gui *Gui) renderResponseHeaders() error {
-	// if request.ResponseBody == "" {
-	//     // TODO: This better
-	//     gui.renderString(gui.g, gui.Views.ResponseInfo.Name(), "")
-	//     return
-	// }
-	// gui.renderString(gui.g, gui.Views.ResponseInfo.Name(), request.ResponseBody)
+	request, err := gui.Components.Requests.GetSelectedItem()
+	if err != nil {
+		return err
+	}
+	// result := make(map[string]string)
+    result := ""
+	for key, value := range request.ResponseHeaders {
+		result += key + "|" + strings.Join(value,",") + "\n"
+	}
+	gui.renderString(gui.g, gui.Views.ResponseInfo.Name(), result)
 	return nil
 }
 
@@ -294,7 +298,7 @@ func (gui *Gui) handleEditMethod(_ *gocui.Gui, v *gocui.View) error {
 
 func (gui *Gui) handleNewRequest(g *gocui.Gui, v *gocui.View) error {
 	gui.Log.Info("Creating New Request")
-    newRequest := commands.NewRequest(gui.Log, gui.HttpCommands)
+	newRequest := commands.NewRequest(gui.Log, gui.HttpCommands)
 	newRequestList := append(gui.Components.Requests.GetItems(), newRequest)
 	gui.Components.Requests.SetItems(newRequestList)
 
@@ -347,7 +351,7 @@ func (gui *Gui) SaveRequest(request *commands.Request) error {
 }
 
 func (gui *Gui) DeleteRequest(request *commands.Request) error {
-    allRequests := gui.Components.Requests.GetItems()
+	allRequests := gui.Components.Requests.GetItems()
 	err := request.Delete(allRequests)
 	if err != nil {
 		gui.Log.Warn("Error deleting request: ", err.Error())

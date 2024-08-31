@@ -1,6 +1,8 @@
 package components
 
-import "github.com/samber/lo"
+import (
+	"github.com/samber/lo"
+)
 
 // the active request determines the entire state of the application. Will be used
 // to render request parameters/ body/ headers and response
@@ -9,7 +11,7 @@ type RequestContext[T any] struct {
 	responseTabIdx int
 	// this function returns the tabs that we can display for an item (the tabs
 	// are shown on the request and response views)
-	GetUrlTab func() Tab[T]
+	GetUrlTab           func() Tab[T]
 	GetRequestInfoTabs  func() []Tab[T]
 	GetResponseInfoTabs func() []Tab[T]
 	// This tells us whether we need to re-render to the main panel for a given item.
@@ -28,9 +30,10 @@ type Tab[T any] struct {
 }
 
 func (rc *RequestContext[T]) RenderUrl() {
-    rc.GetUrlTab().Render()
+	rc.GetUrlTab().Render()
 }
 
+// // Request Tab
 func (rc *RequestContext[T]) GetRequestInfoTabTitles() []string {
 	return lo.Map(rc.GetRequestInfoTabs(), func(tab Tab[T], _ int) string {
 		return tab.Title
@@ -38,30 +41,20 @@ func (rc *RequestContext[T]) GetRequestInfoTabTitles() []string {
 }
 
 func (rc *RequestContext[T]) GetCurrentRequestInfoTab() Tab[T] {
-    return rc.GetRequestInfoTabs()[rc.requestTabIdx]
+	return rc.GetRequestInfoTabs()[rc.requestTabIdx]
 }
 
-func (rc *RequestContext[T]) GetResponseInfoTabTitles() []string {
-	return lo.Map(rc.GetResponseInfoTabs(), func(tab Tab[T], _ int) string {
-		return tab.Title
-	})
-}
-
-func (rc *RequestContext[T]) GetCurrentResponseInfoTab() Tab[T] {
-    return rc.GetResponseInfoTabs()[rc.responseTabIdx]
-}
-
-func (rp *RequestContext[T]) HandleNextTab() {
+func (rp *RequestContext[T]) HandleNextReqTab() {
 	tabs := rp.GetRequestInfoTabs()
 
 	if len(tabs) == 0 {
 		return
 	}
 
-	rp.requestTabIdx = (rp.requestTabIdx+ 1) % len(tabs)
+	rp.requestTabIdx = (rp.requestTabIdx + 1) % len(tabs)
 }
 
-func (rp *RequestContext[T]) HandlePrevTab() {
+func (rp *RequestContext[T]) HandlePrevReqTab() {
 	tabs := rp.GetRequestInfoTabs()
 
 	if len(tabs) == 0 {
@@ -71,3 +64,33 @@ func (rp *RequestContext[T]) HandlePrevTab() {
 	rp.requestTabIdx = (rp.requestTabIdx - 1 + len(tabs)) % len(tabs)
 }
 
+// // Response Tab
+func (rc *RequestContext[T]) GetResponseInfoTabTitles() []string {
+	return lo.Map(rc.GetResponseInfoTabs(), func(tab Tab[T], _ int) string {
+		return tab.Title
+	})
+}
+
+func (rc *RequestContext[T]) GetCurrentResponseInfoTab() Tab[T] {
+	return rc.GetResponseInfoTabs()[rc.responseTabIdx]
+}
+
+func (rp *RequestContext[T]) HandleNextResTab() {
+	tabs := rp.GetResponseInfoTabs()
+
+	if len(tabs) == 0 {
+		return
+	}
+
+	rp.responseTabIdx = (rp.responseTabIdx + 1) % len(tabs)
+}
+
+func (rp *RequestContext[T]) HandlePrevResTab() {
+	tabs := rp.GetResponseInfoTabs()
+
+	if len(tabs) == 0 {
+		return
+	}
+
+	rp.responseTabIdx = (rp.responseTabIdx - 1 + len(tabs)) % len(tabs)
+}

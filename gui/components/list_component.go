@@ -151,26 +151,45 @@ func (self *ListComponent[T]) SetSelectedLineIdx(value int) {
 	self.SelectedIdx = clampedValue
 }
 
-func (self *ListComponent[T]) HandleNextTab() error {
+func (self *ListComponent[T]) HandleNextReqTab() error {
 	if self.RequestContext == nil {
 		return nil
 	}
 
-	self.RequestContext.HandleNextTab()
+	self.RequestContext.HandleNextReqTab()
 
 	return self.HandleSelect()
 }
 
-func (self *ListComponent[T]) HandlePrevTab() error {
+func (self *ListComponent[T]) HandlePrevReqTab() error {
 	if self.RequestContext == nil {
 		return nil
 	}
 
-	self.RequestContext.HandlePrevTab()
+	self.RequestContext.HandlePrevReqTab()
 
 	return self.HandleSelect()
 }
 
+func (self *ListComponent[T]) HandleNextResTab() error {
+	if self.RequestContext == nil {
+		return nil
+	}
+
+	self.RequestContext.HandleNextResTab()
+
+	return self.HandleSelect()
+}
+
+func (self *ListComponent[T]) HandlePrevResTab() error {
+	if self.RequestContext == nil {
+		return nil
+	}
+
+	self.RequestContext.HandlePrevResTab()
+
+	return self.HandleSelect()
+}
 
 // Get this from lazycore
 // Clamp returns a value x restricted between min and max
