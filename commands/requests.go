@@ -20,6 +20,7 @@ type Request struct {
 	Name            string                 `json:"name"`
 	Url             string                 `json:"url"`
 	Method          string                 `json:"method"`
+	Headers         map[string]interface{} `json:"headers,omitempty"`
 	ContentType     string                 `json:"contentType,omitempty"`
 	Data            map[string]interface{} `json:"data,omitempty"`
 	Status          string
@@ -27,11 +28,10 @@ type Request struct {
 	ResponseHeaders http.Header
 	Duration        time.Duration
 
-	// Headers         string `json:"headers"`
 	// Formatter       formatter.ResponseFormatter
 	Hash string
 
-    saved   bool
+	saved bool
 
 	Log         *logrus.Entry
 	HttpCommand *HttpCommand
@@ -39,17 +39,17 @@ type Request struct {
 }
 
 func NewRequest(log *logrus.Entry, httpCommand *HttpCommand) *Request {
-    request := &Request{
-    	Uuid:            uuid.New().String(),
-    	Name:            "NewReq",
-    	Url:             "placeholder url",
-    	Method:          http.MethodGet,
-    	Log:             log,
-    	HttpCommand:     httpCommand,
-    }
-    // This feels silly
-    request.Hash = request.CreateHash()
-    return request
+	request := &Request{
+		Uuid:        uuid.New().String(),
+		Name:        "NewReq",
+		Url:         "placeholder url",
+		Method:      http.MethodGet,
+		Log:         log,
+		HttpCommand: httpCommand,
+	}
+	// This feels silly
+	request.Hash = request.CreateHash()
+	return request
 }
 
 func (r *Request) CheckModifed() {
@@ -62,6 +62,15 @@ func (r *Request) CheckModifed() {
 
 func (r *Request) CreateHash() string {
 	return r.Name + r.Method + r.Url + r.DataToJSON()
+}
+
+func (r *Request) HeadersToJSON() string {
+	bytes, err := json.Marshal(r.Headers)
+	if err != nil {
+		r.Log.WithError(err).Error("Failed to marshal JSON")
+		return ""
+	}
+	return string(bytes)
 }
 
 func (r *Request) DataToJSON() string {
@@ -164,6 +173,20 @@ func (r *Request) GetData() (map[string]interface{}, error) {
 
 	return result, nil
 }
+
+func (r *Request) GetRequestHeaders() (map[string]interface{}, error) {
+	if r.Headers == nil {
+		return nil, errors.New("request headers is empty")
+	}
+
+	result := make(map[string]interface{})
+	for key, value := range r.Headers {
+		result[key] = value
+	}
+
+	return result, nil
+}
+
 func (r *Request) GetParams() ([][]string, error) {
 	params, err := utils.Parse(r.Url)
 	if err != nil {

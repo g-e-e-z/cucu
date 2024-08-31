@@ -28,11 +28,11 @@ func (gui *Gui) getRequestsPanel() *components.ListComponent[*commands.Request] 
 			},
 			GetRequestInfoTabs: func() []components.Tab[*commands.Request] {
 				return []components.Tab[*commands.Request]{
-					// {
-					// 	Key:    "headers",
-					// 	Title:  "Params",
-					// 	Render: func(*commands.Request) {},
-					// },
+					{
+						Key:    "headers",
+						Title:  "Headers",
+						Render: gui.renderRequestHeaders,
+					},
 					{
 						Key:    "params",
 						Title:  "Params",
@@ -103,6 +103,28 @@ func (gui *Gui) renderUrl() error {
 	fmt.Fprint(urlView, s)
 	// Below sets origin and cursor to 0, not friendly with editing
 	// gui.renderString(gui.g, gui.Views.Url.Name(), s)
+	return nil
+}
+func (gui *Gui) renderRequestHeaders() error {
+	request, err := gui.Components.Requests.GetSelectedItem()
+	if err != nil {
+		return err
+	}
+	headers, err := request.GetRequestHeaders()
+	if err != nil {
+		// TODO: This better
+		gui.renderString(gui.g, gui.Views.RequestInfo.Name(), err.Error())
+		return err
+	}
+    var formattedHeaders [][]string
+    for k, v := range headers {
+        strSlice := []string{k, fmt.Sprintf("%v", v)}
+        formattedHeaders = append(formattedHeaders, strSlice)
+    }
+
+	renderedTable, err := utils.RenderComponent(formattedHeaders)
+
+	gui.renderString(gui.g, gui.Views.RequestInfo.Name(), renderedTable)
 	return nil
 }
 
@@ -224,6 +246,11 @@ func (gui *Gui) handleEditField(_ *gocui.Gui, v *gocui.View) error {
 			editOpts = CreateEditOptions{
 				Title: "Edit Params",
 				Value: request.Url,
+			}
+		case "Headers":
+			editOpts = CreateEditOptions{
+				Title: "Edit Headers",
+				Value: request.HeadersToJSON(),
 			}
 		}
 	}

@@ -50,6 +50,15 @@ func (gui *Gui) handleEditConfirm() error {
     if field == "Url" {
         request.Url = content
     }
+    if field == "Headers" {
+        var data map[string]interface{}
+        err = json.Unmarshal([]byte(content), &data)
+        if err != nil {
+            gui.Log.Info("Failed to unmarshal json")
+            return nil
+        }
+        request.Headers = data
+    }
     if field == "Body" {
         var data map[string]interface{}
         err = json.Unmarshal([]byte(content), &data)

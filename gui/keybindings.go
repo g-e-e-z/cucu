@@ -113,13 +113,13 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			ViewName: "params",
 			Key:      '[',
 			Modifier: gocui.ModNone,
-			Handler:  wrappedHandler(gui.Components.Requests.HandleNextTab),
+			Handler:  wrappedHandler(gui.Components.Requests.HandlePrevTab),
 		},
 		{
 			ViewName: "params",
 			Key:      ']',
 			Modifier: gocui.ModNone,
-			Handler:  wrappedHandler(gui.Components.Requests.HandlePrevTab),
+			Handler:  wrappedHandler(gui.Components.Requests.HandleNextTab),
 		},
 		{
 			ViewName: "params",
