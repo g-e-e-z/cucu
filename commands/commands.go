@@ -37,6 +37,7 @@ func (hc *HttpCommand) GetRequests() ([]*Request, error) {
 		request.HttpCommand = hc
         // TODO: This is kinda gross, and might just be a bad approach in general. Working for now
         request.Hash = request.CreateHash()
+        request.saved = true
 	}
 	return requests, nil
 }
@@ -52,11 +53,23 @@ func (hc *HttpCommand) SaveRequest(r *Request) error {
             r.Modified = false
             r.Hash = r.CreateHash()
             requests[i] = r
+            r.saved = true
             return hc.OSCommand.SaveRequests(requests)
         }
     }
     // Append if new
     requests = append(requests, r)
+    r.saved = true
     return hc.OSCommand.SaveRequests(requests)
 }
 
+func (hc *HttpCommand) DeleteRequest(reqToDelete *Request, requests []*Request) error {
+    var newRequests []*Request
+    for _, request := range requests {
+        if request.Uuid != reqToDelete.Uuid {
+            newRequests = append(newRequests, request)
+        }
+    }
+    return hc.OSCommand.SaveRequests(newRequests)
+
+}

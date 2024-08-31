@@ -320,7 +320,8 @@ func (gui *Gui) SaveRequest(request *commands.Request) error {
 }
 
 func (gui *Gui) DeleteRequest(request *commands.Request) error {
-	err := request.Delete()
+    allRequests := gui.Components.Requests.GetItems()
+	err := request.Delete(allRequests)
 	if err != nil {
 		gui.Log.Warn("Error deleting request: ", err.Error())
 		return err

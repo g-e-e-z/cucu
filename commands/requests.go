@@ -31,6 +31,8 @@ type Request struct {
 	// Formatter       formatter.ResponseFormatter
 	Hash string
 
+    saved   bool
+
 	Log         *logrus.Entry
 	HttpCommand *HttpCommand
 	Modified    bool
@@ -51,7 +53,7 @@ func NewRequest(log *logrus.Entry, httpCommand *HttpCommand) *Request {
 }
 
 func (r *Request) CheckModifed() {
-	if r.Hash != r.CreateHash() {
+	if r.Hash != r.CreateHash() || r.saved != true {
 		r.Modified = true
 	} else {
 		r.Modified = false
@@ -93,14 +95,14 @@ func (r *Request) toJSON() string {
 }
 
 func (r *Request) Save() error {
-	if !r.Modified {
+	if !r.Modified && r.saved {
 		return nil
 	}
 	return r.HttpCommand.SaveRequest(r)
 }
 
-func (r *Request) Delete() error {
-	return nil //r.HttpCommand.DeleteRequest(r)
+func (r *Request) Delete(requests []*Request) error {
+	return r.HttpCommand.DeleteRequest(r, requests)
 }
 
 func (r *Request) Send() error {
