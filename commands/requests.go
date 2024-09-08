@@ -33,19 +33,20 @@ type Request struct {
 
 	saved bool
 
-	Log         *logrus.Entry
-	HttpCommand *HttpCommand
-	Modified    bool
+	Log       *logrus.Entry
+	Client    *http.Client
+	OSCommand *OSCommand
+	Modified  bool
 }
 
-func NewRequest(log *logrus.Entry, httpCommand *HttpCommand) *Request {
+func NewRequest(log *logrus.Entry, client *http.Client) *Request {
 	request := &Request{
-		Uuid:        uuid.New().String(),
-		Name:        "NewReq",
-		Url:         "placeholder url",
-		Method:      http.MethodGet,
-		Log:         log,
-		HttpCommand: httpCommand,
+		Uuid:   uuid.New().String(),
+		Name:   "NewReq",
+		Url:    "placeholder url",
+		Method: http.MethodGet,
+		Log:    log,
+		Client: client,
 	}
 	// This feels silly
 	request.Hash = request.CreateHash()
@@ -108,11 +109,11 @@ func (r *Request) Save() error {
 	if !r.Modified && r.saved {
 		return nil
 	}
-	return r.HttpCommand.SaveRequest(r)
+	return r.OSCommand.SaveRequest(r)
 }
 
 func (r *Request) Delete(requests []*Request) error {
-	return r.HttpCommand.DeleteRequest(r, requests)
+	return r.OSCommand.DeleteRequest(r, requests)
 }
 
 func (r *Request) Send() error {
@@ -140,7 +141,7 @@ func (r *Request) Send() error {
 	request.Header.Set("user-agent", "Cucu/0.0.1")
 	r.Log.Info("Sending request to: ", request.URL)
 	startTime := time.Now()
-	response, err := r.HttpCommand.Client.Do(request)
+	response, err := r.Client.Do(request)
 	if err != nil {
 		r.Log.Error("Request failed: ", request.URL, err)
 		r.Status = "503 Service Unavailable"

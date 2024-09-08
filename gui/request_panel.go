@@ -74,7 +74,7 @@ func (gui *Gui) getRequestsPanel() *components.ListComponent[*commands.Request] 
 
 // Rendering
 func (gui *Gui) renderRequests() error {
-	requests, err := gui.HttpCommands.GetRequests()
+	requests, err := gui.OSCommands.GetRequests()
 	if err != nil {
 		return err
 	}
@@ -298,7 +298,7 @@ func (gui *Gui) handleEditMethod(_ *gocui.Gui, v *gocui.View) error {
 
 func (gui *Gui) handleNewRequest(g *gocui.Gui, v *gocui.View) error {
 	gui.Log.Info("Creating New Request")
-	newRequest := commands.NewRequest(gui.Log, gui.HttpCommands)
+	newRequest := commands.NewRequest(gui.Log, gui.Client)
 	newRequestList := append(gui.Components.Requests.GetItems(), newRequest)
 	gui.Components.Requests.SetItems(newRequestList)
 

@@ -1,6 +1,8 @@
 package gui
 
 import (
+	"net/http"
+
 	"github.com/g-e-e-z/cucu/commands"
 	"github.com/g-e-e-z/cucu/config"
 	"github.com/g-e-e-z/cucu/gui/components"
@@ -11,12 +13,12 @@ import (
 
 // Gui wraps the gocui Gui object which handles rendering and events
 type Gui struct {
-	g            *gocui.Gui
-	Config       *config.AppConfig
-	Log          *logrus.Entry
-	OSCommands   *commands.OSCommand
-	HttpCommands *commands.HttpCommand
-	Views        Views
+	g          *gocui.Gui
+	Config     *config.AppConfig
+	Log        *logrus.Entry
+	OSCommands *commands.OSCommand
+	Client     *http.Client
+	Views      Views
 
 	Components Components
 }
@@ -27,12 +29,11 @@ type Components struct {
 	Menu *components.ListComponent[*types.MenuItem]
 }
 
-func NewGuiWrapper(log *logrus.Entry, config *config.AppConfig, osCommands *commands.OSCommand, httpCommands *commands.HttpCommand) *Gui {
+func NewGuiWrapper(log *logrus.Entry, config *config.AppConfig, osCommands *commands.OSCommand) *Gui {
 	return &Gui{
-		Config:       config,
-		Log:          log,
-		OSCommands:   osCommands,
-		HttpCommands: httpCommands,
+		Config:     config,
+		Log:        log,
+		OSCommands: osCommands,
 	}
 }
 

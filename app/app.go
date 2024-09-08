@@ -1,36 +1,34 @@
 package app
 
 import (
-	"github.com/g-e-e-z/cucu/log"
+	"net/http"
+
 	"github.com/g-e-e-z/cucu/commands"
 	"github.com/g-e-e-z/cucu/config"
 	"github.com/g-e-e-z/cucu/gui"
+	"github.com/g-e-e-z/cucu/log"
 	"github.com/sirupsen/logrus"
 )
 
 type App struct {
-	Config       *config.AppConfig
-	Log          *logrus.Entry
-	OSCommand    *commands.OSCommand
-	HttpCommands *commands.HttpCommand
-	Gui          *gui.Gui
+	Config    *config.AppConfig
+	Log       *logrus.Entry
+	Client    *http.Client
+	OSCommand *commands.OSCommand
+	Gui       *gui.Gui
 }
 
 func NewApp(config *config.AppConfig) (*App, error) {
 	app := &App{
 		Config: config,
 	}
-	var err error
 	app.Log = log.NewLogger(config, "23432119147a4367abf7c0de2aa99a2d")
-	app.OSCommand = commands.NewOSCommand(config)
-	app.HttpCommands, err = commands.NewHttpCommands(app.Log, app.Config, app.OSCommand)
-	if err != nil {
-		return app, err
-	}
+	app.OSCommand = commands.NewOSCommand(app.Log, config)
+	app.Client = &http.Client{Timeout: 0}
 
-	app.Gui = gui.NewGuiWrapper(app.Log, config, app.OSCommand, app.HttpCommands)
+	app.Gui = gui.NewGuiWrapper(app.Log, config, app.OSCommand)
 
-    app.Log.Info("APP INITIALIZED")
+	app.Log.Info("APP INITIALIZED")
 
 	return app, nil
 }
