@@ -49,8 +49,8 @@ func (gui *Gui) allViews() []*gocui.View {
 
 func (gui *Gui) allListComponents() []components.ISideListPanel {
 	return []components.ISideListPanel{
-		gui.Components.Requests,
-		gui.Components.Menu,
+		gui.Requests,
+		gui.Menu,
 	}
 }
 

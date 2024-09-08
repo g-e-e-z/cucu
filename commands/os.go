@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/g-e-e-z/cucu/config"
+	"github.com/sirupsen/logrus"
 )
 
 // Platform stores the os state
@@ -19,8 +20,9 @@ type Platform struct {
 	openLinkCommand string
 }
 
-// OSCommand holds all the os commands
+// OSCommand holds all the commands to interact with machine
 type OSCommand struct {
+	Log      *logrus.Entry
 	Platform *Platform
 	Config   *config.AppConfig
 	command  func(string, ...string) *exec.Cmd
@@ -28,8 +30,9 @@ type OSCommand struct {
 }
 
 // NewOSCommand os command runner
-func NewOSCommand(config *config.AppConfig) *OSCommand {
+func NewOSCommand(log *logrus.Entry, config *config.AppConfig) *OSCommand {
 	return &OSCommand{
+		Log:     log,
 		Config:  config,
 		command: exec.Command,
 		getenv:  os.Getenv,
@@ -48,14 +51,29 @@ func (c *OSCommand) FileExists(path string) (bool, error) {
 }
 
 func (c *OSCommand) GetRequests() ([]*Request, error) {
-    var exists bool
-    var err error
-    if exists, err = c.FileExists(c.Config.RequestFilename()); err != nil {
-        return nil, err
-    }
-    if !exists {
-        c.InitRequests()
-    }
+	requests, err := c.getRequests()
+	if err != nil {
+		c.Log.Error("Error reading requests:", err)
+		return nil, err
+	}
+	for _, request := range requests {
+		request.Log = c.Log
+		// TODO: This is kinda gross, and might just be a bad approach in general. Aint broke dont fix it
+		request.Hash = request.CreateHash()
+		request.saved = true
+	}
+	return requests, nil
+}
+
+func (c *OSCommand) getRequests() ([]*Request, error) {
+	var exists bool
+	var err error
+	if exists, err = c.FileExists(c.Config.RequestFilename()); err != nil {
+		return nil, err
+	}
+	if !exists {
+		c.InitRequests()
+	}
 	file, err := os.Open(c.Config.RequestFilename())
 	if err != nil {
 		return nil, err
@@ -65,18 +83,39 @@ func (c *OSCommand) GetRequests() ([]*Request, error) {
 	byteValue, _ := io.ReadAll(file)
 
 	var requests []*Request
-    err = json.Unmarshal(byteValue, &requests)
-    if err != nil {
-        return nil, err
-    }
+	err = json.Unmarshal(byteValue, &requests)
+	if err != nil {
+		return nil, err
+	}
 
 	return requests, nil
 }
 
-func (c *OSCommand) SaveRequests(requests []*Request) error {
-    tmpName := filepath.Join(c.Config.ConfigDir, "old_requests.json")
-    os.Rename(c.Config.RequestFilename(), tmpName)
-    defer os.Remove(tmpName)
+func (c *OSCommand) SaveRequest(r *Request) error {
+	requests, err := c.GetRequests()
+	if err != nil {
+		return err
+	}
+	// Update if its existing
+	for i, request := range requests {
+		if request.Uuid == r.Uuid {
+			r.Modified = false
+			r.Hash = r.CreateHash()
+			requests[i] = r
+			r.saved = true
+			return c.saveRequests(requests)
+		}
+	}
+	// Append if new
+	requests = append(requests, r)
+	r.saved = true
+	return c.saveRequests(requests)
+}
+
+func (c *OSCommand) saveRequests(requests []*Request) error {
+	tmpName := filepath.Join(c.Config.ConfigDir, "old_requests.json")
+	os.Rename(c.Config.RequestFilename(), tmpName)
+	defer os.Remove(tmpName)
 
 	outFile, err := os.Create(c.Config.RequestFilename())
 	if err != nil {
@@ -92,7 +131,7 @@ func (c *OSCommand) SaveRequests(requests []*Request) error {
 
 	// Iterate over the requests and write them as JSON
 	for i, request := range requests {
-		jsonString:= request.toJSON()
+		jsonString := request.toJSON()
 
 		// Add a comma if this isn't the last request
 		if i != 0 {
@@ -117,11 +156,21 @@ func (c *OSCommand) SaveRequests(requests []*Request) error {
 	return nil
 }
 
+func (c *OSCommand) DeleteRequest(reqToDelete *Request, requests []*Request) error {
+	var newRequests []*Request
+	for _, request := range requests {
+		if request.Uuid != reqToDelete.Uuid {
+			newRequests = append(newRequests, request)
+		}
+	}
+	return c.saveRequests(newRequests)
+}
+
 func (c *OSCommand) InitRequests() error {
-    jsonString := []byte(`[{"uuid":"123123","name":"Kanye Rest","url":"https://api.kanye.rest/","method":"GET"}]`)
-    err := os.WriteFile(c.Config.RequestFilename(), jsonString, os.ModePerm)
-    if err != nil {
-        return err
-    }
-    return nil
+	jsonString := []byte(`[{"uuid":"123123","name":"Kanye Rest","url":"https://api.kanye.rest/","method":"GET"}]`)
+	err := os.WriteFile(c.Config.RequestFilename(), jsonString, os.ModePerm)
+	if err != nil {
+		return err
+	}
+	return nil
 }

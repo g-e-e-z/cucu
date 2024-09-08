@@ -39,7 +39,7 @@ func (gui *Gui) handleEditConfirm() error {
 
     // Lord forgive me for my sins
     words := strings.Split(gui.Views.Edit.Title, " ")
-	request, err := gui.Components.Requests.GetSelectedItem()
+	request, err := gui.Requests.GetSelectedItem()
 	if err != nil {
 		return err
 	}
@@ -76,7 +76,7 @@ func (gui *Gui) handleEditConfirm() error {
         request.Data = data
     }
 
-	return gui.Components.Requests.RerenderList()
+	return gui.Requests.RerenderList()
 }
 
 func (gui *Gui) handleEditCancel() error {
@@ -86,5 +86,5 @@ func (gui *Gui) handleEditCancel() error {
 	}
 	gui.Views.Edit.Visible = false
 	gui.Views.Edit.Editable = false
-	return gui.Components.Requests.RerenderList()
+	return gui.Requests.RerenderList()
 }

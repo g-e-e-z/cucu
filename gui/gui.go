@@ -1,6 +1,8 @@
 package gui
 
 import (
+	"net/http"
+
 	"github.com/g-e-e-z/cucu/commands"
 	"github.com/g-e-e-z/cucu/config"
 	"github.com/g-e-e-z/cucu/gui/components"
@@ -11,28 +13,26 @@ import (
 
 // Gui wraps the gocui Gui object which handles rendering and events
 type Gui struct {
-	g            *gocui.Gui
-	Config       *config.AppConfig
-	Log          *logrus.Entry
-	OSCommands   *commands.OSCommand
-	HttpCommands *commands.HttpCommand
-	Views        Views
+	g          *gocui.Gui
+	Config     *config.AppConfig
+	Log        *logrus.Entry
+	OSCommands *commands.OSCommand
+	Client     *http.Client
+	Views      Views
 
-	Components Components
-}
-
-type Components struct {
-	Requests *components.ListComponent[*commands.Request]
-
+	RequestContext *RequestContext
+	Requests       *components.ListComponent[*commands.Request]
 	Menu *components.ListComponent[*types.MenuItem]
+	// ReqInfo *components.ReqInfo
+	// Response *components.Response
 }
 
-func NewGuiWrapper(log *logrus.Entry, config *config.AppConfig, osCommands *commands.OSCommand, httpCommands *commands.HttpCommand) *Gui {
+func NewGuiWrapper(log *logrus.Entry, config *config.AppConfig, osCommands *commands.OSCommand, client *http.Client) *Gui {
 	return &Gui{
-		Config:       config,
-		Log:          log,
-		OSCommands:   osCommands,
-		HttpCommands: httpCommands,
+		Config:     config,
+		Log:        log,
+		OSCommands: osCommands,
+		Client:     client,
 	}
 }
 
@@ -53,7 +53,7 @@ func (gui *Gui) Run() error {
 		return err
 	}
 
-	g.SetManager(gocui.ManagerFunc(gui.layout)) //, gocui.ManagerFunc(gui.getFocusLayout()))
+	g.SetManager(gocui.ManagerFunc(gui.layout), gocui.ManagerFunc(gui.getFocusLayout()))
 
 	if err := gui.createAllViews(); err != nil {
 		return err
@@ -74,7 +74,7 @@ func (gui *Gui) Run() error {
 	}
 
 	// Populate Requests Panel
-	gui.renderRequests()
+	gui.loadRequests()
 
 	err = gui.g.MainLoop()
 	if err == gocui.ErrQuit {
@@ -84,10 +84,8 @@ func (gui *Gui) Run() error {
 }
 
 func (gui *Gui) createPanels() {
-	gui.Components = Components{
-		Requests: gui.getRequestsPanel(),
-		Menu:     gui.getMenuPanel(),
-	}
+	gui.Requests = gui.getRequestsPanel()
+	gui.Menu =     gui.getMenuPanel()
 }
 
 func (gui *Gui) Update(f func() error) {
