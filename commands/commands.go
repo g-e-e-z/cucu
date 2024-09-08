@@ -21,7 +21,7 @@ func NewHttpCommands(log *logrus.Entry, config *config.AppConfig, osCommand *OSC
 		Log:       log,
 		Config:    config,
 		OSCommand: osCommand,
-		Client:    &http.Client{Timeout: 5 * time.Second}, // TODO: Configure Client
+		Client:    &http.Client{Timeout: 5 * time.Second}, // TODO: Revisit once AppConfig is customizatble
 	}
 	return command, nil
 }
@@ -35,7 +35,7 @@ func (hc *HttpCommand) GetRequests() ([]*Request, error) {
 	for _, request := range requests {
 		request.Log = hc.Log
 		request.HttpCommand = hc
-        // TODO: This is kinda gross, and might just be a bad approach in general. Working for now
+        // TODO: This is kinda gross, and might just be a bad approach in general. Aint broke dont fix it
         request.Hash = request.CreateHash()
         request.saved = true
 	}

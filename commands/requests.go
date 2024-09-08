@@ -61,7 +61,7 @@ func (r *Request) CheckModifed() {
 }
 
 func (r *Request) CreateHash() string {
-	return r.Name + r.Method + r.Url + r.DataToJSON()
+	return r.Name + r.Method + r.Url + r.DataToJSON() + r.HeadersToJSON()
 }
 
 func (r *Request) HeadersToJSON() string {
@@ -88,6 +88,7 @@ func (r *Request) toJSON() string {
 		"uuid":        r.Uuid,
 		"name":        r.Name,
 		"url":         r.Url,
+		"headers":     r.Headers,
 		"method":      r.Method,
 		"contentType": r.ContentType,
 		"data":        r.Data,
@@ -131,12 +132,16 @@ func (r *Request) Send() error {
 	if err != nil {
 		return err
 	}
-	// request.Header.Set("do headers here")
+	if r.Headers != nil {
+		request.Header = r.Headers
+	} else {
+		request.Header = http.Header{}
+	}
+	request.Header.Set("user-agent", "Cucu/0.0.1")
 	r.Log.Info("Sending request to: ", request.URL)
 	startTime := time.Now()
 	response, err := r.HttpCommand.Client.Do(request)
 	if err != nil {
-		// TODO: This handling is bad
 		r.Log.Error("Request failed: ", request.URL, err)
 		r.Status = "503 Service Unavailable"
 		r.Duration = time.Since(startTime)

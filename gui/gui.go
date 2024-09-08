@@ -73,10 +73,6 @@ func (gui *Gui) Run() error {
 		}
 	}
 
-	// TODO: This
-	// ctx, finish := context.WithCancel(context.Background())
-	// defer finish()
-
 	// Populate Requests Panel
 	gui.renderRequests()
 

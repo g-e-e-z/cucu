@@ -81,11 +81,11 @@ func (self *ListComponent[T]) RerenderList() error {
 		fmt.Fprint(self.View, renderedTable)
 
 		// TODO: Find work around to get this back in/ evalute if its problematic being commented out: Figure out all callers
-		// if self.Gui.IsCurrentView(self.View) {
-		// 	return self.HandleSelect()
-		// }
-		// return nil
-		return self.HandleSelect()
+		if self.Gui.IsCurrentView(self.View) {
+			return self.HandleSelect()
+		}
+		return nil
+		// return self.HandleSelect()
 	})
 
 	return nil

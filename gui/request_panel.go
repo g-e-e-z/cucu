@@ -174,7 +174,7 @@ func (gui *Gui) renderResponseHeaders() error {
 	// result := make(map[string]string)
     result := ""
 	for key, value := range request.ResponseHeaders {
-		result += key + "|" + strings.Join(value,",") + "\n"
+		result += key + " | " + strings.Join(value,",") + "\n"
 	}
 	gui.renderString(gui.g, gui.Views.ResponseInfo.Name(), result)
 	return nil
@@ -306,7 +306,6 @@ func (gui *Gui) handleNewRequest(g *gocui.Gui, v *gocui.View) error {
 }
 
 func (gui *Gui) handleRequestSend(g *gocui.Gui, v *gocui.View) error {
-	// TODO: This is a weird way to handle the no items string, fix later
 	request, err := gui.Components.Requests.GetSelectedItem()
 	if err != nil {
 		return nil
