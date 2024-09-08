@@ -73,23 +73,27 @@ func (gui *Gui) getRequestsPanel() *components.ListComponent[*commands.Request] 
 }
 
 // Rendering
-func (gui *Gui) renderRequests() error {
+func (gui *Gui) loadRequests() error {
 	requests, err := gui.OSCommands.GetRequests()
 	if err != nil {
 		return err
 	}
-	gui.Components.Requests.SetItems(requests)
-	return gui.Components.Requests.RerenderList()
+    // TODO: Sloppy
+    for _, req := range requests {
+        req.Client = gui.Client
+    }
+	gui.Requests.SetItems(requests)
+	return gui.Requests.RerenderList()
 }
 
 func (gui *Gui) reRenderRequests() error {
-	requests := gui.Components.Requests.GetItems()
-	gui.Components.Requests.SetItems(requests)
-	return gui.Components.Requests.RerenderList()
+	requests := gui.Requests.GetItems()
+	gui.Requests.SetItems(requests)
+	return gui.Requests.RerenderList()
 }
 
 func (gui *Gui) renderUrl() error {
-	request, err := gui.Components.Requests.GetSelectedItem()
+	request, err := gui.Requests.GetSelectedItem()
 	if err != nil {
 		return err
 	}
@@ -106,7 +110,7 @@ func (gui *Gui) renderUrl() error {
 	return nil
 }
 func (gui *Gui) renderRequestHeaders() error {
-	request, err := gui.Components.Requests.GetSelectedItem()
+	request, err := gui.Requests.GetSelectedItem()
 	if err != nil {
 		return err
 	}
@@ -129,7 +133,7 @@ func (gui *Gui) renderRequestHeaders() error {
 }
 
 func (gui *Gui) renderRequestParams() error {
-	request, err := gui.Components.Requests.GetSelectedItem()
+	request, err := gui.Requests.GetSelectedItem()
 	if err != nil {
 		return err
 	}
@@ -146,7 +150,7 @@ func (gui *Gui) renderRequestParams() error {
 }
 
 func (gui *Gui) renderRequestBody() error {
-	request, err := gui.Components.Requests.GetSelectedItem()
+	request, err := gui.Requests.GetSelectedItem()
 	if err != nil {
 		return err
 	}
@@ -167,7 +171,7 @@ func (gui *Gui) renderRequestBody() error {
 	return nil
 }
 func (gui *Gui) renderResponseHeaders() error {
-	request, err := gui.Components.Requests.GetSelectedItem()
+	request, err := gui.Requests.GetSelectedItem()
 	if err != nil {
 		return err
 	}
@@ -181,7 +185,7 @@ func (gui *Gui) renderResponseHeaders() error {
 }
 
 func (gui *Gui) renderResponseBody() error {
-	request, err := gui.Components.Requests.GetSelectedItem()
+	request, err := gui.Requests.GetSelectedItem()
 	if err != nil {
 		return err
 	}
@@ -219,7 +223,7 @@ var httpMethods = []string{
 }
 
 func (gui *Gui) handleEditField(_ *gocui.Gui, v *gocui.View) error {
-	request, err := gui.Components.Requests.GetSelectedItem()
+	request, err := gui.Requests.GetSelectedItem()
 	if err != nil {
 		return err
 	}
@@ -239,7 +243,7 @@ func (gui *Gui) handleEditField(_ *gocui.Gui, v *gocui.View) error {
 		}
 	}
 	if v.Name() == "params" {
-		tabTitle := gui.Components.Requests.RequestContext.GetCurrentRequestInfoTab().Title
+		tabTitle := gui.Requests.RequestContext.GetCurrentRequestInfoTab().Title
 		switch tabTitle {
 		case "Body":
 			editOpts = CreateEditOptions{
@@ -263,7 +267,7 @@ func (gui *Gui) handleEditField(_ *gocui.Gui, v *gocui.View) error {
 }
 
 func (gui *Gui) handleEditMethod(_ *gocui.Gui, v *gocui.View) error {
-	request, err := gui.Components.Requests.GetSelectedItem()
+	request, err := gui.Requests.GetSelectedItem()
 	if err != nil {
 		return err
 	}
@@ -288,7 +292,7 @@ func (gui *Gui) handleEditMethod(_ *gocui.Gui, v *gocui.View) error {
 		)
 	}
 
-	return gui.Menu(CreateMenuOptions{
+	return gui.OpenMenu(CreateMenuOptions{
 		Title:      "Change Request Method",
 		Items:      menuItems,
 		Index:      currentIndex,
@@ -299,14 +303,14 @@ func (gui *Gui) handleEditMethod(_ *gocui.Gui, v *gocui.View) error {
 func (gui *Gui) handleNewRequest(g *gocui.Gui, v *gocui.View) error {
 	gui.Log.Info("Creating New Request")
 	newRequest := commands.NewRequest(gui.Log, gui.Client)
-	newRequestList := append(gui.Components.Requests.GetItems(), newRequest)
-	gui.Components.Requests.SetItems(newRequestList)
+	newRequestList := append(gui.Requests.GetItems(), newRequest)
+	gui.Requests.SetItems(newRequestList)
 
 	return gui.reRenderRequests()
 }
 
 func (gui *Gui) handleRequestSend(g *gocui.Gui, v *gocui.View) error {
-	request, err := gui.Components.Requests.GetSelectedItem()
+	request, err := gui.Requests.GetSelectedItem()
 	if err != nil {
 		return nil
 	}
@@ -324,7 +328,7 @@ func (gui *Gui) SendRequest(request *commands.Request) error {
 
 func (gui *Gui) handleDeleteRequest(g *gocui.Gui, v *gocui.View) error {
 	// Must delete from memory and file
-	request, err := gui.Components.Requests.RemoveSelectedItem()
+	request, err := gui.Requests.RemoveSelectedItem()
 	if err != nil {
 		return nil
 	}
@@ -332,7 +336,7 @@ func (gui *Gui) handleDeleteRequest(g *gocui.Gui, v *gocui.View) error {
 }
 
 func (gui *Gui) handleSaveRequest(g *gocui.Gui, v *gocui.View) error {
-	request, err := gui.Components.Requests.GetSelectedItem()
+	request, err := gui.Requests.GetSelectedItem()
 	if err != nil {
 		return nil
 	}
@@ -350,7 +354,7 @@ func (gui *Gui) SaveRequest(request *commands.Request) error {
 }
 
 func (gui *Gui) DeleteRequest(request *commands.Request) error {
-	allRequests := gui.Components.Requests.GetItems()
+	allRequests := gui.Requests.GetItems()
 	err := request.Delete(allRequests)
 	if err != nil {
 		gui.Log.Warn("Error deleting request: ", err.Error())

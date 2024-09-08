@@ -40,7 +40,7 @@ func (gui *Gui) onMenuPress(menuItem *types.MenuItem) error {
 }
 
 func (gui *Gui) handleMenuPress() error {
-	selectedMenuItem, err := gui.Components.Menu.GetSelectedItem()
+	selectedMenuItem, err := gui.Menu.GetSelectedItem()
 	if err != nil {
 		return nil
 	}
@@ -48,7 +48,7 @@ func (gui *Gui) handleMenuPress() error {
 	return gui.onMenuPress(selectedMenuItem)
 }
 
-func (gui *Gui) Menu(opts CreateMenuOptions) error {
+func (gui *Gui) OpenMenu(opts CreateMenuOptions) error {
 	if !opts.HideCancel {
 		// this is mutative but I'm okay with that for now
 		opts.Items = append(opts.Items, &types.MenuItem{
@@ -80,10 +80,10 @@ func (gui *Gui) Menu(opts CreateMenuOptions) error {
 			item.LabelColumns = append(item.LabelColumns, make([]string, maxColumnSize-len(item.LabelColumns))...)
 		}
 	}
-	gui.Components.Menu.SetItems(opts.Items)
-	gui.Components.Menu.SetSelectedLineIdx(opts.Index)
+	gui.Menu.SetItems(opts.Items)
+	gui.Menu.SetSelectedLineIdx(opts.Index)
 
-	if err := gui.Components.Menu.RerenderList(); err != nil {
+	if err := gui.Menu.RerenderList(); err != nil {
 		return err
 	}
 
@@ -116,6 +116,6 @@ func (gui *Gui) handleMenuClose() error {
 	if err != nil {
 		return err
 	}
-	gui.Components.Requests.RerenderList()
+	gui.Requests.RerenderList()
 	return nil
 }

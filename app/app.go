@@ -26,7 +26,7 @@ func NewApp(config *config.AppConfig) (*App, error) {
 	app.OSCommand = commands.NewOSCommand(app.Log, config)
 	app.Client = &http.Client{Timeout: 0}
 
-	app.Gui = gui.NewGuiWrapper(app.Log, config, app.OSCommand)
+	app.Gui = gui.NewGuiWrapper(app.Log, config, app.OSCommand, app.Client)
 
 	app.Log.Info("APP INITIALIZED")
 

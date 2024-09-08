@@ -20,20 +20,19 @@ type Gui struct {
 	Client     *http.Client
 	Views      Views
 
-	Components Components
-}
-
-type Components struct {
-	Requests *components.ListComponent[*commands.Request]
-
+	RequestContext *RequestContext
+	Requests       *components.ListComponent[*commands.Request]
 	Menu *components.ListComponent[*types.MenuItem]
+	// ReqInfo *components.ReqInfo
+	// Response *components.Response
 }
 
-func NewGuiWrapper(log *logrus.Entry, config *config.AppConfig, osCommands *commands.OSCommand) *Gui {
+func NewGuiWrapper(log *logrus.Entry, config *config.AppConfig, osCommands *commands.OSCommand, client *http.Client) *Gui {
 	return &Gui{
 		Config:     config,
 		Log:        log,
 		OSCommands: osCommands,
+		Client:     client,
 	}
 }
 
@@ -54,7 +53,7 @@ func (gui *Gui) Run() error {
 		return err
 	}
 
-	g.SetManager(gocui.ManagerFunc(gui.layout)) //, gocui.ManagerFunc(gui.getFocusLayout()))
+	g.SetManager(gocui.ManagerFunc(gui.layout), gocui.ManagerFunc(gui.getFocusLayout()))
 
 	if err := gui.createAllViews(); err != nil {
 		return err
@@ -75,7 +74,7 @@ func (gui *Gui) Run() error {
 	}
 
 	// Populate Requests Panel
-	gui.renderRequests()
+	gui.loadRequests()
 
 	err = gui.g.MainLoop()
 	if err == gocui.ErrQuit {
@@ -85,10 +84,8 @@ func (gui *Gui) Run() error {
 }
 
 func (gui *Gui) createPanels() {
-	gui.Components = Components{
-		Requests: gui.getRequestsPanel(),
-		Menu:     gui.getMenuPanel(),
-	}
+	gui.Requests = gui.getRequestsPanel()
+	gui.Menu =     gui.getMenuPanel()
 }
 
 func (gui *Gui) Update(f func() error) {
