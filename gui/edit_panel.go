@@ -3,6 +3,7 @@ package gui
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"strings"
 )
 
@@ -51,13 +52,19 @@ func (gui *Gui) handleEditConfirm() error {
         request.Url = content
     }
     if field == "Headers" {
-        var data map[string]interface{}
+        var data map[string][]string
         err = json.Unmarshal([]byte(content), &data)
         if err != nil {
             gui.Log.Info("Failed to unmarshal json")
             return nil
         }
-        request.Headers = data
+        header := http.Header{}
+        for k, vArray := range data{
+            for _, v := range vArray {
+                header.Add(k, v)
+            }
+        }
+        request.Headers = header
     }
     if field == "Body" {
         var data map[string]interface{}

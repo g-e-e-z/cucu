@@ -20,7 +20,7 @@ type Request struct {
 	Name            string                 `json:"name"`
 	Url             string                 `json:"url"`
 	Method          string                 `json:"method"`
-	Headers         map[string]interface{} `json:"headers,omitempty"`
+	Headers         http.Header            `json:"headers,omitempty"`
 	ContentType     string                 `json:"contentType,omitempty"`
 	Data            map[string]interface{} `json:"data,omitempty"`
 	Status          string
