@@ -11,24 +11,34 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// type ISideListPanel interface {
-// 	HandleSelect() error
-// 	GetView() *gocui.View
-// 	Refocus()
-// 	RerenderList() error
-// 	HandleNextLine() error
-// 	HandlePrevLine() error
-// }
-//
-//
-// type IGui interface {
-// 	IsCurrentView(*gocui.View) bool
-// 	GetUrlView() *gocui.View
-// 	GetRequestInfoView() *gocui.View
-// 	GetResponseInfoView() *gocui.View
-// 	FocusY(selectedLine int, itemCount int, view *gocui.View)
-// 	Update(func() error)
-// }
+// Get this from lazycore
+// Clamp returns a value x restricted between min and max
+func Clamp(x, min, max int) int {
+	if x < min {
+		return min
+	} else if x > max {
+		return max
+	}
+	return x
+}
+type ISideListPanel interface {
+	HandleSelect() error
+	GetView() *gocui.View
+	Refocus()
+	RerenderList() error
+	HandleNextLine() error
+	HandlePrevLine() error
+}
+
+
+type IGui interface {
+	IsCurrentView(*gocui.View) bool
+	GetUrlView() *gocui.View
+	GetRequestInfoView() *gocui.View
+	GetResponseInfoView() *gocui.View
+	FocusY(selectedLine int, itemCount int, view *gocui.View)
+	Update(func() error)
+}
 
 type RequestComponent struct {
 	Log  *logrus.Entry
