@@ -6,7 +6,6 @@ import (
 	"github.com/g-e-e-z/cucu/commands"
 	"github.com/g-e-e-z/cucu/config"
 	"github.com/g-e-e-z/cucu/gui/components"
-	"github.com/g-e-e-z/cucu/gui/types"
 	"github.com/jesseduffield/gocui"
 	"github.com/sirupsen/logrus"
 )
@@ -21,8 +20,8 @@ type Gui struct {
 	Views      Views
 
 	RequestContext *RequestContext
-	Requests       *components.ListComponent[*commands.Request]
-	Menu *components.ListComponent[*types.MenuItem]
+	Requests       *components.RequestComponent
+	Menu           *components.MenuComponent
 	// ReqInfo *components.ReqInfo
 	// Response *components.Response
 }
@@ -85,7 +84,7 @@ func (gui *Gui) Run() error {
 
 func (gui *Gui) createPanels() {
 	gui.Requests = gui.getRequestsPanel()
-	gui.Menu =     gui.getMenuPanel()
+	gui.Menu = gui.getMenuPanel()
 }
 
 func (gui *Gui) Update(f func() error) {

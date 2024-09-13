@@ -14,8 +14,8 @@ type CreateMenuOptions struct {
 	HideCancel bool
 }
 
-func (gui *Gui) getMenuPanel() *components.ListComponent[*types.MenuItem] {
-	return &components.ListComponent[*types.MenuItem]{
+func (gui *Gui) getMenuPanel() *components.MenuComponent{
+	return &components.MenuComponent{
 		View: gui.Views.Menu,
 		ListPanel: components.ListPanel[*types.MenuItem]{
 			List:           components.NewFilteredList[*types.MenuItem](),

@@ -14,8 +14,8 @@ import (
 	"github.com/spkg/bom"
 )
 
-func (gui *Gui) getRequestsPanel() *components.ListComponent[*commands.Request] {
-	return &components.ListComponent[*commands.Request]{
+func (gui *Gui) getRequestsPanel() *components.RequestComponent {
+	return &components.RequestComponent{
 		Log:  gui.Log,
 		View: gui.Views.Requests,
 		RequestContext: &components.RequestContext[*commands.Request]{
