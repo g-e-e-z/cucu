@@ -42,7 +42,7 @@ type Request struct {
 func NewRequest(log *logrus.Entry, client *http.Client) *Request {
 	request := &Request{
 		Uuid:   uuid.New().String(),
-		Name:   "NewReq",
+		Name:   "New Request",
 		Url:    "placeholder url",
 		Method: http.MethodGet,
 		Log:    log,
