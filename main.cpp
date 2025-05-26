@@ -2,6 +2,7 @@
 #include <ftxui/component/component_base.hpp>
 #include <ftxui/component/screen_interactive.hpp>
 #include <ftxui/dom/elements.hpp>
+#include <context_bar.hpp>
 #include <iostream>
 #include <nlohmann/json.hpp>
 #include <string>
@@ -16,23 +17,9 @@ int main() {
     // --- Context Bar ---
     std::vector<std::string> methods = {"GET", "POST", "PUT", "DELETE"};
     int selected_method = 0;
-    auto method_dropdown = Dropdown(&methods, &selected_method);
-
     std::string url;  //= "https://api.example.com";
-    auto url_input = Input(&url, "Request URL") | flex | size(HEIGHT, EQUAL, 1);
-    url_input |= CatchEvent([&](Event event) { return event == Event::Return; });
 
-    Component context_bar = Container::Horizontal({
-        method_dropdown,
-        url_input,
-    });
-
-    auto context_renderer = Renderer(context_bar, [&] {
-        return window(
-            text("Context"),
-            hbox({text(" ["), text(methods[selected_method]), text(" ▼] "),
-                  separator(), text(" "), text("URL: "), url_input->Render()}));
-    });
+    auto context_bar = MakeContextBar(&url,&selected_method, &methods);
 
     // --- Headers (Placeholder) ---
     std::vector<std::pair<std::string, std::string>> headers = {
@@ -54,16 +41,12 @@ int main() {
     std::string raw_json =
         R"({"user":{"id":42,"name":"alex","email":"a@b.com"}})";
 
-    std::cout << "Raw JSON:\n" << raw_json << "\n";
-
     std::string formatted_json;
     try {
         auto parsed = json::parse(raw_json);
         formatted_json = parsed.dump(2);  // 2-space indentation
-        std::cout << "Formatted JSON:\n" << formatted_json << "\n";
     } catch (const std::exception& e) {
         formatted_json = std::string("Failed to parse JSON: ") + e.what();
-        std::cerr << "JSON parse error: " << e.what() << "\n";
     }
     auto response_renderer = Renderer([&] {
         return window(
@@ -92,7 +75,7 @@ int main() {
     Component root = Container::Vertical({context_bar, center_pane, footer});
 
     auto app = Renderer(root, [&] {
-        return vbox({context_renderer->Render(), center_pane->Render() | flex,
+        return vbox({context_bar->Render(), center_pane->Render() | flex,
                      footer->Render()});
     });
     screen.Loop(app);
