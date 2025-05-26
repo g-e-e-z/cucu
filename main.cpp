@@ -19,7 +19,8 @@ int main() {
     auto method_dropdown = Dropdown(&methods, &selected_method);
 
     std::string url;  //= "https://api.example.com";
-    auto url_input = Input(&url, "Request URL");
+    auto url_input = Input(&url, "Request URL") | flex | size(HEIGHT, EQUAL, 1);
+    url_input |= CatchEvent([&](Event event) { return event == Event::Return; });
 
     Component context_bar = Container::Horizontal({
         method_dropdown,
@@ -29,11 +30,8 @@ int main() {
     auto context_renderer = Renderer(context_bar, [&] {
         return window(
             text("Context"),
-            hbox({
-                text(" ["), text(methods[selected_method]), text(" ▼] "),
-                separator(), text(" "), text("URL: "), url_input->Render()
-            })
-        );
+            hbox({text(" ["), text(methods[selected_method]), text(" ▼] "),
+                  separator(), text(" "), text("URL: "), url_input->Render()}));
     });
 
     // --- Headers (Placeholder) ---
@@ -46,16 +44,11 @@ int main() {
     for (auto& [key, value] : headers) {
         header_elements.push_back(
             hbox({text(key) | bold | flex, text(": "), text(value)}));
-            // hbox({text(key) | bold | flex, text(": "), text(value) | flex}));
+        // hbox({text(key) | bold | flex, text(": "), text(value) | flex}));
     }
 
-    auto headers_renderer =
-        Renderer([&] {
-            return window(
-                text("Request"),
-                vbox(header_elements) | flex
-            );
-        });
+    auto headers_renderer = Renderer(
+        [&] { return window(text("Request"), vbox(header_elements) | flex); });
 
     // --- Response (Placeholder) ---
     std::string raw_json =
@@ -75,12 +68,9 @@ int main() {
     auto response_renderer = Renderer([&] {
         return window(
             text("Response"),
-            vbox({
-                text("200 OK | 82ms | 2.4KB | application/json") | bold,
-                separator(),
-                paragraph(formatted_json) | flex
-            }) | flex
-        );
+            vbox({text("200 OK | 82ms | 2.4KB | application/json") | bold,
+                  separator(), paragraph(formatted_json) | flex}) |
+                flex);
     });
 
     // Toggle between request/response views
@@ -99,10 +89,17 @@ int main() {
     });
 
     // --- Combine Layout ---
-    auto layout = Renderer([&] {
+    Component root = Container::Vertical({context_bar, center_pane, footer});
+
+    auto app = Renderer(root, [&] {
         return vbox({context_renderer->Render(), center_pane->Render() | flex,
                      footer->Render()});
     });
-
-    screen.Loop(layout);
+    screen.Loop(app);
+    // auto layout = Renderer([&] {
+    //     return vbox({context_renderer->Render(), center_pane->Render() |
+    //     flex,
+    //                  footer->Render()});
+    // });
+    // screen.Loop(layout);
 }
