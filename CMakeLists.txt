@@ -25,6 +25,7 @@ FetchContent_MakeAvailable(ftxui)
 add_executable(cucu
   main.cpp
   components/context_bar.cpp
+  components/request_panel.cpp
 )
 
 target_include_directories(cucu PRIVATE components)

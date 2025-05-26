@@ -3,7 +3,7 @@
 #include <ftxui/component/screen_interactive.hpp>
 #include <ftxui/dom/elements.hpp>
 #include <context_bar.hpp>
-#include <iostream>
+#include <request_panel.hpp>
 #include <nlohmann/json.hpp>
 #include <string>
 #include <vector>
@@ -26,16 +26,7 @@ int main() {
         {"Authorization", "Bearer <token>"},
         {"Accept", "application/json"},
     };
-
-    std::vector<Element> header_elements;
-    for (auto& [key, value] : headers) {
-        header_elements.push_back(
-            hbox({text(key) | bold | flex, text(": "), text(value)}));
-        // hbox({text(key) | bold | flex, text(": "), text(value) | flex}));
-    }
-
-    auto headers_renderer = Renderer(
-        [&] { return window(text("Request"), vbox(header_elements) | flex); });
+    auto request_panel = MakeRequestPanel(&headers);
 
     // --- Response (Placeholder) ---
     std::string raw_json =
@@ -60,7 +51,7 @@ int main() {
     bool show_response = false;  // Flip this manually for now
     auto center_pane = Renderer([&] {
         return show_response ? response_renderer->Render()
-                             : headers_renderer->Render();
+                             : request_panel->Render();
     });
 
     // --- Footer ---
