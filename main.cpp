@@ -70,10 +70,4 @@ int main() {
                      footer->Render()});
     });
     screen.Loop(app);
-    // auto layout = Renderer([&] {
-    //     return vbox({context_renderer->Render(), center_pane->Render() |
-    //     flex,
-    //                  footer->Render()});
-    // });
-    // screen.Loop(layout);
 }
