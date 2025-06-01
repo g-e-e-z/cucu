@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(FetchContent)
 
+
 # JSON (release archive)
 FetchContent_Declare(
   json
@@ -21,7 +22,13 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(ftxui)
 
-add_executable(cucu main.cpp)
+add_executable(cucu
+  main.cpp
+  components/context_bar.cpp
+  components/request_panel.cpp
+)
+
+target_include_directories(cucu PRIVATE components)
 
 # Link FTXUI components
 target_link_libraries(cucu PRIVATE ftxui::screen ftxui::dom ftxui::component)
